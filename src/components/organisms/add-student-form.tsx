@@ -1,8 +1,19 @@
 "use client";
 
+import {
+  GraduationCap,
+  Pencil,
+  RotateCcw,
+  Save,
+  UserPlus,
+  Users,
+  X,
+} from "lucide-react";
 import { useState } from "react";
-import { Button } from "@/components/atoms/button";
 import { Badge } from "@/components/atoms/badge";
+import { Button } from "@/components/atoms/button";
+import { Input } from "@/components/atoms/input";
+import { Label } from "@/components/atoms/label";
 import {
   Select,
   SelectContent,
@@ -10,17 +21,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/molecules/select";
-import { Input } from "@/components/atoms/input";
-import { Label } from "@/components/atoms/label";
-import {
-  Pencil,
-  X,
-  Users,
-  GraduationCap,
-  UserPlus,
-  Save,
-  RotateCcw,
-} from "lucide-react";
 
 interface Student {
   id: string;

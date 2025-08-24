@@ -1,7 +1,8 @@
 "use client";
 
-import { cn } from "@/lib/utils";
 import { Button } from "@/components/atoms/button";
+import { Input } from "@/components/atoms/input";
+import { Label } from "@/components/atoms/label";
 import {
   Card,
   CardContent,
@@ -9,9 +10,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/molecules/card";
-import { Input } from "@/components/atoms/input";
-import { Label } from "@/components/atoms/label";
 import { useLogin } from "@/hooks/use-login";
+import { cn } from "@/lib/utils";
 
 export function LoginForm({
   className,

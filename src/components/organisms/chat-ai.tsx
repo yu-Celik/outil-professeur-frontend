@@ -1,19 +1,19 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
-import { Card, CardContent, CardHeader } from "@/components/molecules/card";
-import { Button } from "@/components/atoms/button";
-import { Input } from "@/components/atoms/input";
-import { Badge } from "@/components/atoms/badge";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/atoms/avatar";
 import {
   Bot,
-  Send,
-  Plus,
-  MessageSquare,
-  Sparkles,
   Loader2,
+  MessageSquare,
+  Plus,
+  Send,
+  Sparkles,
 } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/atoms/avatar";
+import { Badge } from "@/components/atoms/badge";
+import { Button } from "@/components/atoms/button";
+import { Input } from "@/components/atoms/input";
+import { Card, CardContent, CardHeader } from "@/components/molecules/card";
 
 interface Message {
   id: string;

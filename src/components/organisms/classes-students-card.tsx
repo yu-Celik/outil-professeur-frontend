@@ -1,25 +1,30 @@
 "use client";
 
-import { useState } from "react";
-import { Card, CardContent, CardHeader } from "@/components/molecules/card";
-import { Button } from "@/components/atoms/button";
-import { Badge } from "@/components/atoms/badge";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/atoms/avatar";
 import {
-  ChevronRight,
   ArrowLeft,
+  BookOpen,
+  ChevronDown,
+  ChevronRight,
   CircleCheckBig,
   Clock,
-  ChevronDown,
+  GraduationCap,
   Plus,
   Settings2,
-  GraduationCap,
   Users,
-  BookOpen,
 } from "lucide-react";
+import Link from "next/link";
+import { useState } from "react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/atoms/avatar";
+import { Badge } from "@/components/atoms/badge";
+import { Button } from "@/components/atoms/button";
+import { Card, CardContent, CardHeader } from "@/components/molecules/card";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/molecules/dropdown-menu";
 import { Modal } from "@/components/molecules/modal";
-import { AddClassForm } from "@/components/organisms/add-class-form";
-import { AddStudentForm } from "@/components/organisms/add-student-form";
 import {
   Select,
   SelectContent,
@@ -27,13 +32,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/molecules/select";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/molecules/dropdown-menu";
-import Link from "next/link";
+import { AddClassForm } from "@/components/organisms/add-class-form";
+import { AddStudentForm } from "@/components/organisms/add-student-form";
 
 interface Class {
   id: string;

@@ -1,7 +1,8 @@
 "use client";
 
-import { cn } from "@/lib/utils";
 import { Button } from "@/components/atoms/button";
+import { Input } from "@/components/atoms/input";
+import { Label } from "@/components/atoms/label";
 import {
   Card,
   CardContent,
@@ -9,10 +10,9 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/molecules/card";
-import { Input } from "@/components/atoms/input";
-import { Label } from "@/components/atoms/label";
-import { useRegister } from "@/hooks/use-register";
 import { SubjectSelector } from "@/components/molecules/subject-selector";
+import { useRegister } from "@/hooks/use-register";
+import { cn } from "@/lib/utils";
 
 export function RegisterForm({
   className,

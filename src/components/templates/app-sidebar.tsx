@@ -1,34 +1,29 @@
 "use client";
 
-import * as React from "react";
-import { useUserSession } from "@/hooks/use-user-session";
 import {
   Book,
+  Building2,
   Calendar,
   Camera,
   ChartBar,
   ClipboardList,
-  LayoutDashboard,
   Database,
-  FileText,
+  FileBarChart,
   FileImage,
+  FileText,
   FileType,
   Folder,
+  GraduationCap,
   HelpCircle,
   Home,
-  Building2,
+  LayoutDashboard,
   List,
-  FileBarChart,
-  GraduationCap,
   Search,
   Settings,
   UserCheck,
   Users,
 } from "lucide-react";
-
-import { NavMain } from "@/components/templates/nav-main";
-import { NavSecondary } from "@/components/templates/nav-secondary";
-import { NavUser } from "@/components/templates/nav-user";
+import type * as React from "react";
 import {
   Sidebar,
   SidebarContent,
@@ -38,6 +33,11 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/organisms/sidebar";
+
+import { NavMain } from "@/components/templates/nav-main";
+import { NavSecondary } from "@/components/templates/nav-secondary";
+import { NavUser } from "@/components/templates/nav-user";
+import { useUserSession } from "@/hooks/use-user-session";
 
 const data = {
   user: {

@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import { Button } from "@/components/atoms/button";
-import { Label } from "@/components/atoms/label";
 import { Input } from "@/components/atoms/input";
+import { Label } from "@/components/atoms/label";
 
 interface AddIdentifierFormProps {
   onSubmit: (identifier: string) => void;

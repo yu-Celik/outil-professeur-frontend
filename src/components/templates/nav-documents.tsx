@@ -1,11 +1,11 @@
 "use client";
 
 import {
-  MoreHorizontal,
   Folder,
+  type LucideIcon,
+  MoreHorizontal,
   Share,
   Trash2,
-  type LucideIcon,
 } from "lucide-react";
 
 import {

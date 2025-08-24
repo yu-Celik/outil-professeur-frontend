@@ -1,10 +1,10 @@
 "use client";
 
-import * as React from "react";
-import { X } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { Button } from "@/components/atoms/button";
 import { cva, type VariantProps } from "class-variance-authority";
+import { X } from "lucide-react";
+import * as React from "react";
+import { Button } from "@/components/atoms/button";
+import { cn } from "@/lib/utils";
 
 const modalVariants = cva(
   "relative bg-background border rounded-lg shadow-lg w-full mx-4 overflow-y-auto",

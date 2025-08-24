@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
 import { Check, ChevronDown, X } from "lucide-react";
+import { useState } from "react";
 import { Button } from "@/components/atoms/button";
 import { Input } from "@/components/atoms/input";
 import { Label } from "@/components/atoms/label";
@@ -12,15 +12,15 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/molecules/dropdown-menu";
-import { cn } from "@/lib/utils";
 import {
+  EDUCATION_LEVELS,
   FRENCH_SUBJECTS,
   SUBJECT_CATEGORIES,
-  EDUCATION_LEVELS,
 } from "@/data/subjects";
+import { cn } from "@/lib/utils";
 import type {
-  Subject,
   EducationLevel,
+  Subject,
   SubjectCategory,
 } from "@/types/subjects";
 

@@ -1,14 +1,13 @@
 "use client";
 
-import { OnboardingBanner } from "@/components/organisms/onboarding-banner";
-import { ClassesStudentsCard } from "@/components/organisms/classes-students-card";
 import { ChatAI } from "@/components/organisms/chat-ai";
+import { ClassesStudentsCard } from "@/components/organisms/classes-students-card";
+import { OnboardingBanner } from "@/components/organisms/onboarding-banner";
 import { UpcomingCoursesWidget } from "@/components/organisms/upcoming-courses-widget";
 import { useDashboardData } from "@/hooks/use-dashboard-data";
 
 export default function AccueilPage() {
-  const { classes, students, upcomingCourses, addNewClass, addNewStudent } =
-    useDashboardData();
+  const { classes, students, upcomingCourses } = useDashboardData();
 
   const handleSkipOnboarding = () => {
     console.log("Skipping onboarding");
@@ -38,10 +37,6 @@ export default function AccueilPage() {
   }) => {
     console.log("Adding student with data:", studentData);
     // Ici vous pourrez ajouter la logique pour sauvegarder l'élève
-  };
-
-  const handleAddStudent = () => {
-    console.log("Adding new student");
   };
 
   const handleStudentSort = (sortBy: string) => {

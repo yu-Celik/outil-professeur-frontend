@@ -1,16 +1,15 @@
 "use client";
 
-import * as React from "react";
 import {
   closestCenter,
   DndContext,
+  type DragEndEvent,
   KeyboardSensor,
   MouseSensor,
   TouchSensor,
+  type UniqueIdentifier,
   useSensor,
   useSensors,
-  type DragEndEvent,
-  type UniqueIdentifier,
 } from "@dnd-kit/core";
 import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
 import {
@@ -21,22 +20,8 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import {
-  ChevronDown,
-  ChevronLeft,
-  ChevronRight,
-  ChevronsLeft,
-  ChevronsRight,
-  CheckCircle2,
-  MoreVertical,
-  GripVertical,
-  Columns,
-  Loader2,
-  Plus,
-  TrendingUp,
-} from "lucide-react";
-import {
-  ColumnDef,
-  ColumnFiltersState,
+  type ColumnDef,
+  type ColumnFiltersState,
   flexRender,
   getCoreRowModel,
   getFacetedRowModel,
@@ -44,25 +29,41 @@ import {
   getFilteredRowModel,
   getPaginationRowModel,
   getSortedRowModel,
-  Row,
-  SortingState,
+  type Row,
+  type SortingState,
   useReactTable,
-  VisibilityState,
+  type VisibilityState,
 } from "@tanstack/react-table";
+import {
+  CheckCircle2,
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
+  Columns,
+  GripVertical,
+  Loader2,
+  MoreVertical,
+  Plus,
+  TrendingUp,
+} from "lucide-react";
+import * as React from "react";
 import { Area, AreaChart, CartesianGrid, XAxis } from "recharts";
 import { toast } from "sonner";
 import { z } from "zod";
-
-import { useIsMobile } from "@/hooks/use-mobile";
 import { Badge } from "@/components/atoms/badge";
 import { Button } from "@/components/atoms/button";
+import { Checkbox } from "@/components/atoms/checkbox";
+import { Input } from "@/components/atoms/input";
+import { Label } from "@/components/atoms/label";
+import { Separator } from "@/components/atoms/separator";
 import {
-  ChartConfig,
+  type ChartConfig,
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/molecules/chart";
-import { Checkbox } from "@/components/atoms/checkbox";
 import {
   Drawer,
   DrawerClose,
@@ -81,8 +82,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/molecules/dropdown-menu";
-import { Input } from "@/components/atoms/input";
-import { Label } from "@/components/atoms/label";
 import {
   Select,
   SelectContent,
@@ -90,7 +89,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/molecules/select";
-import { Separator } from "@/components/atoms/separator";
 import {
   Table,
   TableBody,
@@ -105,6 +103,7 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/components/molecules/tabs";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export const schema = z.object({
   id: z.number(),

@@ -1,8 +1,8 @@
 "use client";
 
-import { Button } from "@/components/atoms/button";
-import { Badge } from "@/components/atoms/badge";
 import { Info, X } from "lucide-react";
+import { Badge } from "@/components/atoms/badge";
+import { Button } from "@/components/atoms/button";
 
 interface OnboardingBannerProps {
   step: number;

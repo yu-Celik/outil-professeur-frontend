@@ -1,9 +1,9 @@
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { auth } from "@/lib/auth";
+import { SidebarInset, SidebarProvider } from "@/components/organisms/sidebar";
 import { AppSidebar } from "@/components/templates/app-sidebar";
 import { SiteHeader } from "@/components/templates/site-header";
-import { SidebarInset, SidebarProvider } from "@/components/organisms/sidebar";
+import { auth } from "@/lib/auth";
 
 export default async function DashboardLayout({
   children,
