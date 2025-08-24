@@ -8,7 +8,10 @@ export default function EvaluationsPage() {
             Créez et gérez vos contrôles et examens
           </p>
         </div>
-        <button className="bg-primary text-primary-foreground hover:bg-primary/90 px-4 py-2 rounded-md">
+        <button
+          type="button"
+          className="bg-primary text-primary-foreground hover:bg-primary/90 px-4 py-2 rounded-md"
+        >
           + Nouvelle évaluation
         </button>
       </div>
@@ -91,16 +94,28 @@ export default function EvaluationsPage() {
           <div className="rounded-lg border bg-card text-card-foreground shadow-sm p-6">
             <h3 className="text-lg font-semibold mb-4">Actions rapides</h3>
             <div className="space-y-2">
-              <button className="w-full text-left p-2 rounded hover:bg-muted">
+              <button
+                type="button"
+                className="w-full text-left p-2 rounded hover:bg-muted"
+              >
                 + Créer un contrôle
               </button>
-              <button className="w-full text-left p-2 rounded hover:bg-muted">
+              <button
+                type="button"
+                className="w-full text-left p-2 rounded hover:bg-muted"
+              >
                 📊 Créer un examen
               </button>
-              <button className="w-full text-left p-2 rounded hover:bg-muted">
+              <button
+                type="button"
+                className="w-full text-left p-2 rounded hover:bg-muted"
+              >
                 📋 Quiz rapide
               </button>
-              <button className="w-full text-left p-2 rounded hover:bg-muted">
+              <button
+                type="button"
+                className="w-full text-left p-2 rounded hover:bg-muted"
+              >
                 📈 Voir les statistiques
               </button>
             </div>

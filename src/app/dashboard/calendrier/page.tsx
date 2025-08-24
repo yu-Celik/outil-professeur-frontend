@@ -28,13 +28,22 @@ export default function CalendrierPage() {
         <div className="rounded-lg border bg-card text-card-foreground shadow-sm p-6">
           <h3 className="text-lg font-semibold mb-4">Actions rapides</h3>
           <div className="space-y-2">
-            <button className="w-full text-left p-2 rounded hover:bg-muted">
+            <button
+              type="button"
+              className="w-full text-left p-2 rounded hover:bg-muted"
+            >
               + Nouveau cours
             </button>
-            <button className="w-full text-left p-2 rounded hover:bg-muted">
+            <button
+              type="button"
+              className="w-full text-left p-2 rounded hover:bg-muted"
+            >
               📅 Planifier une session
             </button>
-            <button className="w-full text-left p-2 rounded hover:bg-muted">
+            <button
+              type="button"
+              className="w-full text-left p-2 rounded hover:bg-muted"
+            >
               ⏰ Modifier horaires
             </button>
           </div>

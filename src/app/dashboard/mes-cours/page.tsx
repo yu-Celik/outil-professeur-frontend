@@ -12,12 +12,18 @@ export default function MesCoursPage() {
         </div>
         <div>
           {/* Version desktop */}
-          <button className="hidden lg:flex bg-primary text-primary-foreground hover:bg-primary/90 px-4 py-2 rounded-md items-center gap-2">
+          <button
+            type="button"
+            className="hidden lg:flex bg-primary text-primary-foreground hover:bg-primary/90 px-4 py-2 rounded-md items-center gap-2"
+          >
             <Plus className="h-4 w-4" />
             Nouveau cours
           </button>
           {/* Version mobile */}
-          <button className="flex lg:hidden bg-primary text-primary-foreground hover:bg-primary/90 w-10 h-10 rounded-md items-center justify-center">
+          <button
+            type="button"
+            className="flex lg:hidden bg-primary text-primary-foreground hover:bg-primary/90 w-10 h-10 rounded-md items-center justify-center"
+          >
             <Plus className="h-4 w-4" />
           </button>
         </div>
@@ -58,12 +64,18 @@ export default function MesCoursPage() {
           </p>
           <div>
             {/* Version desktop */}
-            <button className="hidden lg:flex text-primary hover:underline items-center gap-2">
+            <button
+              type="button"
+              className="hidden lg:flex text-primary hover:underline items-center gap-2"
+            >
               <Plus className="h-4 w-4" />
               Créer un cours
             </button>
             {/* Version mobile */}
-            <button className="flex lg:hidden text-primary hover:bg-primary/10 w-10 h-10 rounded-md items-center justify-center">
+            <button
+              type="button"
+              className="flex lg:hidden text-primary hover:bg-primary/10 w-10 h-10 rounded-md items-center justify-center"
+            >
               <Plus className="h-4 w-4" />
             </button>
           </div>
