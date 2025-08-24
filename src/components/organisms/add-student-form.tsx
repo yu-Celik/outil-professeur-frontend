@@ -12,7 +12,15 @@ import {
 } from "@/components/molecules/select";
 import { Input } from "@/components/atoms/input";
 import { Label } from "@/components/atoms/label";
-import { Pencil, X, Users, GraduationCap, UserPlus, Save, RotateCcw } from "lucide-react";
+import {
+  Pencil,
+  X,
+  Users,
+  GraduationCap,
+  UserPlus,
+  Save,
+  RotateCcw,
+} from "lucide-react";
 
 interface Student {
   id: string;
@@ -41,7 +49,9 @@ export function AddStudentForm({
   const [selectedClass, setSelectedClass] = useState<string>("");
   const [name, setName] = useState("");
   const [firstName, setFirstName] = useState("");
-  const [editingStudentInForm, setEditingStudentInForm] = useState<string | null>(null);
+  const [editingStudentInForm, setEditingStudentInForm] = useState<
+    string | null
+  >(null);
 
   const selectedClassName =
     classes.find((c) => c.id === selectedClass)?.name || "";
@@ -73,7 +83,7 @@ export function AddStudentForm({
   const handleEditInForm = (student: Student) => {
     // Trouver l'ID de la classe correspondant au nom de classe de l'élève
     const classId = classes.find((c) => c.name === student.class)?.id || "";
-    
+
     // Peupler les champs du formulaire avec les données de l'élève
     setSelectedClass(classId);
     setName(student.name);
@@ -130,8 +140,8 @@ export function AddStudentForm({
                   key={student.id}
                   onClick={() => handleEditInForm(student)}
                   className={`group relative p-3 bg-background/60 rounded-lg border transition-all duration-200 cursor-pointer hover:bg-background hover:shadow-sm ${
-                    editingStudentInForm === student.id 
-                      ? "ring-2 ring-primary bg-primary/5 border-primary/30" 
+                    editingStudentInForm === student.id
+                      ? "ring-2 ring-primary bg-primary/5 border-primary/30"
                       : "hover:border-border"
                   } ${index === 0 ? "mt-2" : ""}`}
                   title="Cliquer pour modifier cet élève"
@@ -141,17 +151,18 @@ export function AddStudentForm({
                     <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
                       <span className="text-xs font-medium text-primary">
                         {student.firstName?.charAt(0) || student.name.charAt(0)}
-                        {student.name.charAt(0) !== (student.firstName?.charAt(0) || student.name.charAt(0)) 
-                          ? student.name.charAt(0) 
-                          : ''}
+                        {student.name.charAt(0) !==
+                        (student.firstName?.charAt(0) || student.name.charAt(0))
+                          ? student.name.charAt(0)
+                          : ""}
                       </span>
                     </div>
-                    
+
                     {/* Nom complet */}
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium truncate">
-                        {student.firstName 
-                          ? `${student.firstName} ${student.name}` 
+                        {student.firstName
+                          ? `${student.firstName} ${student.name}`
                           : student.name}
                       </p>
                       {editingStudentInForm === student.id && (
@@ -209,7 +220,8 @@ export function AddStudentForm({
                 Consultez une classe
               </p>
               <p className="text-xs text-muted-foreground max-w-48">
-                Choisissez une classe ci-dessus pour consulter la liste des élèves
+                Choisissez une classe ci-dessus pour consulter la liste des
+                élèves
               </p>
             </div>
           </div>
@@ -221,11 +233,13 @@ export function AddStudentForm({
         {/* Header du formulaire */}
         <div className="px-6 py-4 border-b border-border/50">
           <div className="flex items-center gap-3">
-            <div className={`w-10 h-10 rounded-lg flex items-center justify-center transition-colors ${
-              editingStudentInForm 
-                ? "bg-orange-100 dark:bg-orange-900/30" 
-                : "bg-primary/10"
-            }`}>
+            <div
+              className={`w-10 h-10 rounded-lg flex items-center justify-center transition-colors ${
+                editingStudentInForm
+                  ? "bg-orange-100 dark:bg-orange-900/30"
+                  : "bg-primary/10"
+              }`}
+            >
               {editingStudentInForm ? (
                 <Pencil className="h-5 w-5 text-orange-600 dark:text-orange-400" />
               ) : (
@@ -245,13 +259,16 @@ export function AddStudentForm({
           <div className="space-y-6">
             {/* Champ Classe */}
             <div className="space-y-3">
-              <Label htmlFor="student-class" className="text-sm font-semibold flex items-center gap-2">
+              <Label
+                htmlFor="student-class"
+                className="text-sm font-semibold flex items-center gap-2"
+              >
                 <GraduationCap className="h-4 w-4 text-primary" />
                 Classe
               </Label>
               <Select value={selectedClass} onValueChange={setSelectedClass}>
-                <SelectTrigger 
-                  id="student-class" 
+                <SelectTrigger
+                  id="student-class"
                   className="w-full h-12 bg-background/60 border-2 hover:bg-background transition-colors focus:ring-2 focus:ring-primary/20"
                 >
                   <SelectValue placeholder="Sélectionnez une classe..." />
@@ -285,7 +302,10 @@ export function AddStudentForm({
 
             {/* Champ Prénom */}
             <div className="space-y-3">
-              <Label htmlFor="student-firstname" className="text-sm font-semibold">
+              <Label
+                htmlFor="student-firstname"
+                className="text-sm font-semibold"
+              >
                 Prénom
               </Label>
               <Input
@@ -304,19 +324,22 @@ export function AddStudentForm({
                   <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
                     <span className="text-sm font-medium text-primary">
                       {firstName.trim().charAt(0) || name.trim().charAt(0)}
-                      {name.trim().charAt(0) !== (firstName.trim().charAt(0) || name.trim().charAt(0)) 
-                        ? name.trim().charAt(0) 
-                        : ''}
+                      {name.trim().charAt(0) !==
+                      (firstName.trim().charAt(0) || name.trim().charAt(0))
+                        ? name.trim().charAt(0)
+                        : ""}
                     </span>
                   </div>
                   <div>
                     <p className="font-medium text-sm">
-                      {firstName.trim() && name.trim() 
-                        ? `${firstName.trim()} ${name.trim()}` 
+                      {firstName.trim() && name.trim()
+                        ? `${firstName.trim()} ${name.trim()}`
                         : firstName.trim() || name.trim()}
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      {selectedClass ? `Classe: ${selectedClassName}` : "Classe non sélectionnée"}
+                      {selectedClass
+                        ? `Classe: ${selectedClassName}`
+                        : "Classe non sélectionnée"}
                     </p>
                   </div>
                 </div>
@@ -343,8 +366,8 @@ export function AddStudentForm({
               onClick={handleSubmit}
               disabled={!selectedClass || !name.trim() || !firstName.trim()}
               className={`h-11 px-6 gap-2 transition-all ${
-                editingStudentInForm 
-                  ? "bg-orange-600 hover:bg-orange-700 dark:bg-orange-700 dark:hover:bg-orange-800" 
+                editingStudentInForm
+                  ? "bg-orange-600 hover:bg-orange-700 dark:bg-orange-700 dark:hover:bg-orange-800"
                   : ""
               }`}
             >

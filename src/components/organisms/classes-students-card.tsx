@@ -13,6 +13,9 @@ import {
   ChevronDown,
   Plus,
   Settings2,
+  GraduationCap,
+  Users,
+  BookOpen,
 } from "lucide-react";
 import { Modal } from "@/components/molecules/modal";
 import { AddClassForm } from "@/components/organisms/add-class-form";
@@ -128,77 +131,137 @@ export function ClassesStudentsCard({
   };
 
   return (
-    <Card className="h-full flex flex-col py-0 gap-0">
-      <div className="flex items-center justify-between p-6 border-b flex-shrink-0">
-        <div className="flex items-center gap-2">
-          <h2 className="text-xl font-semibold">Classes</h2>
-          <ChevronRight className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-          <span className="text-muted-foreground">Élèves</span>
-        </div>
-        <Button variant="outline" size="lg" onClick={handleAddClassClick}>
-          <div className="flex items-center gap-2">
-            <Plus className="w-4 h-4" />
-            <span className="font-medium">Ajouter une classe</span>
+    <Card className="h-full flex flex-col py-0 gap-0 bg-gradient-to-br from-background via-background to-muted/20">
+      <div className="flex items-center justify-between p-6 border-b border-border/50 flex-shrink-0 bg-background/80 backdrop-blur-sm">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+            <BookOpen className="h-5 w-5 text-primary" />
           </div>
+          <div>
+            <h2 className="text-xl font-semibold flex items-center gap-2">
+              Classes
+              <ChevronRight className="h-4 w-4 text-muted-foreground" />
+              <span className="text-muted-foreground font-normal">Élèves</span>
+            </h2>
+            <p className="text-sm text-muted-foreground">
+              Gérez vos classes et consultez les élèves
+            </p>
+          </div>
+        </div>
+        <Button
+          variant="outline"
+          size="lg"
+          onClick={handleAddClassClick}
+          className="h-11 px-6 gap-2 border-2 hover:bg-primary/5"
+        >
+          <Plus className="w-4 h-4" />
+          <span className="font-medium">Ajouter une classe</span>
         </Button>
       </div>
 
       <div className="flex flex-1 min-h-0">
         {/* Sidebar des classes */}
-        <div className="w-56 border-r bg-muted/20 flex flex-col">
-          <div className="p-4 flex-shrink-0">
-            <h3 className="font-medium mb-4 text-sm text-muted-foreground uppercase tracking-wider">
-              Mes Classes
-            </h3>
+        <div className="w-64 border-r border-border/50 bg-gradient-to-b from-muted/30 to-muted/10 flex flex-col">
+          <div className="px-6 py-4 flex-shrink-0 border-b border-border/30">
+            <div className="flex items-center gap-2 mb-1">
+              <GraduationCap className="h-4 w-4 text-primary" />
+              <h3 className="font-semibold text-sm text-foreground">
+                Mes Classes
+              </h3>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              {classes.length} classe{classes.length > 1 ? "s" : ""} au total
+            </p>
           </div>
-          <div className="flex-1 px-4 pb-4 overflow-y-auto min-h-0">
-            <div className="space-y-1">
+          <div className="flex-1 p-4 overflow-y-auto min-h-0">
+            <div className="space-y-2">
               {classes.map((classItem) => (
                 <Button
                   key={classItem.id}
                   variant={selectedClass === classItem.id ? "default" : "ghost"}
-                  className="w-full justify-start text-left h-auto p-3"
+                  className={`w-full justify-start text-left h-auto p-4 transition-all duration-200 ${
+                    selectedClass === classItem.id
+                      ? "bg-primary text-primary-foreground shadow-sm"
+                      : "hover:bg-background/60 hover:shadow-sm"
+                  }`}
                   onClick={() => handleClassClick(classItem.id)}
                 >
                   <div className="flex items-center gap-3 w-full">
-                    <div className="w-2 h-2 rounded-full bg-current opacity-60" />
-                    <div className="flex-1">
-                      <div className="font-medium">{classItem.name}</div>
-                      <div className="text-xs opacity-70 mt-1">
-                        {classItem.studentCount} élèves
+                    <div
+                      className={`w-8 h-8 rounded-lg flex items-center justify-center ${
+                        selectedClass === classItem.id
+                          ? "bg-primary-foreground/20"
+                          : "bg-primary/10"
+                      }`}
+                    >
+                      <span
+                        className={`text-xs font-medium ${
+                          selectedClass === classItem.id
+                            ? "text-primary-foreground"
+                            : "text-primary"
+                        }`}
+                      >
+                        {classItem.name.charAt(0)}
+                      </span>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="font-medium truncate">
+                        {classItem.name}
+                      </div>
+                      <div
+                        className={`text-xs mt-1 flex items-center gap-1 ${
+                          selectedClass === classItem.id
+                            ? "text-primary-foreground/70"
+                            : "text-muted-foreground"
+                        }`}
+                      >
+                        <Users className="h-3 w-3" />
+                        {classItem.studentCount} élève
+                        {classItem.studentCount > 1 ? "s" : ""}
                       </div>
                     </div>
                   </div>
                 </Button>
               ))}
+
+              {classes.length === 0 && (
+                <div className="text-center py-8">
+                  <div className="w-12 h-12 rounded-full bg-muted/50 flex items-center justify-center mx-auto mb-3">
+                    <GraduationCap className="h-5 w-5 text-muted-foreground" />
+                  </div>
+                  <p className="text-sm text-muted-foreground mb-1 font-medium">
+                    Aucune classe
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Ajoutez votre première classe
+                  </p>
+                </div>
+              )}
             </div>
           </div>
         </div>
 
         {/* Zone d'affichage des élèves */}
-        <div className="flex-1 flex flex-col min-w-0">
-          <div className="p-4 border-b bg-background flex-shrink-0">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <h3 className="font-medium">
-                  {selectedClass
-                    ? `${classes.find((c) => c.id === selectedClass)?.name}`
-                    : "Élèves"}
-                </h3>
-                {selectedClass && (
-                  <Badge variant="secondary">
-                    {filteredStudents.length} élève
-                    {filteredStudents.length > 1 ? "s" : ""}
-                  </Badge>
-                )}
-              </div>
-              {selectedClass && (
+        <div className="flex-1 flex flex-col min-w-0 bg-gradient-to-b from-background/50 to-background">
+          {selectedClass && (
+            <div className="px-6 py-4 border-b border-border/50 bg-background/80 backdrop-blur-sm flex-shrink-0">
+              <div className="flex items-center justify-between min-h-10">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                    <Users className="h-4 w-4 text-primary" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-base">
+                      {classes.find((c) => c.id === selectedClass)?.name}
+                    </h3>
+                  </div>
+                </div>
                 <div className="flex items-center gap-2">
                   {/* Version normale avec texte */}
-                  <div className="hidden 2xl:flex lg:peer-data-[state=expanded]:hidden xl:peer-data-[state=collapsed]:flex items-center gap-2">
+                  <div className="hidden 2xl:flex lg:peer-data-[state=expanded]:hidden xl:peer-data-[state=collapsed]:flex items-center gap-3">
                     <Select onValueChange={onSortChange}>
-                      <SelectTrigger className="w-40">
-                        <SelectValue placeholder="Trier par" />
+                      <SelectTrigger className="w-44 h-10 border-2 hover:bg-muted/50 transition-colors">
+                        <SelectValue placeholder="Trier par..." />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="name">Nom (A-Z)</SelectItem>
@@ -209,8 +272,9 @@ export function ClassesStudentsCard({
                     <Button
                       variant="outline"
                       onClick={handleAddStudentClick}
+                      className="h-10 px-4 gap-2 border-2 hover:bg-primary/5"
                     >
-                      <Plus className="h-4 w-4 mr-1" />
+                      <Plus className="h-4 w-4" />
                       Ajouter un élève
                     </Button>
                   </div>
@@ -255,64 +319,70 @@ export function ClassesStudentsCard({
                     </Button>
                   </div>
                 </div>
-              )}
+              </div>
             </div>
-          </div>
+          )}
 
-          <div className="flex-1 overflow-y-auto min-h-0">
+          <div className="flex-1 overflow-y-auto min-h-0 p-4">
             {!selectedClass ? (
-              <div className="flex flex-col items-center justify-center h-full text-muted-foreground p-6">
-                <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mb-4">
+              <div className="flex flex-col items-center justify-center h-full text-muted-foreground p-8">
+                <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-muted/50 to-muted/30 flex items-center justify-center mb-6">
                   <ChevronRight className="h-8 w-8" />
                 </div>
-                <div className="text-lg font-medium mb-2">
+                <div className="text-xl font-semibold mb-3 text-foreground">
                   Aucune classe sélectionnée
                 </div>
-                <div className="text-sm text-center max-w-md">
-                  Sélectionnez une classe dans la liste de gauche pour voir les
-                  élèves qui y sont inscrits
+                <div className="text-sm text-center max-w-sm leading-relaxed">
+                  Sélectionnez une classe dans la liste de gauche pour consulter
+                  les élèves qui y sont inscrits
                 </div>
               </div>
             ) : filteredStudents.length === 0 ? (
-              <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
-                <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mb-4">
-                  <div className="text-2xl">👥</div>
+              <div className="flex flex-col items-center justify-center h-full text-muted-foreground p-8">
+                <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center mb-6">
+                  <Users className="h-8 w-8 text-primary" />
                 </div>
-                <div className="text-lg font-medium mb-2">Aucun élève</div>
-                <div className="text-sm text-center max-w-md">
+                <div className="text-xl font-semibold mb-3 text-foreground">
+                  Classe vide
+                </div>
+                <div className="text-sm text-center max-w-sm leading-relaxed mb-4">
                   Cette classe ne contient aucun élève pour le moment
                 </div>
+                <Button onClick={handleAddStudentClick} className="gap-2">
+                  <Plus className="h-4 w-4" />
+                  Ajouter le premier élève
+                </Button>
               </div>
             ) : (
-              <div className="p-4">
-                <div className="space-y-3">
-                  {filteredStudents.map((student) => (
-                    <div
-                      key={student.id}
-                      className="border rounded-lg p-3 hover:bg-muted/50 transition-colors"
+              <div className="grid gap-3">
+                {filteredStudents.map((student) => (
+                  <div
+                    key={student.id}
+                    className="group relative bg-background/60 border border-border/50 rounded-xl p-4 hover:bg-background hover:shadow-md hover:border-border transition-all duration-200"
+                  >
+                    <Link
+                      href={`/dashboard/students/${student.id}`}
+                      className="flex items-center justify-between w-full"
                     >
-                      <Link
-                        href={`/dashboard/students/${student.id}`}
-                        className="flex items-center justify-between w-full"
-                      >
-                        <div className="flex items-center gap-3">
-                          <Avatar className="h-8 w-8">
-                            <AvatarImage src={student.avatar} />
-                            <AvatarFallback>
-                              {student.name.slice(0, 2).toUpperCase()}
-                            </AvatarFallback>
-                          </Avatar>
-                          <div className="text-left">
-                            <div className="font-medium text-sm">
-                              {student.name}
-                            </div>
-                          </div>
+                      <div className="flex items-center gap-4">
+                        <Avatar className="h-10 w-10 ring-2 ring-primary/10">
+                          <AvatarImage src={student.avatar} />
+                          <AvatarFallback className="bg-primary/10 text-primary font-medium">
+                            {student.firstName?.charAt(0) ||
+                              student.name.charAt(0)}
+                            {student.name.charAt(0)}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="font-semibold text-sm text-foreground">
+                          {student.firstName
+                            ? `${student.firstName} ${student.name}`
+                            : student.name}
                         </div>
-                        <ChevronRight className="h-4 w-4 text-muted-foreground" />
-                      </Link>
-                    </div>
-                  ))}
-                </div>
+                      </div>
+                      <ChevronRight className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors" />
+                    </Link>
+                  </div>
+                ))}
               </div>
             )}
           </div>

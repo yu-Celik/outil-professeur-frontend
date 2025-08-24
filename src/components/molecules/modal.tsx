@@ -12,7 +12,7 @@ const modalVariants = cva(
     variants: {
       size: {
         sm: "max-w-sm",
-        md: "max-w-md", 
+        md: "max-w-md",
         lg: "max-w-lg",
         xl: "max-w-xl",
         "2xl": "max-w-2xl",
@@ -39,7 +39,7 @@ const modalVariants = cva(
       size: "lg",
       height: "auto",
     },
-  }
+  },
 );
 
 interface ModalProps extends VariantProps<typeof modalVariants> {
@@ -100,11 +100,7 @@ const ModalTitle = React.forwardRef<
   HTMLHeadingElement,
   React.HTMLAttributes<HTMLHeadingElement>
 >(({ className, ...props }, ref) => (
-  <h2
-    ref={ref}
-    className={cn("text-lg font-semibold", className)}
-    {...props}
-  />
+  <h2 ref={ref} className={cn("text-lg font-semibold", className)} {...props} />
 ));
 ModalTitle.displayName = "ModalTitle";
 

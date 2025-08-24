@@ -62,6 +62,7 @@ export function UpcomingCoursesWidget({
         <div className="space-y-2 overflow-y-auto">
           {courses.map((course) => (
             <Button
+              key={course.id}
               size="lg"
               variant="outline"
               className="flex justify-between gap-4 w-full"
