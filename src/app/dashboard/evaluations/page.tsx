@@ -136,26 +136,26 @@ export default function EvaluationsPage() {
         <div className="p-6">
           <h3 className="text-lg font-semibold mb-4">Types d'évaluations</h3>
           <div className="grid gap-4 md:grid-cols-4">
-            <div className="p-4 rounded-lg border-2 border-dashed border-blue-200 text-center cursor-pointer hover:border-blue-400">
+            <div className="p-4 rounded-lg border-2 border-dashed border-chart-1/30 text-center cursor-pointer hover:border-chart-1/50">
               <div className="text-2xl mb-2">📝</div>
               <h4 className="font-medium">Contrôle écrit</h4>
               <p className="text-xs text-muted-foreground">
                 Évaluation traditionnelle
               </p>
             </div>
-            <div className="p-4 rounded-lg border-2 border-dashed border-green-200 text-center cursor-pointer hover:border-green-400">
+            <div className="p-4 rounded-lg border-2 border-dashed border-chart-3/30 text-center cursor-pointer hover:border-chart-3/50">
               <div className="text-2xl mb-2">💻</div>
               <h4 className="font-medium">Quiz en ligne</h4>
               <p className="text-xs text-muted-foreground">
                 Évaluation interactive
               </p>
             </div>
-            <div className="p-4 rounded-lg border-2 border-dashed border-purple-200 text-center cursor-pointer hover:border-purple-400">
+            <div className="p-4 rounded-lg border-2 border-dashed border-chart-2/30 text-center cursor-pointer hover:border-chart-2/50">
               <div className="text-2xl mb-2">👥</div>
               <h4 className="font-medium">Présentation</h4>
               <p className="text-xs text-muted-foreground">Évaluation orale</p>
             </div>
-            <div className="p-4 rounded-lg border-2 border-dashed border-orange-200 text-center cursor-pointer hover:border-orange-400">
+            <div className="p-4 rounded-lg border-2 border-dashed border-chart-4/30 text-center cursor-pointer hover:border-chart-4/50">
               <div className="text-2xl mb-2">📁</div>
               <h4 className="font-medium">Projet</h4>
               <p className="text-xs text-muted-foreground">

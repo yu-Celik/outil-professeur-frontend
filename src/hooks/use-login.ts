@@ -3,35 +3,29 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { authClient } from "@/lib/auth-client";
+import { useAsyncOperation } from "./shared/use-async-operation";
 
 export function useLogin() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
+  const { isLoading, error, execute } = useAsyncOperation();
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
-    setError("");
 
-    try {
-      const { error } = await authClient.signIn.email({
+    await execute(async () => {
+      const { error: authError } = await authClient.signIn.email({
         email,
         password,
       });
 
-      if (error) {
-        setError(error.message || "Login failed");
-      } else {
-        router.push("/dashboard");
+      if (authError) {
+        throw new Error(authError.message || "Login failed");
       }
-    } catch (err) {
-      setError("An unexpected error occurred");
-    } finally {
-      setIsLoading(false);
-    }
+
+      router.push("/dashboard");
+    });
   };
 
   return {

@@ -5,22 +5,15 @@ import {
   Building2,
   Calendar,
   Camera,
-  ChartBar,
-  ClipboardList,
   Database,
   FileBarChart,
   FileImage,
   FileText,
   FileType,
-  Folder,
-  GraduationCap,
   HelpCircle,
   Home,
-  LayoutDashboard,
-  List,
   Search,
   Settings,
-  UserCheck,
   Users,
 } from "lucide-react";
 import type * as React from "react";
@@ -70,7 +63,7 @@ const data = {
     {
       title: "Évaluations",
       url: "/dashboard/evaluations",
-      icon: ClipboardList,
+      icon: FileBarChart,
     },
     {
       title: "Réglages",
@@ -176,7 +169,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               asChild
               className="data-[slot=sidebar-menu-button]:!p-1.5"
             >
-              <a href="#">
+              <a href="/dashboard/accueil">
                 <Building2 className="!size-5" />
                 <span className="text-base font-semibold">Acme Inc.</span>
               </a>

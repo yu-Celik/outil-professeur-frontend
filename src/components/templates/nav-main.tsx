@@ -1,8 +1,6 @@
 "use client";
 
-import { type LucideIcon, Mail, PlusCircle } from "lucide-react";
-
-import { Button } from "@/components/atoms/button";
+import type { LucideIcon } from "lucide-react";
 import {
   SidebarGroup,
   SidebarGroupContent,

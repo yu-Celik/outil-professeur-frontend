@@ -7,7 +7,6 @@ import {
   Save,
   UserPlus,
   Users,
-  X,
 } from "lucide-react";
 import { useState } from "react";
 import { Badge } from "@/components/atoms/badge";
@@ -44,7 +43,7 @@ export function AddStudentForm({
   classes,
   existingStudents = [],
   onSubmit,
-  onCancel,
+  onCancel: _onCancel,
 }: AddStudentFormProps) {
   const [selectedClass, setSelectedClass] = useState<string>("");
   const [name, setName] = useState("");
@@ -136,10 +135,17 @@ export function AddStudentForm({
             {/* Liste des élèves */}
             <div className="flex-1 space-y-2 overflow-y-auto min-h-0 px-2 scrollbar-thin">
               {classStudents.map((student, index) => (
-                <div
+                <button
+                  type="button"
                   key={student.id}
                   onClick={() => handleEditInForm(student)}
-                  className={`group relative p-3 bg-background/60 rounded-lg border transition-all duration-200 cursor-pointer hover:bg-background hover:shadow-sm ${
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      handleEditInForm(student);
+                    }
+                  }}
+                  className={`group relative p-3 bg-background/60 rounded-lg border transition-all duration-200 cursor-pointer hover:bg-background hover:shadow-sm w-full text-left ${
                     editingStudentInForm === student.id
                       ? "ring-2 ring-primary bg-primary/5 border-primary/30"
                       : "hover:border-border"
@@ -183,7 +189,7 @@ export function AddStudentForm({
                       </div>
                     )}
                   </div>
-                </div>
+                </button>
               ))}
 
               {classStudents.length === 0 && (
@@ -235,13 +241,11 @@ export function AddStudentForm({
           <div className="flex items-center gap-3">
             <div
               className={`w-10 h-10 rounded-lg flex items-center justify-center transition-colors ${
-                editingStudentInForm
-                  ? "bg-orange-100 dark:bg-orange-900/30"
-                  : "bg-primary/10"
+                editingStudentInForm ? "bg-chart-4/10" : "bg-primary/10"
               }`}
             >
               {editingStudentInForm ? (
-                <Pencil className="h-5 w-5 text-orange-600 dark:text-orange-400" />
+                <Pencil className="h-5 w-5 text-chart-4" />
               ) : (
                 <UserPlus className="h-5 w-5 text-primary" />
               )}
@@ -366,9 +370,7 @@ export function AddStudentForm({
               onClick={handleSubmit}
               disabled={!selectedClass || !name.trim() || !firstName.trim()}
               className={`h-11 px-6 gap-2 transition-all ${
-                editingStudentInForm
-                  ? "bg-orange-600 hover:bg-orange-700 dark:bg-orange-700 dark:hover:bg-orange-800"
-                  : ""
+                editingStudentInForm ? "bg-chart-4 hover:bg-chart-4/80" : ""
               }`}
             >
               {editingStudentInForm ? (

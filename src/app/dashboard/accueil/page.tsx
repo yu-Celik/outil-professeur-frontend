@@ -1,13 +1,13 @@
 "use client";
 
+import { CalendarWidget } from "@/components/organisms/calendar-widget";
 import { ChatAI } from "@/components/organisms/chat-ai";
 import { ClassesStudentsCard } from "@/components/organisms/classes-students-card";
 import { OnboardingBanner } from "@/components/organisms/onboarding-banner";
-import { UpcomingCoursesWidget } from "@/components/organisms/upcoming-courses-widget";
 import { useDashboardData } from "@/hooks/use-dashboard-data";
 
 export default function AccueilPage() {
-  const { classes, students, upcomingCourses } = useDashboardData();
+  const { classes, students } = useDashboardData();
 
   const handleSkipOnboarding = () => {
     console.log("Skipping onboarding");
@@ -41,14 +41,6 @@ export default function AccueilPage() {
 
   const handleStudentSort = (sortBy: string) => {
     console.log("Sorting students by:", sortBy);
-  };
-
-  const handleCoursesSort = (sortBy: string) => {
-    console.log("Sorting courses by:", sortBy);
-  };
-
-  const handleCalendarClick = () => {
-    console.log("Opening calendar");
   };
 
   return (
@@ -87,11 +79,7 @@ export default function AccueilPage() {
             />
           </div>
           <div className="flex-shrink-0 h-96">
-            <UpcomingCoursesWidget
-              courses={upcomingCourses}
-              onSortChange={handleCoursesSort}
-              onCalendarClick={handleCalendarClick}
-            />
+            <CalendarWidget />
           </div>
         </div>
 

@@ -1,12 +1,8 @@
 "use client";
 
 import {
-  ArrowLeft,
   BookOpen,
-  ChevronDown,
   ChevronRight,
-  CircleCheckBig,
-  Clock,
   GraduationCap,
   Plus,
   Settings2,
@@ -15,9 +11,8 @@ import {
 import Link from "next/link";
 import { useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/atoms/avatar";
-import { Badge } from "@/components/atoms/badge";
 import { Button } from "@/components/atoms/button";
-import { Card, CardContent, CardHeader } from "@/components/molecules/card";
+import { Card } from "@/components/molecules/card";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -34,6 +29,8 @@ import {
 } from "@/components/molecules/select";
 import { AddClassForm } from "@/components/organisms/add-class-form";
 import { AddStudentForm } from "@/components/organisms/add-student-form";
+import { useClassColors } from "@/hooks/use-class-colors";
+import { MOCK_CLASSES } from "@/data";
 
 interface Class {
   id: string;
@@ -55,6 +52,7 @@ interface ClassesStudentsCardProps {
   type: "classes" | "students";
   classes?: Class[];
   students?: Student[];
+  teacherId?: string; // Pour les couleurs de classe
   onAdd?: () => void;
   onSortChange?: (sortBy: string) => void;
   onClassClick?: (classId: string) => void;
@@ -71,10 +69,11 @@ interface ClassesStudentsCardProps {
 }
 
 export function ClassesStudentsCard({
-  type,
+  type: _type,
   classes = [],
   students = [],
-  onAdd,
+  teacherId = "KsmNtVf4zwqO3VV3SQJqPrRlQBA1fFyR",
+  onAdd: _onAdd,
   onSortChange,
   onClassClick,
   onAddClass,
@@ -83,6 +82,7 @@ export function ClassesStudentsCard({
   const [selectedClass, setSelectedClass] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isStudentModalOpen, setIsStudentModalOpen] = useState(false);
+  const { getClassColorWithText } = useClassColors(teacherId, "year-2024");
 
   const handleClassClick = (classId: string) => {
     setSelectedClass(classId);
@@ -187,23 +187,43 @@ export function ClassesStudentsCard({
                   onClick={() => handleClassClick(classItem.id)}
                 >
                   <div className="flex items-center gap-3 w-full">
-                    <div
-                      className={`w-8 h-8 rounded-lg flex items-center justify-center ${
-                        selectedClass === classItem.id
-                          ? "bg-primary-foreground/20"
-                          : "bg-primary/10"
-                      }`}
-                    >
-                      <span
-                        className={`text-xs font-medium ${
-                          selectedClass === classItem.id
-                            ? "text-primary-foreground"
-                            : "text-primary"
-                        }`}
-                      >
-                        {classItem.name.charAt(0)}
-                      </span>
-                    </div>
+                    {(() => {
+                      // Trouve la classe UML correspondante par le nom
+                      const umlClass = MOCK_CLASSES.find(
+                        (c) => c.classCode === classItem.name,
+                      );
+                      const classColors = umlClass
+                        ? getClassColorWithText(umlClass.id)
+                        : {
+                            backgroundColor: "hsl(var(--muted))",
+                            color: "hsl(var(--muted-foreground))",
+                            borderColor: "hsl(var(--border))",
+                          };
+
+                      return (
+                        <div
+                          className="w-8 h-8 rounded-lg flex items-center justify-center"
+                          style={{
+                            backgroundColor:
+                              selectedClass === classItem.id
+                                ? classColors.backgroundColor
+                                : `${classColors.backgroundColor}20`,
+                          }}
+                        >
+                          <span
+                            className="text-xs font-medium"
+                            style={{
+                              color:
+                                selectedClass === classItem.id
+                                  ? classColors.color
+                                  : classColors.backgroundColor,
+                            }}
+                          >
+                            {classItem.name.charAt(0)}
+                          </span>
+                        </div>
+                      );
+                    })()}
                     <div className="flex-1 min-w-0">
                       <div className="font-medium truncate">
                         {classItem.name}
@@ -361,7 +381,7 @@ export function ClassesStudentsCard({
                     className="group relative bg-background/60 border border-border/50 rounded-xl p-4 hover:bg-background hover:shadow-md hover:border-border transition-all duration-200"
                   >
                     <Link
-                      href={`/dashboard/students/${student.id}`}
+                      href={`/dashboard/mes-eleves/${student.id}`}
                       className="flex items-center justify-between w-full"
                     >
                       <div className="flex items-center gap-4">

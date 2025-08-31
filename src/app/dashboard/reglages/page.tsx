@@ -15,40 +15,58 @@ export default function ReglagesPage() {
               <h3 className="text-lg font-semibold mb-4">Profil utilisateur</h3>
               <div className="space-y-4">
                 <div>
-                  <label className="text-sm font-medium mb-2 block">
+                  <label
+                    htmlFor="nom-complet"
+                    className="text-sm font-medium mb-2 block"
+                  >
                     Nom complet
                   </label>
                   <input
+                    id="nom-complet"
                     type="text"
                     placeholder="Votre nom"
                     className="w-full px-3 py-2 border rounded-md"
                   />
                 </div>
                 <div>
-                  <label className="text-sm font-medium mb-2 block">
+                  <label
+                    htmlFor="email"
+                    className="text-sm font-medium mb-2 block"
+                  >
                     Email
                   </label>
                   <input
+                    id="email"
                     type="email"
                     placeholder="votre.email@example.com"
                     className="w-full px-3 py-2 border rounded-md"
                   />
                 </div>
                 <div>
-                  <label className="text-sm font-medium mb-2 block">
+                  <label
+                    htmlFor="etablissement"
+                    className="text-sm font-medium mb-2 block"
+                  >
                     Établissement
                   </label>
                   <input
+                    id="etablissement"
                     type="text"
                     placeholder="Nom de votre établissement"
                     className="w-full px-3 py-2 border rounded-md"
                   />
                 </div>
                 <div>
-                  <label className="text-sm font-medium mb-2 block">
+                  <label
+                    htmlFor="matiere-principale"
+                    className="text-sm font-medium mb-2 block"
+                  >
                     Matière principale
                   </label>
-                  <select className="w-full px-3 py-2 border rounded-md">
+                  <select
+                    id="matiere-principale"
+                    className="w-full px-3 py-2 border rounded-md"
+                  >
                     <option>Sélectionner une matière</option>
                     <option>Mathématiques</option>
                     <option>Français</option>
@@ -104,30 +122,48 @@ export default function ReglagesPage() {
               <h3 className="text-lg font-semibold mb-4">Préférences</h3>
               <div className="space-y-4">
                 <div>
-                  <label className="text-sm font-medium mb-2 block">
+                  <label
+                    htmlFor="langue"
+                    className="text-sm font-medium mb-2 block"
+                  >
                     Langue
                   </label>
-                  <select className="w-full px-3 py-2 border rounded-md">
+                  <select
+                    id="langue"
+                    className="w-full px-3 py-2 border rounded-md"
+                  >
                     <option>Français</option>
                     <option>English</option>
                     <option>Español</option>
                   </select>
                 </div>
                 <div>
-                  <label className="text-sm font-medium mb-2 block">
+                  <label
+                    htmlFor="fuseau-horaire"
+                    className="text-sm font-medium mb-2 block"
+                  >
                     Fuseau horaire
                   </label>
-                  <select className="w-full px-3 py-2 border rounded-md">
+                  <select
+                    id="fuseau-horaire"
+                    className="w-full px-3 py-2 border rounded-md"
+                  >
                     <option>Europe/Paris (UTC+1)</option>
                     <option>Europe/London (UTC+0)</option>
                     <option>America/New_York (UTC-5)</option>
                   </select>
                 </div>
                 <div>
-                  <label className="text-sm font-medium mb-2 block">
+                  <label
+                    htmlFor="format-date"
+                    className="text-sm font-medium mb-2 block"
+                  >
                     Format de date
                   </label>
-                  <select className="w-full px-3 py-2 border rounded-md">
+                  <select
+                    id="format-date"
+                    className="w-full px-3 py-2 border rounded-md"
+                  >
                     <option>DD/MM/YYYY</option>
                     <option>MM/DD/YYYY</option>
                     <option>YYYY-MM-DD</option>
@@ -150,13 +186,22 @@ export default function ReglagesPage() {
             <div className="p-6">
               <h3 className="text-lg font-semibold mb-4">Sécurité</h3>
               <div className="space-y-3">
-                <button className="w-full text-left p-3 rounded hover:bg-muted border">
+                <button
+                  type="button"
+                  className="w-full text-left p-3 rounded hover:bg-muted border"
+                >
                   🔒 Changer le mot de passe
                 </button>
-                <button className="w-full text-left p-3 rounded hover:bg-muted border">
+                <button
+                  type="button"
+                  className="w-full text-left p-3 rounded hover:bg-muted border"
+                >
                   📱 Authentification à deux facteurs
                 </button>
-                <button className="w-full text-left p-3 rounded hover:bg-muted border">
+                <button
+                  type="button"
+                  className="w-full text-left p-3 rounded hover:bg-muted border"
+                >
                   📊 Voir les sessions actives
                 </button>
               </div>
@@ -167,13 +212,22 @@ export default function ReglagesPage() {
             <div className="p-6">
               <h3 className="text-lg font-semibold mb-4">Données</h3>
               <div className="space-y-3">
-                <button className="w-full text-left p-3 rounded hover:bg-muted border">
+                <button
+                  type="button"
+                  className="w-full text-left p-3 rounded hover:bg-muted border"
+                >
                   📥 Exporter mes données
                 </button>
-                <button className="w-full text-left p-3 rounded hover:bg-muted border">
+                <button
+                  type="button"
+                  className="w-full text-left p-3 rounded hover:bg-muted border"
+                >
                   📋 Sauvegarder les cours
                 </button>
-                <button className="w-full text-left p-3 rounded hover:bg-muted border text-red-600">
+                <button
+                  type="button"
+                  className="w-full text-left p-3 rounded hover:bg-muted border text-destructive"
+                >
                   🗑️ Supprimer le compte
                 </button>
               </div>
@@ -183,10 +237,16 @@ export default function ReglagesPage() {
       </div>
 
       <div className="flex justify-end gap-2">
-        <button className="px-4 py-2 border rounded-md hover:bg-muted">
+        <button
+          type="button"
+          className="px-4 py-2 border rounded-md hover:bg-muted"
+        >
           Annuler
         </button>
-        <button className="bg-primary text-primary-foreground hover:bg-primary/90 px-4 py-2 rounded-md">
+        <button
+          type="button"
+          className="bg-primary text-primary-foreground hover:bg-primary/90 px-4 py-2 rounded-md"
+        >
           Enregistrer les modifications
         </button>
       </div>

@@ -1,7 +1,7 @@
+import path from "node:path";
 import { betterAuth } from "better-auth";
 import { nextCookies } from "better-auth/next-js";
 import Database from "better-sqlite3";
-import path from "path";
 
 const dbPath =
   process.env.NODE_ENV === "production"

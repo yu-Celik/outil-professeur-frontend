@@ -51,7 +51,7 @@ interface ModalProps extends VariantProps<typeof modalVariants> {
   className?: string;
 }
 
-export function Modal({
+function Modal({
   isOpen,
   onClose,
   title,
@@ -65,7 +65,18 @@ export function Modal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
-      <div className="fixed inset-0 bg-black/50" onClick={onClose} />
+      <button
+        type="button"
+        className="fixed inset-0 bg-black/50"
+        onClick={onClose}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            onClose();
+          }
+        }}
+      >
+        <span className="sr-only">Fermer</span>
+      </button>
       <div className={cn(modalVariants({ size, height }), className)}>
         <ModalHeader>
           <div className="space-y-1">

@@ -8,8 +8,8 @@ import {
   Send,
   Sparkles,
 } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/atoms/avatar";
+import { useRef, useState } from "react";
+import { Avatar, AvatarFallback } from "@/components/atoms/avatar";
 import { Badge } from "@/components/atoms/badge";
 import { Button } from "@/components/atoms/button";
 import { Input } from "@/components/atoms/input";
@@ -41,7 +41,7 @@ const QUICK_PROMPTS = [
 export function ChatAI() {
   const [message, setMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [activeConversation, setActiveConversation] = useState("1");
+  const [_activeConversation, setActiveConversation] = useState("1");
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const [conversations] = useState<Conversation[]>([
@@ -194,6 +194,7 @@ export function ChatAI() {
           <div className="space-y-2">
             {conversations.slice(0, 2).map((conv) => (
               <button
+                type="button"
                 key={conv.id}
                 className="w-full text-left p-3 rounded-lg hover:bg-muted/50 transition-colors border"
                 onClick={() => setActiveConversation(conv.id)}
@@ -279,9 +280,9 @@ export function ChatAI() {
               <span className="text-sm text-muted-foreground">Suggestions</span>
             </div>
             <div className="flex flex-wrap gap-2">
-              {QUICK_PROMPTS.map((prompt, index) => (
+              {QUICK_PROMPTS.map((prompt) => (
                 <Button
-                  key={index}
+                  key={prompt}
                   variant="outline"
                   size="sm"
                   className="text-xs h-8"

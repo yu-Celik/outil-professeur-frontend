@@ -40,7 +40,7 @@ export function LoginForm({
           <form onSubmit={handleSubmit}>
             <div className="flex flex-col gap-6">
               {error && (
-                <div className="text-sm text-red-600 bg-red-50 p-3 rounded-md">
+                <div className="text-sm text-destructive bg-destructive/10 p-3 rounded-md border border-destructive/20">
                   {error}
                 </div>
               )}
@@ -59,12 +59,13 @@ export function LoginForm({
               <div className="grid gap-3">
                 <div className="flex items-center">
                   <Label htmlFor="password">Password</Label>
-                  <a
-                    href="#"
+                  <button
+                    type="button"
                     className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
+                    onClick={() => console.log("Forgot password clicked")}
                   >
                     Forgot your password?
-                  </a>
+                  </button>
                 </div>
                 <Input
                   id="password"
@@ -78,12 +79,6 @@ export function LoginForm({
               <Button type="submit" className="w-full" disabled={isLoading}>
                 {isLoading ? "Signing in..." : "Login"}
               </Button>
-            </div>
-            <div className="mt-4 text-center text-sm">
-              Don&apos;t have an account?{" "}
-              <a href="/register" className="underline underline-offset-4">
-                Sign up
-              </a>
             </div>
           </form>
         </CardContent>
