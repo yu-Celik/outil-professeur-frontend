@@ -27,7 +27,7 @@ export const MOCK_COURSE_SESSIONS: CourseSession[] = [
     timeSlotId: "test-slot",
     sessionDate: new Date("2025-01-01"),
     room: "Test Room",
-    status: "scheduled",
+    status: "planned",
     objectives: "Session de test",
     content: "Contenu de test",
     homeworkAssigned: "Devoirs de test",

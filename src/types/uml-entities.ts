@@ -129,8 +129,7 @@ export interface CourseSession {
   subjectId: string;
   timeSlotId: string;
   sessionDate: Date;
-  room: string;
-  status: string;
+  status: 'planned' | 'in_progress' | 'done' | 'canceled'
   objectives: string;
   content: string;
   homeworkAssigned: string;
@@ -151,6 +150,7 @@ export interface StudentParticipation {
   isPresent: boolean;
   behavior: string;
   participationLevel: number;
+  homeworkDone: boolean;
   specificRemarks: string;
   technicalIssues: string;
   cameraEnabled: boolean;

@@ -415,7 +415,7 @@ export default function StudentEvaluationPage({
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
                   <span>Salle:</span>
-                  <span>{courseSession?.room}</span>
+                  <span>-</span>
                 </div>
                 <div className="flex justify-between">
                   <span>Durée:</span>

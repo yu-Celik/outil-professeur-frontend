@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Calendar } from "lucide-react";
 import { Button } from "@/components/atoms/button";
 
 interface CalendarNavigationProps {
@@ -20,51 +20,46 @@ export function CalendarNavigation({
 }: CalendarNavigationProps) {
   return (
     <div className="flex items-center gap-4">
+      {/* Navigation hebdomadaire */}
       <div className="flex items-center gap-2">
         <Button
           variant="outline"
           size="sm"
           onClick={() => onNavigateMonth("prev")}
-          className="p-2"
+          className="flex items-center gap-1"
         >
           <ChevronLeft className="h-4 w-4" />
+          <span className="hidden sm:inline">Semaine précédente</span>
         </Button>
-        <h2 className="text-xl font-semibold capitalize min-w-48 text-center">
-          {monthYear}
-        </h2>
+        
+        <div className="px-3">
+          <h2 className="text-lg font-semibold">
+            {monthYear}
+          </h2>
+        </div>
+        
         <Button
           variant="outline"
           size="sm"
           onClick={() => onNavigateMonth("next")}
-          className="p-2"
+          className="flex items-center gap-1"
         >
+          <span className="hidden sm:inline">Semaine suivante</span>
           <ChevronRight className="h-4 w-4" />
         </Button>
       </div>
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={onNavigateToToday}
-        className="hidden sm:inline-flex"
-      >
-        Aujourd'hui
-      </Button>
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={onNavigateToJanuary2025}
-        className="hidden sm:inline-flex"
-      >
-        Janvier 2025
-      </Button>
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={onNavigateToAugust2025}
-        className="hidden sm:inline-flex"
-      >
-        Août 2025
-      </Button>
+      
+      {/* Actions rapides */}
+      <div className="flex items-center gap-2">
+        <Button
+          variant="default"
+          size="sm"
+          onClick={onNavigateToToday}
+          className="font-medium"
+        >
+          Cette semaine
+        </Button>
+      </div>
     </div>
   );
 }

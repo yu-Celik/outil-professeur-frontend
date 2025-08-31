@@ -67,7 +67,7 @@ export function CalendarWidget({
       return (
         event.start >= today &&
         event.start < weekFromNow &&
-        event.courseSession.status !== "completed"
+        event.courseSession.status !== "done"
       );
     })
     .sort((a, b) => a.start.getTime() - b.start.getTime())
@@ -80,10 +80,14 @@ export function CalendarWidget({
 
   const getEventStatusColor = (event: CalendarEvent) => {
     switch (event.courseSession.status) {
-      case "active":
+      case "in_progress":
         return "bg-chart-1/10 text-chart-1 border-chart-1/20";
-      case "upcoming":
+      case "planned":
         return "bg-chart-4/10 text-chart-4 border-chart-4/20";
+      case "done":
+        return "bg-chart-3/10 text-chart-3 border-chart-3/20";
+      case "canceled":
+        return "bg-destructive/10 text-destructive border-destructive/20";
       default:
         return "bg-muted text-muted-foreground border-border";
     }
@@ -176,8 +180,10 @@ export function CalendarWidget({
                         variant="outline"
                         className={`text-xs ${getEventStatusColor(event)}`}
                       >
-                        {event.courseSession.status === "active" && "En cours"}
-                        {event.courseSession.status === "upcoming" && "À venir"}
+                        {event.courseSession.status === "in_progress" && "En cours"}
+                        {event.courseSession.status === "planned" && "Planifiée"}
+                        {event.courseSession.status === "done" && "Terminée"}
+                        {event.courseSession.status === "canceled" && "Annulée"}
                       </Badge>
                     </div>
 

@@ -4,21 +4,15 @@ import { useEffect, useState } from "react";
 import { LoadingSpinner } from "@/components/atoms/loading-spinner";
 import { CalendarHeader } from "@/components/organisms/calendar-header";
 import { CalendarToolbar } from "@/components/organisms/calendar-toolbar";
-import { CalendarMonthView } from "@/components/organisms/calendar-month-view";
 import { CalendarWeekView } from "@/components/organisms/calendar-week-view";
 import { SessionForm } from "@/components/molecules/session-form";
 import { ClassColorPicker } from "@/components/molecules/class-color-picker";
 import { useCalendar } from "@/hooks/use-calendar";
 import { useUserSession } from "@/hooks/use-user-session";
 import { useClassColors } from "@/hooks/use-class-colors";
-import { useSessionExceptions } from "@/hooks/use-session-exceptions";
-import type { SessionException } from "@/services/session-generator";
 
 export default function CalendrierPage() {
-  // Initialiser avec les préférences utilisateur UML
-  const [viewMode, setViewMode] = useState<"month" | "week">(
-    "week", // Sera mis à jour ci-dessous avec les préférences réelles
-  );
+  // Vue hebdomadaire uniquement
   const [showFilters, setShowFilters] = useState(false);
   const [showSessionForm, setShowSessionForm] = useState(false);
   const [showColorPicker, setShowColorPicker] = useState(false);
@@ -32,13 +26,12 @@ export default function CalendrierPage() {
   const { user, isLoading: userLoading } = useUserSession();
   const teacherId = user?.id || "KsmNtVf4zwqO3VV3SQJqPrRlQBA1fFyR";
   const { getPreferences } = useClassColors(teacherId, "year-2025");
-  const { addException } = useSessionExceptions(teacherId);
 
   const {
     currentDate,
     calendarWeeks,
     loading,
-    navigateMonth,
+    navigateWeek,
     navigateToToday,
     navigateToAugust2025,
     navigateToJanuary2025,
@@ -53,39 +46,37 @@ export default function CalendrierPage() {
   useEffect(() => {
     if (!userLoading) {
       const preferences = getPreferences();
-      setViewMode(preferences.calendarDefaultView);
+      // Vue hebdomadaire uniquement - plus de préférence de vue
     }
   }, [userLoading, getPreferences]);
 
-  const monthYear = currentDate.toLocaleDateString("fr-FR", {
-    month: "long",
-    year: "numeric",
-  });
+  // Calcul de la semaine actuelle
+  const currentWeek = getCurrentWeek();
+  const startOfWeek = currentWeek[0]?.date;
+  const endOfWeek = currentWeek[6]?.date;
+  
+  const weekTitle = startOfWeek && endOfWeek 
+    ? `${startOfWeek.getDate()} ${startOfWeek.toLocaleDateString("fr-FR", { month: "short" })} - ${endOfWeek.getDate()} ${endOfWeek.toLocaleDateString("fr-FR", { month: "short" })} ${endOfWeek.getFullYear()}`
+    : currentDate.toLocaleDateString("fr-FR", {
+        month: "long",
+        year: "numeric",
+      });
 
   const weekDays = ["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"];
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "completed":
+      case "done":
         return "bg-chart-3/10 text-chart-3 border-chart-3/20"; // Vert du thème
-      case "active":
-        return "bg-chart-1/10 text-chart-1 border-chart-1/20"; // Bleu/primaire du thème
-      case "upcoming":
+      case "in_progress":
         return "bg-chart-4/10 text-chart-4 border-chart-4/20"; // Orange/jaune du thème
+      case "planned":
+        return "bg-chart-1/10 text-chart-1 border-chart-1/20"; // Bleu/primaire du thème
+      case "canceled":
+        return "bg-destructive/10 text-destructive border-destructive/20"; // Rouge pour annulé
       default:
         return "bg-muted text-muted-foreground border-border";
     }
-  };
-
-  // Gestionnaires pour les ajustements ponctuels
-  const handleExceptionCreate = (exception: Omit<SessionException, "id">) => {
-    const fullException = {
-      ...exception,
-      id: `exception-${Date.now()}`, // Générer un ID unique
-    };
-    addException(fullException);
-    // TODO: Recharger les sessions si nécessaire
-    console.log("Exception créée:", fullException);
   };
 
   const handleViewDetails = (sessionId: string) => {
@@ -116,14 +107,12 @@ export default function CalendrierPage() {
       <CalendarHeader />
 
       <CalendarToolbar
-        monthYear={monthYear}
-        viewMode={viewMode}
+        monthYear={weekTitle}
         showFilters={showFilters}
-        onNavigateMonth={navigateMonth}
+        onNavigateMonth={navigateWeek}
         onNavigateToToday={navigateToToday}
         onNavigateToJanuary2025={navigateToJanuary2025}
         onNavigateToAugust2025={navigateToAugust2025}
-        onViewModeChange={setViewMode}
         onToggleFilters={() => setShowFilters(!showFilters)}
         onCreateSession={() => {
           setSessionFormDate(new Date());
@@ -132,34 +121,14 @@ export default function CalendrierPage() {
         onManageColors={() => setShowColorPicker(true)}
       />
 
-      <div className="space-y-6">
-        {viewMode === "month" && (
-          <CalendarMonthView
-            calendarWeeks={calendarWeeks}
-            weekDays={weekDays}
-            getStatusColor={getStatusColor}
-            onDayClick={(date) => {
-              setSessionFormDate(date);
-              setShowSessionForm(true);
-            }}
-            onExceptionCreate={handleExceptionCreate}
-            onViewDetails={handleViewDetails}
-            onManageAttendance={handleManageAttendance}
-          />
-        )}
-
-        {viewMode === "week" && (
-          <CalendarWeekView
-            weekDays={weekDays}
-            timeSlots={timeSlots}
-            getCurrentWeek={getCurrentWeek}
-            getStatusColor={getStatusColor}
-            onExceptionCreate={handleExceptionCreate}
-            onViewDetails={handleViewDetails}
-            onManageAttendance={handleManageAttendance}
-          />
-        )}
-      </div>
+      <CalendarWeekView
+        weekDays={weekDays}
+        timeSlots={timeSlots}
+        getCurrentWeek={getCurrentWeek}
+        getStatusColor={getStatusColor}
+        onViewDetails={handleViewDetails}
+        onManageAttendance={handleManageAttendance}
+      />
 
       {/* Modal de création de session */}
       {showSessionForm && (

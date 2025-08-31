@@ -78,13 +78,13 @@ export function useDashboardSessions(teacherId: string) {
   const todayStats = useMemo(() => {
     const total = todaySessions.length;
     const completed = todaySessions.filter(
-      (s) => s.status === "completed",
+      (s) => s.status === "done",
     ).length;
     const scheduled = todaySessions.filter(
-      (s) => s.status === "scheduled",
+      (s) => s.status === "planned",
     ).length;
     const cancelled = todaySessions.filter(
-      (s) => s.status === "cancelled",
+      (s) => s.status === "canceled",
     ).length;
 
     return {

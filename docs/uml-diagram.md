@@ -118,26 +118,26 @@ classDiagram
       +Integer getDuration()
     }
 
-    class CourseSession {
-      +Uuid id
-      +Uuid createdBy
-      +Uuid classId
-      +Uuid subjectId
-      +Uuid timeSlotId
-      +Date sessionDate
-      +String room
-      +String status
-      +String objectives
-      +String content
-      +String homeworkAssigned
-      +String notes
-      +Boolean attendanceTaken
-      +DateTime createdAt
-      +DateTime updatedAt
-      +Void reschedule(Date newDate)
-      +Void takeAttendance()
-      +String summary()
-    }
+class CourseSession {
+  +Uuid id
+  +Uuid createdBy
+  +Uuid classId
+  +Uuid subjectId
+  +Uuid timeSlotId
+  +Date sessionDate
+  +String status  // 'planned' | 'in_progress' | 'done' | 'canceled'
+  +String objectives
+  +String content
+  +String homeworkAssigned
+  +String notes
+  +Boolean attendanceTaken
+  +DateTime createdAt
+  +DateTime updatedAt
+  +Void reschedule(Date newDate)
+  +Void takeAttendance()
+  +String summary()
+}
+
 
     class StudentParticipation {
       +Uuid id
@@ -147,6 +147,7 @@ classDiagram
       +Boolean isPresent
       +String behavior
       +Integer participationLevel
+      +Boolean homeworkDone  // nullable
       +String specificRemarks
       +String technicalIssues
       +Boolean cameraEnabled

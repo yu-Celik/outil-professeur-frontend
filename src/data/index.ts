@@ -11,6 +11,5 @@ export * from "./mock-teachers";
 export * from "./mock-teaching-assignments";
 export * from "./mock-time-slots";
 export * from "./mock-weekly-templates";
-export * from "./mock-session-exceptions";
 export * from "./mock-user-preferences";
 

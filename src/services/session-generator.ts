@@ -77,7 +77,7 @@ export class WeekSessionGenerator {
             : template.timeSlotId,
         sessionDate: sessionDate,
         room: exception?.newRoom || template.room,
-        status: "scheduled", // Par défaut, session planifiée
+        status: "planned", // Par défaut, session planifiée
         objectives: "", // À remplir lors de l'observation
         content: "", // À remplir lors de l'observation
         homeworkAssigned: "", // À remplir lors de l'observation
@@ -107,7 +107,7 @@ export class WeekSessionGenerator {
           timeSlotId: exception.newTimeSlotId || "",
           sessionDate: exception.exceptionDate,
           room: exception.newRoom || "",
-          status: "scheduled",
+          status: "planned",
           objectives: "",
           content: "",
           homeworkAssigned: "",

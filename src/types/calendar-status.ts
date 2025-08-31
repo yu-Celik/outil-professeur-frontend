@@ -4,28 +4,28 @@
  */
 
 export type SessionStatus =
-  | "scheduled"
-  | "completed"
-  | "cancelled"
-  | "in-progress";
+  | "planned"
+  | "done"
+  | "canceled"
+  | "in_progress";
 
 export const SESSION_STATUS_CONFIG = {
-  scheduled: {
+  planned: {
     label: "Planifiée",
     color: "bg-chart-1/10 text-chart-1 border-chart-1/20",
     badgeColor: "bg-chart-1/20 text-chart-1",
   },
-  completed: {
+  done: {
     label: "Terminée",
     color: "bg-chart-3/10 text-chart-3 border-chart-3/20",
     badgeColor: "bg-chart-3/20 text-chart-3",
   },
-  cancelled: {
+  canceled: {
     label: "Annulée",
     color: "bg-destructive/10 text-destructive border-destructive/20",
     badgeColor: "bg-destructive/20 text-destructive",
   },
-  "in-progress": {
+  in_progress: {
     label: "En cours",
     color: "bg-chart-4/10 text-chart-4 border-chart-4/20",
     badgeColor: "bg-chart-4/20 text-chart-4",

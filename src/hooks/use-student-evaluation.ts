@@ -37,7 +37,7 @@ export function useStudentEvaluation(
     timeSlotId: "timeslot-16h",
     sessionDate: new Date("2025-02-18T16:00:00"),
     room: "Salle virtuelle",
-    status: "active",
+    status: "in_progress",
     objectives: "Évaluation des étudiants",
     content: "Session d'évaluation",
     homeworkAssigned: "",

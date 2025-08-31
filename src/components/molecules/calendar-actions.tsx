@@ -2,11 +2,7 @@
 
 import { Filter, Plus, Palette } from "lucide-react";
 import { Button } from "@/components/atoms/button";
-import { ViewModeSelector } from "@/components/atoms/view-mode-selector";
-
 interface CalendarActionsProps {
-  viewMode: "month" | "week";
-  onViewModeChange: (mode: "month" | "week") => void;
   showFilters: boolean;
   onToggleFilters: () => void;
   onCreateSession: () => void;
@@ -14,19 +10,13 @@ interface CalendarActionsProps {
 }
 
 export function CalendarActions({
-  viewMode,
-  onViewModeChange,
   showFilters,
   onToggleFilters,
   onCreateSession,
   onManageColors,
 }: CalendarActionsProps) {
   return (
-    <div className="flex items-center gap-2">
-      <ViewModeSelector
-        viewMode={viewMode}
-        onViewModeChange={onViewModeChange}
-      />
+    <div className="flex items-center gap-2">{/* Vue hebdomadaire uniquement */}
 
       <Button
         variant="outline"

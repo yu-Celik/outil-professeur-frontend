@@ -55,7 +55,7 @@ export function useUMLEvaluation(
     timeSlotId: "timeslot-1",
     sessionDate: new Date("2025-02-18T16:00:00"),
     room: "Salle A",
-    status: "active",
+    status: "in_progress",
     objectives: "Résoudre des équations du second degré",
     content: "Cours sur les équations quadratiques",
     homeworkAssigned: "Exercices 1-5 page 42",
@@ -237,7 +237,7 @@ export function useUMLEvaluation(
     return (
       teachingAssignment?.isActive &&
       teachingAssignment.role === "teacher" &&
-      courseSession?.status === "active"
+      courseSession?.status === "in_progress"
     );
   }, [teachingAssignment, courseSession]);
 

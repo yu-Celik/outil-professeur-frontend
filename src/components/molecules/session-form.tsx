@@ -21,6 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/molecules/select";
+import { useTeachingAssignments } from "@/hooks/use-teaching-assignments";
 import type {
   Class,
   CourseSession,
@@ -49,13 +50,13 @@ export function SessionForm({
   teacherId = "KsmNtVf4zwqO3VV3SQJqPrRlQBA1fFyR",
   schoolYearId = "year-2025",
 }: SessionFormProps) {
+  const { rights } = useTeachingAssignments(teacherId);
 
   const [formData, setFormData] = useState({
     subjectId: "",
     classId: "",
     timeSlotId: "",
     sessionDate: initialDate ? initialDate.toISOString().split("T")[0] : "",
-    room: "",
     objectives: "",
     content: "",
     homeworkAssigned: "",
@@ -88,11 +89,10 @@ export function SessionForm({
       classId: formData.classId,
       timeSlotId: formData.timeSlotId,
       sessionDate,
-      room: formData.room || "",
       objectives: formData.objectives,
       content: formData.content,
       homeworkAssigned: formData.homeworkAssigned,
-      status: "upcoming",
+      status: "planned",
       attendanceTaken: false,
     };
 
@@ -105,6 +105,94 @@ export function SessionForm({
       setErrors((prev) => ({ ...prev, [field]: "" }));
     }
   };
+
+  const handleSubjectChange = (subjectId: string) => {
+    setFormData(prev => {
+      const newData = { ...prev, subjectId };
+      
+      // Vérifier si la classe actuelle est toujours compatible
+      if (prev.classId) {
+        const assignmentsForSubject = rights.getCurrentAssignments().filter(
+          assignment => assignment.subjectId === subjectId
+        );
+        const isClassStillValid = assignmentsForSubject.some(
+          assignment => assignment.classId === prev.classId
+        );
+        
+        if (!isClassStillValid) {
+          newData.classId = ""; // Réinitialiser la classe
+        }
+      }
+      
+      return newData;
+    });
+    
+    if (errors.subjectId) {
+      setErrors((prev) => ({ ...prev, subjectId: "" }));
+    }
+  };
+
+  const handleClassChange = (classId: string) => {
+    setFormData(prev => {
+      const newData = { ...prev, classId };
+      
+      // Vérifier si la matière actuelle est toujours compatible
+      if (prev.subjectId) {
+        const assignmentsForClass = rights.getCurrentAssignments().filter(
+          assignment => assignment.classId === classId
+        );
+        const isSubjectStillValid = assignmentsForClass.some(
+          assignment => assignment.subjectId === prev.subjectId
+        );
+        
+        if (!isSubjectStillValid) {
+          newData.subjectId = ""; // Réinitialiser la matière
+        }
+      }
+      
+      return newData;
+    });
+    
+    if (errors.classId) {
+      setErrors((prev) => ({ ...prev, classId: "" }));
+    }
+  };
+
+  // Filtrage intelligent relationnel
+  const getAvailableClasses = () => {
+    if (!formData.subjectId) {
+      // Aucune matière sélectionnée → toutes les classes
+      return classes;
+    }
+    
+    // Matière sélectionnée → classes où cette matière est enseignée
+    const assignmentsForSubject = rights.getCurrentAssignments().filter(
+      assignment => assignment.subjectId === formData.subjectId
+    );
+    
+    return classes.filter(classItem =>
+      assignmentsForSubject.some(assignment => assignment.classId === classItem.id)
+    );
+  };
+
+  const getAvailableSubjects = () => {
+    if (!formData.classId) {
+      // Aucune classe sélectionnée → toutes les matières
+      return subjects;
+    }
+    
+    // Classe sélectionnée → matières enseignées dans cette classe
+    const assignmentsForClass = rights.getCurrentAssignments().filter(
+      assignment => assignment.classId === formData.classId
+    );
+    
+    return subjects.filter(subject =>
+      assignmentsForClass.some(assignment => assignment.subjectId === subject.id)
+    );
+  };
+
+  const availableClasses = getAvailableClasses();
+  const availableSubjects = getAvailableSubjects();
 
   const formSelectedSubject = subjects.find((s) => s.id === formData.subjectId);
   const formSelectedClass = classes.find((c) => c.id === formData.classId);
@@ -136,7 +224,7 @@ export function SessionForm({
                 </Label>
                 <Select
                   value={formData.subjectId}
-                  onValueChange={(value) => handleInputChange("subjectId", value)}
+                  onValueChange={handleSubjectChange}
                 >
                   <SelectTrigger
                     className={errors.subjectId ? "border-destructive" : ""}
@@ -144,7 +232,7 @@ export function SessionForm({
                     <SelectValue placeholder="Sélectionner une matière" />
                   </SelectTrigger>
                   <SelectContent>
-                    {subjects.map((subject) => (
+                    {availableSubjects.map((subject) => (
                       <SelectItem key={subject.id} value={subject.id}>
                         {subject.name} ({subject.code})
                       </SelectItem>
@@ -163,7 +251,7 @@ export function SessionForm({
                 </Label>
                 <Select
                   value={formData.classId}
-                  onValueChange={(value) => handleInputChange("classId", value)}
+                  onValueChange={handleClassChange}
                 >
                   <SelectTrigger
                     className={errors.classId ? "border-destructive" : ""}
@@ -171,7 +259,7 @@ export function SessionForm({
                     <SelectValue placeholder="Sélectionner une classe" />
                   </SelectTrigger>
                   <SelectContent>
-                    {classes.map((classItem) => (
+                    {availableClasses.map((classItem) => (
                       <SelectItem key={classItem.id} value={classItem.id}>
                         {classItem.classCode} - {classItem.gradeLabel}
                       </SelectItem>
@@ -239,16 +327,6 @@ export function SessionForm({
               </div>
             </div>
 
-            {/* Salle */}
-            <div className="space-y-2">
-              <Label htmlFor="room">Salle</Label>
-              <Input
-                id="room"
-                placeholder="Ex: Salle A1, Laboratoire, Amphithéâtre..."
-                value={formData.room}
-                onChange={(e) => handleInputChange("room", e.target.value)}
-              />
-            </div>
 
             {/* Objectifs */}
             <div className="space-y-2">
@@ -317,11 +395,6 @@ export function SessionForm({
                         )
                       : "-"}
                   </p>
-                  {formData.room && (
-                    <p>
-                      <strong>Salle:</strong> {formData.room}
-                    </p>
-                  )}
                 </div>
               </div>
             )}

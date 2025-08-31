@@ -61,7 +61,7 @@ export function useCalendar(teacherId: string) {
   const { rights, assignments } = useTeachingAssignments(teacherId);
 
   // Utiliser les sessions générées depuis les templates hebdomadaires
-  const weeklySessionsHook = useWeeklySessions(teacherId);
+  const weeklySessionsHook = useWeeklySessions(undefined, teacherId);
 
   // Données statiques
   const subjects = MOCK_SUBJECTS;
@@ -235,14 +235,14 @@ export function useCalendar(teacherId: string) {
     return days;
   };
 
-  // Navigation
-  const navigateMonth = useCallback((direction: "prev" | "next") => {
+  // Navigation hebdomadaire
+  const navigateWeek = useCallback((direction: "prev" | "next") => {
     setCurrentDate((prev) => {
       const newDate = new Date(prev);
       if (direction === "prev") {
-        newDate.setMonth(newDate.getMonth() - 1);
+        newDate.setDate(newDate.getDate() - 7);
       } else {
-        newDate.setMonth(newDate.getMonth() + 1);
+        newDate.setDate(newDate.getDate() + 7);
       }
       return newDate;
     });
@@ -335,7 +335,7 @@ export function useCalendar(teacherId: string) {
     getCurrentWeek,
 
     // Navigation
-    navigateMonth,
+    navigateWeek,
     navigateToToday,
     navigateToJanuary2025,
     navigateToAugust2025,
