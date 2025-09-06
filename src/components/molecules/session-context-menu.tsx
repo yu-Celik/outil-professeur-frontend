@@ -29,7 +29,7 @@ interface SessionContextMenuProps {
 
 /**
  * Menu contextuel pour les actions sur une session
- * Permet la navigation vers les détails et gestion des présences
+ * Permet la navigation vers les détails et gestion de la participation
  */
 export function SessionContextMenu({
   session,
@@ -57,7 +57,7 @@ export function SessionContextMenu({
 
         <DropdownMenuItem onClick={() => onManageAttendance(session.id)}>
           <Users className="mr-2 h-4 w-4" />
-          Gérer les présences
+          Gérer la participation
         </DropdownMenuItem>
 
         {/* Show move option only if session can be moved */}

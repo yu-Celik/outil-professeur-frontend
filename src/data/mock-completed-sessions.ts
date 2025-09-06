@@ -2,17 +2,17 @@ import type { CourseSession } from "@/types/uml-entities";
 
 /**
  * Sessions complétées pour donner des statistiques réalistes
- * Ces sessions représentent les cours déjà donnés depuis septembre 2025
+ * Ces sessions représentent les cours déjà donnés depuis septembre 2024 (année scolaire 2024-2025)
  */
 export const MOCK_COMPLETED_SESSIONS: CourseSession[] = [
-  // Septembre 2025 - Sessions Anglais 2nde Jaspe
+  // Septembre 2024 - Sessions Anglais 2nde Jaspe
   {
     id: "session-completed-jaspe-sept-1",
     createdBy: "KsmNtVf4zwqO3VV3SQJqPrRlQBA1fFyR",
     classId: "class-2nde-jaspe",
     subjectId: "subject-anglais",
     timeSlotId: "slot-11h40-12h35",
-    sessionDate: new Date("2025-09-02"), // Lundi
+    sessionDate: new Date("2024-09-02"), // Lundi
     status: "done",
     objectives: "Introduction - Getting to know each other",
     content: "Présentations, règles de classe, premiers échanges",
@@ -21,8 +21,8 @@ export const MOCK_COMPLETED_SESSIONS: CourseSession[] = [
     isMakeup: false,
     isMoved: null,
     notes: "Très bonne première session, élèves motivés",
-    createdAt: new Date("2025-09-02"),
-    updatedAt: new Date("2025-09-02"),
+    createdAt: new Date("2024-09-02"),
+    updatedAt: new Date("2024-09-02"),
     reschedule: () => {},
     takeAttendance: () => {},
     summary: () => "Session d'introduction réussie",
@@ -33,7 +33,7 @@ export const MOCK_COMPLETED_SESSIONS: CourseSession[] = [
     classId: "class-2nde-jaspe",
     subjectId: "subject-anglais",
     timeSlotId: "slot-10h40-11h35",
-    sessionDate: new Date("2025-09-03"), // Mardi
+    sessionDate: new Date("2024-09-03"), // Mardi
     status: "done",
     objectives: "Present Simple vs Present Continuous",
     content: "Grammar focus, exercises, speaking practice",
@@ -42,8 +42,8 @@ export const MOCK_COMPLETED_SESSIONS: CourseSession[] = [
     isMakeup: false,
     isMoved: null,
     notes: "Bonne participation, quelques difficultés sur le continuous",
-    createdAt: new Date("2025-09-03"),
-    updatedAt: new Date("2025-09-03"),
+    createdAt: new Date("2024-09-03"),
+    updatedAt: new Date("2024-09-03"),
     reschedule: () => {},
     takeAttendance: () => {},
     summary: () => "Grammar session - present tenses",
@@ -56,7 +56,7 @@ export const MOCK_COMPLETED_SESSIONS: CourseSession[] = [
     classId: "class-2nde-thulite",
     subjectId: "subject-anglais",
     timeSlotId: "slot-12h40-13h35",
-    sessionDate: new Date("2025-09-02"), // Lundi
+    sessionDate: new Date("2024-09-02"), // Lundi
     status: "done",
     objectives: "Class introduction and expectations",
     content: "Course overview, assessment methods, ice-breakers",
@@ -65,8 +65,8 @@ export const MOCK_COMPLETED_SESSIONS: CourseSession[] = [
     isMakeup: false,
     isMoved: null,
     notes: "Classe dynamique, bon niveau général",
-    createdAt: new Date("2025-09-02"),
-    updatedAt: new Date("2025-09-02"),
+    createdAt: new Date("2024-09-02"),
+    updatedAt: new Date("2024-09-02"),
     reschedule: () => {},
     takeAttendance: () => {},
     summary: () => "Introduction session with 2nde Thulite",
@@ -79,7 +79,7 @@ export const MOCK_COMPLETED_SESSIONS: CourseSession[] = [
     classId: "class-1e-onyx",
     subjectId: "subject-etlv",
     timeSlotId: "slot-9h30-10h25",
-    sessionDate: new Date("2025-09-05"), // Jeudi
+    sessionDate: new Date("2024-09-05"), // Jeudi
     status: "done",
     objectives: "ETLV Introduction - Science in English",
     content: "What is ETLV? Scientific method vocabulary",
@@ -88,8 +88,8 @@ export const MOCK_COMPLETED_SESSIONS: CourseSession[] = [
     isMakeup: false,
     isMoved: null,
     notes: "Élèves intéressés par l'approche interdisciplinaire",
-    createdAt: new Date("2025-09-05"),
-    updatedAt: new Date("2025-09-05"),
+    createdAt: new Date("2024-09-05"),
+    updatedAt: new Date("2024-09-05"),
     reschedule: () => {},
     takeAttendance: () => {},
     summary: () => "ETLV program introduction",
@@ -102,7 +102,7 @@ export const MOCK_COMPLETED_SESSIONS: CourseSession[] = [
     classId: "class-term-tanzanite",
     subjectId: "subject-anglais",
     timeSlotId: "slot-14h40-15h35",
-    sessionDate: new Date("2025-09-02"), // Lundi
+    sessionDate: new Date("2024-09-02"), // Lundi
     status: "done",
     objectives: "Bac preparation - Essay writing techniques",
     content: "Argumentative essay structure, thesis statements",
@@ -111,8 +111,8 @@ export const MOCK_COMPLETED_SESSIONS: CourseSession[] = [
     isMakeup: false,
     isMoved: null,
     notes: "Niveau avancé, préparation intensive au Bac",
-    createdAt: new Date("2025-09-02"),
-    updatedAt: new Date("2025-09-02"),
+    createdAt: new Date("2024-09-02"),
+    updatedAt: new Date("2024-09-02"),
     reschedule: () => {},
     takeAttendance: () => {},
     summary: () => "Bac prep - essay writing",
@@ -125,7 +125,7 @@ export const MOCK_COMPLETED_SESSIONS: CourseSession[] = [
     classId: "class-2nde-jaspe",
     subjectId: "subject-anglais",
     timeSlotId: "slot-11h40-12h35",
-    sessionDate: new Date("2025-10-07"),
+    sessionDate: new Date("2024-10-07"),
     status: "done",
     objectives: "Past tenses revision",
     content: "Past simple, past continuous, past perfect",
@@ -134,8 +134,8 @@ export const MOCK_COMPLETED_SESSIONS: CourseSession[] = [
     isMakeup: false,
     isMoved: null,
     notes: "Progrès visible depuis septembre",
-    createdAt: new Date("2025-10-07"),
-    updatedAt: new Date("2025-10-07"),
+    createdAt: new Date("2024-10-07"),
+    updatedAt: new Date("2024-10-07"),
     reschedule: () => {},
     takeAttendance: () => {},
     summary: () => "Past tenses revision session",
@@ -147,7 +147,7 @@ export const MOCK_COMPLETED_SESSIONS: CourseSession[] = [
     classId: "class-2nde-zircon",
     subjectId: "subject-anglais",
     timeSlotId: "slot-13h40-14h35",
-    sessionDate: new Date("2025-10-09"), // Mercredi
+    sessionDate: new Date("2024-10-09"), // Mercredi
     status: "done",
     objectives: "Vocabulary - Daily routines",
     content: "Time expressions, frequency adverbs",
@@ -156,8 +156,8 @@ export const MOCK_COMPLETED_SESSIONS: CourseSession[] = [
     isMakeup: false,
     isMoved: null,
     notes: "Participation active, bon esprit de classe",
-    createdAt: new Date("2025-10-09"),
-    updatedAt: new Date("2025-10-09"),
+    createdAt: new Date("2024-10-09"),
+    updatedAt: new Date("2024-10-09"),
     reschedule: () => {},
     takeAttendance: () => {},
     summary: () => "Daily routines vocabulary",
@@ -170,7 +170,7 @@ export const MOCK_COMPLETED_SESSIONS: CourseSession[] = [
     classId: "class-1e-onyx",
     subjectId: "subject-anglais",
     timeSlotId: "slot-9h30-10h25",
-    sessionDate: new Date("2025-11-08"), // Vendredi
+    sessionDate: new Date("2024-11-08"), // Vendredi
     status: "done",
     objectives: "Literature analysis - Shakespeare extract",
     content: "Romeo and Juliet Act 2, character analysis",
@@ -179,8 +179,8 @@ export const MOCK_COMPLETED_SESSIONS: CourseSession[] = [
     isMakeup: false,
     isMoved: null,
     notes: "Très bonne analyse littéraire, élèves engagés",
-    createdAt: new Date("2025-11-08"),
-    updatedAt: new Date("2025-11-08"),
+    createdAt: new Date("2024-11-08"),
+    updatedAt: new Date("2024-11-08"),
     reschedule: () => {},
     takeAttendance: () => {},
     summary: () => "Shakespeare literature analysis",
@@ -193,7 +193,7 @@ export const MOCK_COMPLETED_SESSIONS: CourseSession[] = [
     classId: "class-term-tanzanite",
     subjectId: "subject-etlv",
     timeSlotId: "slot-10h40-11h35",
-    sessionDate: new Date("2025-12-05"), // Jeudi
+    sessionDate: new Date("2024-12-05"), // Jeudi
     status: "done",
     objectives: "Environmental science vocabulary",
     content: "Climate change, renewable energy terms",
@@ -202,8 +202,8 @@ export const MOCK_COMPLETED_SESSIONS: CourseSession[] = [
     isMakeup: false,
     isMoved: null,
     notes: "Sujet d'actualité, très bons échanges",
-    createdAt: new Date("2025-12-05"),
-    updatedAt: new Date("2025-12-05"),
+    createdAt: new Date("2024-12-05"),
+    updatedAt: new Date("2024-12-05"),
     reschedule: () => {},
     takeAttendance: () => {},
     summary: () => "Environmental science ETLV session",

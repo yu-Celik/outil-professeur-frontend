@@ -111,8 +111,8 @@ export default function CalendrierPage() {
   };
 
   const handleManageAttendance = (sessionId: string) => {
-    // Navigation vers la gestion des présences
-    window.location.href = `/dashboard/sessions/${sessionId}?tab=attendance`;
+    // Navigation vers la page sessions unifiée avec sessionId pour auto-ouvrir l'accordéon
+    window.location.href = `/dashboard/sessions?sessionId=${sessionId}`;
   };
 
   const handleCreateMakeupSession = (date: Date, timeSlotId: string) => {

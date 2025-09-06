@@ -134,7 +134,7 @@ export function SessionMoveExample() {
   };
 
   const handleManageAttendance = (sessionId: string) => {
-    console.log("Gérer les présences pour la séance:", sessionId);
+    console.log("Gérer la participation pour la séance:", sessionId);
   };
 
   return (

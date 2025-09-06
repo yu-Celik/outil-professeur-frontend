@@ -12,3 +12,4 @@ export * from "./mock-time-slots";
 export * from "./mock-weekly-templates";
 export * from "./mock-completed-sessions";
 export * from "./mock-user-preferences";
+export * from "./mock-student-participation";

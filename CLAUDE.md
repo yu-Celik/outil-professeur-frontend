@@ -272,10 +272,8 @@ src/
 │       │   └── page.tsx
 │       ├── calendrier/             # Calendar view
 │       │   └── page.tsx
-│       ├── mes-cours/              # Course management
-│       │   ├── page.tsx
-│       │   └── [id]/
-│       │       └── page.tsx
+│       ├── sessions/               # Session management (replaces mes-cours)
+│       │   └── page.tsx
 │       ├── mes-eleves/             # Student profiles
 │       │   └── [id]/
 │       │       └── page.tsx
