@@ -7,7 +7,9 @@ import { useUserSession } from "@/hooks/use-user-session";
 
 export default function ReglagesPage() {
   const { user } = useUserSession();
-  const [activeTab, setActiveTab] = useState<"profil" | "creneaux" | "couleurs" | "preferences" | "securite">("profil");
+  const [activeTab, setActiveTab] = useState<
+    "profil" | "creneaux" | "couleurs" | "preferences" | "securite"
+  >("profil");
 
   const tabs = [
     { id: "profil" as const, label: "Profil", icon: "👤" },
@@ -49,7 +51,9 @@ export default function ReglagesPage() {
       {/* Contenu des onglets */}
       <div className="mt-6">
         {activeTab === "profil" && <ProfilSettings />}
-        {activeTab === "creneaux" && <TimeSlotsManagement teacherId={user?.id} />}
+        {activeTab === "creneaux" && (
+          <TimeSlotsManagement teacherId={user?.id} />
+        )}
         {activeTab === "couleurs" && (
           <div>
             <ClassColorPicker
@@ -75,7 +79,10 @@ function ProfilSettings() {
             <h3 className="text-lg font-semibold mb-4">Profil utilisateur</h3>
             <div className="space-y-4">
               <div>
-                <label htmlFor="nom-complet" className="text-sm font-medium mb-2 block">
+                <label
+                  htmlFor="nom-complet"
+                  className="text-sm font-medium mb-2 block"
+                >
                   Nom complet
                 </label>
                 <input
@@ -86,7 +93,10 @@ function ProfilSettings() {
                 />
               </div>
               <div>
-                <label htmlFor="email" className="text-sm font-medium mb-2 block">
+                <label
+                  htmlFor="email"
+                  className="text-sm font-medium mb-2 block"
+                >
                   Email
                 </label>
                 <input
@@ -124,10 +134,16 @@ function ProfilSettings() {
             <h3 className="text-lg font-semibold mb-4">Préférences</h3>
             <div className="space-y-4">
               <div>
-                <label htmlFor="langue" className="text-sm font-medium mb-2 block">
+                <label
+                  htmlFor="langue"
+                  className="text-sm font-medium mb-2 block"
+                >
                   Langue
                 </label>
-                <select id="langue" className="w-full px-3 py-2 border rounded-md">
+                <select
+                  id="langue"
+                  className="w-full px-3 py-2 border rounded-md"
+                >
                   <option>Français</option>
                   <option>English</option>
                 </select>
@@ -148,10 +164,16 @@ function PreferencesSettings() {
           <h3 className="text-lg font-semibold mb-4">Préférences</h3>
           <div className="space-y-4">
             <div>
-              <label htmlFor="langue" className="text-sm font-medium mb-2 block">
+              <label
+                htmlFor="langue"
+                className="text-sm font-medium mb-2 block"
+              >
                 Langue
               </label>
-              <select id="langue" className="w-full px-3 py-2 border rounded-md">
+              <select
+                id="langue"
+                className="w-full px-3 py-2 border rounded-md"
+              >
                 <option>Français</option>
                 <option>English</option>
               </select>

@@ -6,7 +6,7 @@ export const MOCK_TEACHERS: Teacher[] = [
     email: "nandini.sorubakanthan@ecole.fr",
     language: "fr",
     createdAt: new Date("2025-09-01"),
-    updatedAt: new Date(),
+    updatedAt: new Date("2025-09-06"),
   },
 ];
 

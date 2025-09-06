@@ -14,8 +14,14 @@ import { MOCK_CLASSES } from "@/data";
 import { useClassColors } from "@/hooks/use-class-colors";
 
 interface ClassColorPickerProps {
-  isOpen: boolean;
-  onClose: () => void;
+  // Nouveau pattern standardisé (recommandé)
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+
+  // Ancien pattern (rétrocompatibilité)
+  isOpen?: boolean;
+  onClose?: () => void;
+
   teacherId?: string;
 }
 
@@ -24,10 +30,23 @@ interface ClassColorPickerProps {
  * Permet de choisir une couleur pour chaque classe
  */
 export function ClassColorPicker({
+  // Nouveau pattern
+  open,
+  onOpenChange,
+  // Ancien pattern (rétrocompatibilité)
   isOpen,
   onClose,
   teacherId = "KsmNtVf4zwqO3VV3SQJqPrRlQBA1fFyR",
 }: ClassColorPickerProps) {
+  // Support des deux patterns
+  const isDialogOpen = open !== undefined ? open : (isOpen ?? false);
+  const handleOpenChange = (newOpen: boolean) => {
+    if (onOpenChange) {
+      onOpenChange(newOpen);
+    } else if (onClose && !newOpen) {
+      onClose();
+    }
+  };
   const {
     getClassBackgroundColor,
     updateClassColor,
@@ -55,7 +74,7 @@ export function ClassColorPicker({
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+    <Dialog open={isDialogOpen} onOpenChange={handleOpenChange}>
       <DialogContent size="2xl" className="max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <div className="flex items-center gap-2">
@@ -67,7 +86,7 @@ export function ClassColorPicker({
             utilisées dans le calendrier et les autres vues.
           </DialogDescription>
         </DialogHeader>
-        
+
         <div className="space-y-4">
           <div className="flex justify-end">
             <Button
@@ -96,9 +115,7 @@ export function ClassColorPicker({
                       style={{ backgroundColor: currentColor }}
                     />
                     <div>
-                      <div className="font-medium">
-                        {classEntity.classCode}
-                      </div>
+                      <div className="font-medium">{classEntity.classCode}</div>
                       <div className="text-sm text-muted-foreground">
                         {classEntity.gradeLabel}
                       </div>

@@ -155,8 +155,10 @@ export function useTeachingAssignments(
         );
     },
 
-    canManageSessions: assignments.some(assignment => assignment.isActive && assignment.role === "teacher"),
-    canViewSessions: assignments.some(assignment => assignment.isActive),
+    canManageSessions: assignments.some(
+      (assignment) => assignment.isActive && assignment.role === "teacher",
+    ),
+    canViewSessions: assignments.some((assignment) => assignment.isActive),
 
     getCurrentAssignments: () => {
       return assignments.filter((assignment) => assignment.isActive);

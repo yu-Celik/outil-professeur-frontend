@@ -11,8 +11,8 @@ export const MOCK_TEACHING_ASSIGNMENTS: TeachingAssignment[] = [
     schoolYearId: "year-2025",
     role: "teacher",
     isActive: true,
-    createdAt: new Date("2025-09-01"),
-    updatedAt: new Date("2025-09-01"),
+    createdAt: new Date("2025-08-15"),
+    updatedAt: new Date("2025-09-06"),
   },
   // Anglais - 2nde Zircon
   {
@@ -24,8 +24,8 @@ export const MOCK_TEACHING_ASSIGNMENTS: TeachingAssignment[] = [
     schoolYearId: "year-2025",
     role: "teacher",
     isActive: true,
-    createdAt: new Date("2025-09-01"),
-    updatedAt: new Date("2025-09-01"),
+    createdAt: new Date("2025-08-15"),
+    updatedAt: new Date("2025-09-06"),
   },
   // Anglais - 2nde Thulite
   {
@@ -37,8 +37,8 @@ export const MOCK_TEACHING_ASSIGNMENTS: TeachingAssignment[] = [
     schoolYearId: "year-2025",
     role: "teacher",
     isActive: true,
-    createdAt: new Date("2025-09-01"),
-    updatedAt: new Date("2025-09-01"),
+    createdAt: new Date("2025-08-15"),
+    updatedAt: new Date("2025-09-06"),
   },
   // Anglais - 1e Onyx
   {
@@ -50,8 +50,8 @@ export const MOCK_TEACHING_ASSIGNMENTS: TeachingAssignment[] = [
     schoolYearId: "year-2025",
     role: "teacher",
     isActive: true,
-    createdAt: new Date("2025-09-01"),
-    updatedAt: new Date("2025-09-01"),
+    createdAt: new Date("2025-08-15"),
+    updatedAt: new Date("2025-09-06"),
   },
   // Anglais - Term Tanzanite
   {
@@ -63,8 +63,8 @@ export const MOCK_TEACHING_ASSIGNMENTS: TeachingAssignment[] = [
     schoolYearId: "year-2025",
     role: "teacher",
     isActive: true,
-    createdAt: new Date("2025-09-01"),
-    updatedAt: new Date("2025-09-01"),
+    createdAt: new Date("2025-08-15"),
+    updatedAt: new Date("2025-09-06"),
   },
   // ETLV - 1e Onyx
   {
@@ -76,8 +76,8 @@ export const MOCK_TEACHING_ASSIGNMENTS: TeachingAssignment[] = [
     schoolYearId: "year-2025",
     role: "teacher",
     isActive: true,
-    createdAt: new Date("2025-09-01"),
-    updatedAt: new Date("2025-09-01"),
+    createdAt: new Date("2025-08-15"),
+    updatedAt: new Date("2025-09-06"),
   },
   // ETLV - Term Tanzanite
   {
@@ -89,8 +89,8 @@ export const MOCK_TEACHING_ASSIGNMENTS: TeachingAssignment[] = [
     schoolYearId: "year-2025",
     role: "teacher",
     isActive: true,
-    createdAt: new Date("2025-09-01"),
-    updatedAt: new Date("2025-09-01"),
+    createdAt: new Date("2025-08-15"),
+    updatedAt: new Date("2025-09-06"),
   },
 ];
 

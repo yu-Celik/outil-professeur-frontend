@@ -1,17 +1,7 @@
 // Template hebdomadaire récurrent - Pattern qui se répète chaque semaine
-// Utilise les entités UML existantes : TeachingAssignment comme base conceptuelle
+// Utilise les entités UML définies dans /src/types/uml-entities.ts
 
-export interface WeeklyTemplate {
-  id: string;
-  teacherId: string; // Teacher.id
-  dayOfWeek: number; // 1=lundi, 2=mardi, ..., 7=dimanche
-  timeSlotId: string; // TimeSlot.id
-  classId: string; // Class.id
-  subjectId: string; // Subject.id
-  schoolYearId: string; // SchoolYear.id
-  room: string;
-  isActive: boolean;
-}
+import type { WeeklyTemplate } from "@/types/uml-entities";
 
 // Template hebdomadaire pour le professeur d'anglais - Emploi du temps actualisé
 export const MOCK_WEEKLY_TEMPLATES: WeeklyTemplate[] = [

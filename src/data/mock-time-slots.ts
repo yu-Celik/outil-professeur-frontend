@@ -11,7 +11,7 @@ export const MOCK_TIME_SLOTS: TimeSlot[] = [
     displayOrder: 1,
     isBreak: false,
     createdAt: new Date("2025-09-01"),
-    updatedAt: new Date(),
+    updatedAt: new Date("2025-09-06"),
     overlaps: function (other: TimeSlot): boolean {
       const thisStart = parseInt(this.startTime.replace(":", ""), 10);
       const thisEnd = parseInt(this.endTime.replace(":", ""), 10);
@@ -34,7 +34,7 @@ export const MOCK_TIME_SLOTS: TimeSlot[] = [
     displayOrder: 2,
     isBreak: false,
     createdAt: new Date("2025-09-01"),
-    updatedAt: new Date(),
+    updatedAt: new Date("2025-09-06"),
     overlaps: function (other: TimeSlot): boolean {
       const thisStart = parseInt(this.startTime.replace(":", ""), 10);
       const thisEnd = parseInt(this.endTime.replace(":", ""), 10);
@@ -57,7 +57,7 @@ export const MOCK_TIME_SLOTS: TimeSlot[] = [
     displayOrder: 3,
     isBreak: false,
     createdAt: new Date("2025-09-01"),
-    updatedAt: new Date(),
+    updatedAt: new Date("2025-09-06"),
     overlaps: function (other: TimeSlot): boolean {
       const thisStart = parseInt(this.startTime.replace(":", ""), 10);
       const thisEnd = parseInt(this.endTime.replace(":", ""), 10);
@@ -80,7 +80,7 @@ export const MOCK_TIME_SLOTS: TimeSlot[] = [
     displayOrder: 4,
     isBreak: false,
     createdAt: new Date("2025-09-01"),
-    updatedAt: new Date(),
+    updatedAt: new Date("2025-09-06"),
     overlaps: function (other: TimeSlot): boolean {
       const thisStart = parseInt(this.startTime.replace(":", ""), 10);
       const thisEnd = parseInt(this.endTime.replace(":", ""), 10);
@@ -103,7 +103,7 @@ export const MOCK_TIME_SLOTS: TimeSlot[] = [
     displayOrder: 5,
     isBreak: false,
     createdAt: new Date("2025-09-01"),
-    updatedAt: new Date(),
+    updatedAt: new Date("2025-09-06"),
     overlaps: function (other: TimeSlot): boolean {
       const thisStart = parseInt(this.startTime.replace(":", ""), 10);
       const thisEnd = parseInt(this.endTime.replace(":", ""), 10);
@@ -126,7 +126,7 @@ export const MOCK_TIME_SLOTS: TimeSlot[] = [
     displayOrder: 6,
     isBreak: false,
     createdAt: new Date("2025-09-01"),
-    updatedAt: new Date(),
+    updatedAt: new Date("2025-09-06"),
     overlaps: function (other: TimeSlot): boolean {
       const thisStart = parseInt(this.startTime.replace(":", ""), 10);
       const thisEnd = parseInt(this.endTime.replace(":", ""), 10);
@@ -149,7 +149,7 @@ export const MOCK_TIME_SLOTS: TimeSlot[] = [
     displayOrder: 7,
     isBreak: false,
     createdAt: new Date("2025-09-01"),
-    updatedAt: new Date(),
+    updatedAt: new Date("2025-09-06"),
     overlaps: function (other: TimeSlot): boolean {
       const thisStart = parseInt(this.startTime.replace(":", ""), 10);
       const thisEnd = parseInt(this.endTime.replace(":", ""), 10);
@@ -172,7 +172,7 @@ export const MOCK_TIME_SLOTS: TimeSlot[] = [
     displayOrder: 8,
     isBreak: false,
     createdAt: new Date("2025-09-01"),
-    updatedAt: new Date(),
+    updatedAt: new Date("2025-09-06"),
     overlaps: function (other: TimeSlot): boolean {
       const thisStart = parseInt(this.startTime.replace(":", ""), 10);
       const thisEnd = parseInt(this.endTime.replace(":", ""), 10);

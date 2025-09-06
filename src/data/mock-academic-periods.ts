@@ -11,7 +11,7 @@ export const MOCK_ACADEMIC_PERIODS: AcademicPeriod[] = [
     endDate: new Date("2025-12-20"),
     isActive: true,
     createdAt: new Date("2025-08-15"),
-    updatedAt: new Date("2025-08-15"),
+    updatedAt: new Date("2025-09-06"),
     contains: (date: Date) => {
       return date >= new Date("2025-09-01") && date <= new Date("2025-12-20");
     },
@@ -22,13 +22,13 @@ export const MOCK_ACADEMIC_PERIODS: AcademicPeriod[] = [
     schoolYearId: "year-2025",
     name: "2ème Trimestre",
     order: 2,
-    startDate: new Date("2025-01-06"),
-    endDate: new Date("2025-03-28"),
+    startDate: new Date("2026-01-06"),
+    endDate: new Date("2026-03-28"),
     isActive: false,
     createdAt: new Date("2025-08-15"),
-    updatedAt: new Date("2025-08-15"),
+    updatedAt: new Date("2025-09-06"),
     contains: (date: Date) => {
-      return date >= new Date("2025-01-06") && date <= new Date("2025-03-28");
+      return date >= new Date("2026-01-06") && date <= new Date("2026-03-28");
     },
   },
   {
@@ -37,13 +37,13 @@ export const MOCK_ACADEMIC_PERIODS: AcademicPeriod[] = [
     schoolYearId: "year-2025",
     name: "3ème Trimestre",
     order: 3,
-    startDate: new Date("2025-04-14"),
-    endDate: new Date("2025-06-30"),
+    startDate: new Date("2026-04-14"),
+    endDate: new Date("2026-06-30"),
     isActive: false,
     createdAt: new Date("2025-08-15"),
-    updatedAt: new Date("2025-08-15"),
+    updatedAt: new Date("2025-09-06"),
     contains: (date: Date) => {
-      return date >= new Date("2025-04-14") && date <= new Date("2025-06-30");
+      return date >= new Date("2026-04-14") && date <= new Date("2026-06-30");
     },
   },
 ];

@@ -423,11 +423,11 @@ export default function StudentEvaluationPage({
                 </div>
                 <div className="flex justify-between">
                   <span>Présences prises:</span>
-                  <span>{courseSession?.attendanceTaken ? "Oui" : "Non"}</span>
+                  <span>{courseSession?.status === "done" ? "Oui" : "Non"}</span>
                 </div>
               </div>
 
-              {!courseSession?.attendanceTaken && (
+              {courseSession?.status !== "done" && (
                 <Button
                   className="w-full mt-4 gap-2"
                   onClick={takeAttendance}

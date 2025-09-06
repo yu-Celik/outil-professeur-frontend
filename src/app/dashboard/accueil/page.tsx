@@ -5,9 +5,19 @@ import { ChatAI } from "@/components/organisms/chat-ai";
 import { ClassesStudentsCard } from "@/components/organisms/classes-students-card";
 import { OnboardingBanner } from "@/components/organisms/onboarding-banner";
 import { useDashboardData } from "@/hooks/use-dashboard-data";
+import { useDashboardSessions } from "@/hooks/use-dashboard-sessions";
+import { useUserSession } from "@/hooks/use-user-session";
+import { MOCK_TEACHERS } from "@/data/mock-teachers";
 
 export default function AccueilPage() {
+  const { user, isLoading: userLoading } = useUserSession();
   const { classes, students } = useDashboardData();
+  
+  // Utilise l'ID spécifique du teacher principal
+  const currentTeacherId = user?.id || "KsmNtVf4zwqO3VV3SQJqPrRlQBA1fFyR";
+  const currentTeacher = MOCK_TEACHERS.find(t => t.id === currentTeacherId) || MOCK_TEACHERS[0];
+  
+  const { upcomingSessions, todayStats } = useDashboardSessions(currentTeacherId);
 
   const handleSkipOnboarding = () => {
     console.log("Skipping onboarding");
@@ -48,7 +58,7 @@ export default function AccueilPage() {
       {/* En-tête avec salutation */}
       <div className="flex items-center justify-between flex-shrink-0">
         <h1 className="text-3xl font-bold tracking-tight">
-          Bonjour {"{nom prénom}"}
+          Bonjour {user?.name || currentTeacher?.email?.split('@')[0] || "Professeur"}
         </h1>
       </div>
 
@@ -72,6 +82,7 @@ export default function AccueilPage() {
               type="classes"
               classes={classes}
               students={students}
+              teacherId={currentTeacherId}
               onAdd={handleAddClass}
               onSortChange={handleStudentSort}
               onAddClass={handleAddClassData}
@@ -79,7 +90,7 @@ export default function AccueilPage() {
             />
           </div>
           <div className="flex-shrink-0 h-96">
-            <CalendarWidget />
+            <CalendarWidget teacherId={currentTeacherId} />
           </div>
         </div>
 

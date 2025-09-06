@@ -8,7 +8,7 @@ export const MOCK_SUBJECTS: Subject[] = [
     code: "ANG",
     description: "Cours d'anglais langue étrangère",
     createdAt: new Date("2025-09-01"),
-    updatedAt: new Date(),
+    updatedAt: new Date("2025-09-06"),
   },
   {
     id: "subject-etlv",
@@ -17,7 +17,7 @@ export const MOCK_SUBJECTS: Subject[] = [
     code: "ETLV",
     description: "Enseignement Technologique en Langue Vivante",
     createdAt: new Date("2025-09-01"),
-    updatedAt: new Date(),
+    updatedAt: new Date("2025-09-06"),
   },
 ];
 

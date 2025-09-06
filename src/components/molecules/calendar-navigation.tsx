@@ -31,13 +31,11 @@ export function CalendarNavigation({
           <ChevronLeft className="h-4 w-4" />
           <span className="hidden sm:inline">Semaine précédente</span>
         </Button>
-        
+
         <div className="px-3">
-          <h2 className="text-lg font-semibold">
-            {monthYear}
-          </h2>
+          <h2 className="text-lg font-semibold">{monthYear}</h2>
         </div>
-        
+
         <Button
           variant="outline"
           size="sm"
@@ -48,7 +46,7 @@ export function CalendarNavigation({
           <ChevronRight className="h-4 w-4" />
         </Button>
       </div>
-      
+
       {/* Actions rapides */}
       <div className="flex items-center gap-2">
         <Button

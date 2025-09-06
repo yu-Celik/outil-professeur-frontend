@@ -8,7 +8,7 @@ export const MOCK_CLASSES: Class[] = [
     gradeLabel: "Seconde Jaspe",
     schoolYearId: "year-2025",
     createdAt: new Date("2025-09-01"),
-    updatedAt: new Date(),
+    updatedAt: new Date("2025-09-06"),
     assignStudent: (studentId: string) =>
       console.log("Assign student:", studentId),
     transferStudent: (_studentId: string, _toClassId: string) =>
@@ -24,7 +24,7 @@ export const MOCK_CLASSES: Class[] = [
     gradeLabel: "Seconde Zircon",
     schoolYearId: "year-2025",
     createdAt: new Date("2025-09-01"),
-    updatedAt: new Date(),
+    updatedAt: new Date("2025-09-06"),
     assignStudent: (studentId: string) =>
       console.log("Assign student:", studentId),
     transferStudent: (_studentId: string, _toClassId: string) =>
@@ -40,7 +40,7 @@ export const MOCK_CLASSES: Class[] = [
     gradeLabel: "Seconde Thulite",
     schoolYearId: "year-2025",
     createdAt: new Date("2025-09-01"),
-    updatedAt: new Date(),
+    updatedAt: new Date("2025-09-06"),
     assignStudent: (studentId: string) =>
       console.log("Assign student:", studentId),
     transferStudent: (_studentId: string, _toClassId: string) =>
@@ -56,7 +56,7 @@ export const MOCK_CLASSES: Class[] = [
     gradeLabel: "Première Onyx",
     schoolYearId: "year-2025",
     createdAt: new Date("2025-09-01"),
-    updatedAt: new Date(),
+    updatedAt: new Date("2025-09-06"),
     assignStudent: (studentId: string) =>
       console.log("Assign student:", studentId),
     transferStudent: (_studentId: string, _toClassId: string) =>
@@ -72,7 +72,7 @@ export const MOCK_CLASSES: Class[] = [
     gradeLabel: "Terminale Tanzanite",
     schoolYearId: "year-2025",
     createdAt: new Date("2025-09-01"),
-    updatedAt: new Date(),
+    updatedAt: new Date("2025-09-06"),
     assignStudent: (studentId: string) =>
       console.log("Assign student:", studentId),
     transferStudent: (_studentId: string, _toClassId: string) =>

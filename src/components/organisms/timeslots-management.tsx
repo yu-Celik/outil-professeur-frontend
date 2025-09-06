@@ -14,7 +14,12 @@ import {
 import { Button } from "@/components/atoms/button";
 import { Badge } from "@/components/atoms/badge";
 import { Card, CardContent, CardHeader } from "@/components/molecules/card";
-import { Modal } from "@/components/molecules/modal";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/molecules/dialog";
 import { TimeSlotForm } from "@/components/molecules/timeslot-form";
 import { useTimeSlots } from "@/hooks/use-timeslots";
 import type { TimeSlot } from "@/types/uml-entities";
@@ -40,8 +45,8 @@ export function TimeSlotsManagement({ teacherId }: TimeSlotsManagementProps) {
   const [editingSlot, setEditingSlot] = useState<TimeSlot | null>(null);
   const [draggedSlot, setDraggedSlot] = useState<TimeSlot | null>(null);
 
-  const activeSlots = timeSlots.filter(slot => !slot.isBreak);
-  const inactiveSlots = timeSlots.filter(slot => slot.isBreak);
+  const activeSlots = timeSlots.filter((slot) => !slot.isBreak);
+  const inactiveSlots = timeSlots.filter((slot) => slot.isBreak);
 
   const handleCreate = async (data: any) => {
     await createTimeSlot(data);
@@ -65,7 +70,7 @@ export function TimeSlotsManagement({ teacherId }: TimeSlotsManagementProps) {
     const hours = Math.floor(minutes / 60);
     const mins = minutes % 60;
     if (hours > 0) {
-      return `${hours}h${mins > 0 ? ` ${mins}min` : ''}`;
+      return `${hours}h${mins > 0 ? ` ${mins}min` : ""}`;
     }
     return `${mins}min`;
   };
@@ -82,26 +87,33 @@ export function TimeSlotsManagement({ teacherId }: TimeSlotsManagementProps) {
 
   const handleDrop = async (e: React.DragEvent, targetSlot: TimeSlot) => {
     e.preventDefault();
-    
+
     if (!draggedSlot || draggedSlot.id === targetSlot.id) return;
-    
+
     const reorderedSlots = [...activeSlots];
-    const draggedIndex = reorderedSlots.findIndex(slot => slot.id === draggedSlot.id);
-    const targetIndex = reorderedSlots.findIndex(slot => slot.id === targetSlot.id);
-    
+    const draggedIndex = reorderedSlots.findIndex(
+      (slot) => slot.id === draggedSlot.id,
+    );
+    const targetIndex = reorderedSlots.findIndex(
+      (slot) => slot.id === targetSlot.id,
+    );
+
     reorderedSlots.splice(draggedIndex, 1);
     reorderedSlots.splice(targetIndex, 0, draggedSlot);
-    
+
     await reorderTimeSlots([...reorderedSlots, ...inactiveSlots]);
     setDraggedSlot(null);
   };
 
   const TimeSlotItem = ({ slot, index }: { slot: TimeSlot; index: number }) => {
-    const conflicts = checkConflicts({
-      startTime: slot.startTime,
-      endTime: slot.endTime,
-      name: slot.name,
-    }, slot.id);
+    const conflicts = checkConflicts(
+      {
+        startTime: slot.startTime,
+        endTime: slot.endTime,
+        name: slot.name,
+      },
+      slot.id,
+    );
 
     return (
       <div
@@ -111,8 +123,8 @@ export function TimeSlotsManagement({ teacherId }: TimeSlotsManagementProps) {
         onDragOver={handleDragOver}
         onDrop={(e) => handleDrop(e, slot)}
         className={`group p-4 border rounded-lg transition-all duration-200 ${
-          slot.isBreak 
-            ? "bg-muted/50 border-muted text-muted-foreground" 
+          slot.isBreak
+            ? "bg-muted/50 border-muted text-muted-foreground"
             : "bg-background border-border hover:border-primary/50"
         } ${draggedSlot?.id === slot.id ? "opacity-50" : ""}`}
       >
@@ -123,14 +135,14 @@ export function TimeSlotsManagement({ teacherId }: TimeSlotsManagementProps) {
                 <GripVertical className="h-4 w-4 text-muted-foreground" />
               </div>
             )}
-            
+
             <div className="flex items-center gap-2">
               <Badge variant="outline" className="text-xs">
                 #{index + 1}
               </Badge>
               <Clock className="h-4 w-4" />
             </div>
-            
+
             <div>
               <div className="font-medium">
                 {slot.name}
@@ -141,12 +153,15 @@ export function TimeSlotsManagement({ teacherId }: TimeSlotsManagementProps) {
                 )}
               </div>
               <div className="text-sm text-muted-foreground">
-                {slot.startTime} - {slot.endTime} ({formatDuration(slot.durationMinutes)})
+                {slot.startTime} - {slot.endTime} (
+                {formatDuration(slot.durationMinutes)})
               </div>
               {conflicts.length > 0 && (
                 <div className="flex items-center gap-1 text-xs text-destructive mt-1">
                   <AlertTriangle className="h-3 w-3" />
-                  Conflit avec {conflicts.length} autre{conflicts.length > 1 ? 's' : ''} créneau{conflicts.length > 1 ? 'x' : ''}
+                  Conflit avec {conflicts.length} autre
+                  {conflicts.length > 1 ? "s" : ""} créneau
+                  {conflicts.length > 1 ? "x" : ""}
                 </div>
               )}
             </div>
@@ -163,15 +178,19 @@ export function TimeSlotsManagement({ teacherId }: TimeSlotsManagementProps) {
             >
               <Edit className="h-4 w-4" />
             </Button>
-            
+
             <Button
               variant="ghost"
               size="sm"
               onClick={() => handleToggle(slot.id)}
             >
-              {slot.isBreak ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
+              {slot.isBreak ? (
+                <Eye className="h-4 w-4" />
+              ) : (
+                <EyeOff className="h-4 w-4" />
+              )}
             </Button>
-            
+
             <Button
               variant="ghost"
               size="sm"
@@ -212,16 +231,21 @@ export function TimeSlotsManagement({ teacherId }: TimeSlotsManagementProps) {
         {/* Statistiques */}
         <div className="grid grid-cols-3 gap-4">
           <div className="p-3 bg-chart-1/10 border border-chart-1/20 rounded-lg">
-            <div className="text-2xl font-bold text-chart-1">{activeSlots.length}</div>
+            <div className="text-2xl font-bold text-chart-1">
+              {activeSlots.length}
+            </div>
             <div className="text-xs text-chart-1">Créneaux actifs</div>
           </div>
           <div className="p-3 bg-muted/50 border border-border rounded-lg">
-            <div className="text-2xl font-bold text-muted-foreground">{inactiveSlots.length}</div>
+            <div className="text-2xl font-bold text-muted-foreground">
+              {inactiveSlots.length}
+            </div>
             <div className="text-xs text-muted-foreground">Désactivés</div>
           </div>
           <div className="p-3 bg-chart-3/10 border border-chart-3/20 rounded-lg">
             <div className="text-2xl font-bold text-chart-3">
-              {activeSlots.reduce((acc, slot) => acc + slot.durationMinutes, 0)}min
+              {activeSlots.reduce((acc, slot) => acc + slot.durationMinutes, 0)}
+              min
             </div>
             <div className="text-xs text-chart-3">Durée totale</div>
           </div>
@@ -249,7 +273,11 @@ export function TimeSlotsManagement({ teacherId }: TimeSlotsManagementProps) {
             </h3>
             <div className="space-y-2">
               {inactiveSlots.map((slot, index) => (
-                <TimeSlotItem key={slot.id} slot={slot} index={activeSlots.length + index} />
+                <TimeSlotItem
+                  key={slot.id}
+                  slot={slot}
+                  index={activeSlots.length + index}
+                />
               ))}
             </div>
           </div>
@@ -261,9 +289,12 @@ export function TimeSlotsManagement({ teacherId }: TimeSlotsManagementProps) {
             <div className="w-20 h-20 rounded-2xl bg-muted/50 flex items-center justify-center mx-auto mb-4">
               <Clock className="h-8 w-8 text-muted-foreground" />
             </div>
-            <h3 className="font-semibold text-lg mb-2">Aucun créneau configuré</h3>
+            <h3 className="font-semibold text-lg mb-2">
+              Aucun créneau configuré
+            </h3>
             <p className="text-muted-foreground mb-4 max-w-sm mx-auto">
-              Créez votre premier créneau horaire pour structurer votre calendrier
+              Créez votre premier créneau horaire pour structurer votre
+              calendrier
             </p>
             <Button onClick={() => setShowForm(true)} className="gap-2">
               <Plus className="h-4 w-4" />
@@ -274,23 +305,35 @@ export function TimeSlotsManagement({ teacherId }: TimeSlotsManagementProps) {
       </CardContent>
 
       {/* Modal de formulaire */}
-      {showForm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="max-h-[90vh] overflow-y-auto">
-            <TimeSlotForm
-              onClose={() => {
-                setShowForm(false);
-                setEditingSlot(null);
-              }}
-              onSave={handleCreate}
-              onUpdate={editingSlot ? handleUpdate : undefined}
-              initialData={editingSlot || undefined}
-              calculateDuration={calculateDuration}
-              checkConflicts={checkConflicts}
-            />
-          </div>
-        </div>
-      )}
+      <Dialog
+        open={showForm}
+        onOpenChange={(open) => {
+          if (!open) {
+            setShowForm(false);
+            setEditingSlot(null);
+          }
+        }}
+      >
+        <DialogContent size="lg" className="max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>
+              {editingSlot ? "Modifier le créneau" : "Nouveau créneau"}
+            </DialogTitle>
+          </DialogHeader>
+          <TimeSlotForm
+            onClose={() => {
+              setShowForm(false);
+              setEditingSlot(null);
+            }}
+            onSave={handleCreate}
+            onUpdate={editingSlot ? handleUpdate : undefined}
+            initialData={editingSlot || undefined}
+            calculateDuration={calculateDuration}
+            checkConflicts={checkConflicts}
+            standalone={false}
+          />
+        </DialogContent>
+      </Dialog>
     </Card>
   );
 }

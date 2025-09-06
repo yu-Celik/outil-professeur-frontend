@@ -180,8 +180,10 @@ export function CalendarWidget({
                         variant="outline"
                         className={`text-xs ${getEventStatusColor(event)}`}
                       >
-                        {event.courseSession.status === "in_progress" && "En cours"}
-                        {event.courseSession.status === "planned" && "Planifiée"}
+                        {event.courseSession.status === "in_progress" &&
+                          "En cours"}
+                        {event.courseSession.status === "planned" &&
+                          "Planifiée"}
                         {event.courseSession.status === "done" && "Terminée"}
                         {event.courseSession.status === "canceled" && "Annulée"}
                       </Badge>

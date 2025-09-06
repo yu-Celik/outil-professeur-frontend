@@ -15,7 +15,7 @@ export function useLogout() {
     });
   };
 
-  return { 
+  return {
     handleLogout,
     isLoading,
     error,

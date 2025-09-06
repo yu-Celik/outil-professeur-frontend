@@ -20,7 +20,7 @@ interface UpcomingSession {
  * Utilise les sessions générées depuis les templates hebdomadaires
  */
 export function useDashboardSessions(teacherId: string) {
-  const { getSessionsForDay } = useWeeklySessions(teacherId);
+  const { getSessionsForDay, weeklyTemplates, activeSchoolYear } = useWeeklySessions(teacherId);
 
   // Sessions d'aujourd'hui
   const todaySessions = useMemo(() => {
@@ -28,11 +28,20 @@ export function useDashboardSessions(teacherId: string) {
     return getSessionsForDay(today);
   }, [getSessionsForDay]);
 
-  // Prochaines sessions à venir
+  // Prochaines sessions à venir (des 7 prochains jours)
   const upcomingSessions = useMemo((): UpcomingSession[] => {
-    const now = new Date();
+    const now = new Date(); // Revenir à la date courante
+    const weekSessions = [];
 
-    return todaySessions
+    // Générer les sessions des 7 prochains jours
+    for (let i = 0; i < 7; i++) {
+      const date = new Date(now);
+      date.setDate(date.getDate() + i);
+      const daySessions = getSessionsForDay(date);
+      weekSessions.push(...daySessions);
+    }
+
+    return weekSessions
       .map((session) => {
         const timeSlot = MOCK_TIME_SLOTS.find(
           (slot) => slot.id === session.timeSlotId,
@@ -77,9 +86,7 @@ export function useDashboardSessions(teacherId: string) {
   // Statistiques du jour
   const todayStats = useMemo(() => {
     const total = todaySessions.length;
-    const completed = todaySessions.filter(
-      (s) => s.status === "done",
-    ).length;
+    const completed = todaySessions.filter((s) => s.status === "done").length;
     const scheduled = todaySessions.filter(
       (s) => s.status === "planned",
     ).length;

@@ -37,17 +37,16 @@ export function useDashboardData() {
       id: cls.id,
       name: cls.classCode,
       studentCount:
-        MOCK_STUDENTS.filter((student) =>
-          student.currentClassId === cls.id,
-        ).length || 0, // Pas de fallback aléatoire pour éviter les erreurs d'hydratation
+        MOCK_STUDENTS.filter((student) => student.currentClassId === cls.id)
+          .length || 0, // Pas de fallback aléatoire pour éviter les erreurs d'hydratation
     })),
   );
 
   const [students] = useState<DashboardStudent[]>(
     MOCK_STUDENTS.map((student) => {
       // Trouve la première classe associée
-      const associatedClass = MOCK_CLASSES.find((cls) =>
-        student.currentClassId === cls.id,
+      const associatedClass = MOCK_CLASSES.find(
+        (cls) => student.currentClassId === cls.id,
       );
 
       return {

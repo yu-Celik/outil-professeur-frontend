@@ -3,11 +3,7 @@
  * Centralise les définitions pour éviter la duplication
  */
 
-export type SessionStatus =
-  | "planned"
-  | "done"
-  | "canceled"
-  | "in_progress";
+export type SessionStatus = "planned" | "done" | "canceled" | "in_progress";
 
 export const SESSION_STATUS_CONFIG = {
   planned: {

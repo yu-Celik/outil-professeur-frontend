@@ -1,10 +1,10 @@
 "use client";
 
 import {
-  Book,
   Building2,
   Calendar,
   Camera,
+  ClipboardList,
   Database,
   FileBarChart,
   FileImage,
@@ -51,9 +51,9 @@ const data = {
       icon: Calendar,
     },
     {
-      title: "Mes cours",
-      url: "/dashboard/mes-cours",
-      icon: Book,
+      title: "Gestion des séances",
+      url: "/dashboard/sessions",
+      icon: ClipboardList,
     },
     {
       title: "Mes élèves",

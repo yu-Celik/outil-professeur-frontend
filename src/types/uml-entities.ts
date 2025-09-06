@@ -122,6 +122,18 @@ export interface TimeSlot {
   getDuration(): number;
 }
 
+export interface WeeklyTemplate {
+  id: string;
+  teacherId: string; // → Teacher.id
+  dayOfWeek: number; // 1=lundi … 7=dimanche
+  timeSlotId: string; // → TimeSlot.id
+  classId: string; // → Class.id
+  subjectId: string; // → Subject.id
+  schoolYearId: string; // → SchoolYear.id
+  room: string;
+  isActive: boolean;
+}
+
 export interface CourseSession {
   id: string;
   createdBy: string;
@@ -129,12 +141,14 @@ export interface CourseSession {
   subjectId: string;
   timeSlotId: string;
   sessionDate: Date;
-  status: 'planned' | 'in_progress' | 'done' | 'canceled'
-  objectives: string;
-  content: string;
-  homeworkAssigned: string;
-  notes: string;
-  attendanceTaken: boolean;
+  status: "planned" | "in_progress" | "done" | "canceled";
+  objectives: string | null;
+  content: string | null;
+  homeworkAssigned: string | null;
+  room: string | null;
+  isMakeup: boolean | null;
+  isMoved: boolean | null;
+  notes: string | null;
   createdAt: Date;
   updatedAt: Date;
   reschedule(newDate: Date): void;
@@ -359,4 +373,11 @@ export interface UMLRelations {
 
   // UserPreferences relationship
   teacher_preferences: Teacher & { preferences: UserPreferences };
+
+  // WeeklyTemplate relationships
+  teacher_weeklyTemplates: Teacher & { weeklyTemplates: WeeklyTemplate[] };
+  schoolYear_weeklyTemplates: SchoolYear & { weeklyTemplates: WeeklyTemplate[] };
+  weeklyTemplate_timeSlot: WeeklyTemplate & { timeSlot: TimeSlot };
+  weeklyTemplate_subject: WeeklyTemplate & { subject: Subject };
+  weeklyTemplate_class: WeeklyTemplate & { class: Class };
 }

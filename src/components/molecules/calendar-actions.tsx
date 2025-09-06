@@ -16,7 +16,8 @@ export function CalendarActions({
   onManageColors,
 }: CalendarActionsProps) {
   return (
-    <div className="flex items-center gap-2">{/* Vue hebdomadaire uniquement */}
+    <div className="flex items-center gap-2">
+      {/* Vue hebdomadaire uniquement */}
 
       <Button
         variant="outline"

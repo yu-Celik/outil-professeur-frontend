@@ -19,7 +19,13 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/molecules/dropdown-menu";
-import { Modal } from "@/components/molecules/modal";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/molecules/dialog";
 import {
   Select,
   SelectContent,
@@ -409,32 +415,40 @@ export function ClassesStudentsCard({
         </div>
       </div>
 
-      <Modal
-        isOpen={isModalOpen}
-        onClose={handleCloseModal}
-        title="Ajouter une classe"
-        description="Remplissez les informations pour créer une nouvelle classe"
+      <Dialog
+        open={isModalOpen}
+        onOpenChange={(open) => !open && handleCloseModal()}
       >
-        <AddClassForm
-          onSubmit={handleSubmitClass}
-          onCancel={handleCloseModal}
-        />
-      </Modal>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Ajouter une classe</DialogTitle>
+            <DialogDescription>
+              Remplissez les informations pour créer une nouvelle classe
+            </DialogDescription>
+          </DialogHeader>
+          <AddClassForm
+            onSubmit={handleSubmitClass}
+            onCancel={handleCloseModal}
+          />
+        </DialogContent>
+      </Dialog>
 
-      <Modal
-        isOpen={isStudentModalOpen}
-        onClose={handleCloseStudentModal}
-        title="Gestion des élèves"
-        size="4xl"
-        height="xl"
+      <Dialog
+        open={isStudentModalOpen}
+        onOpenChange={(open) => !open && handleCloseStudentModal()}
       >
-        <AddStudentForm
-          classes={classes}
-          existingStudents={students}
-          onSubmit={handleSubmitStudent}
-          onCancel={handleCloseStudentModal}
-        />
-      </Modal>
+        <DialogContent size="4xl" className="max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Gestion des élèves</DialogTitle>
+          </DialogHeader>
+          <AddStudentForm
+            classes={classes}
+            existingStudents={students}
+            onSubmit={handleSubmitStudent}
+            onCancel={handleCloseStudentModal}
+          />
+        </DialogContent>
+      </Dialog>
     </Card>
   );
 }

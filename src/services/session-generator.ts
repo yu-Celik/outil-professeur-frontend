@@ -5,7 +5,7 @@
  */
 
 import type { CourseSession } from "@/types/uml-entities";
-import type { WeeklyTemplate } from "@/data/mock-weekly-templates";
+import type { WeeklyTemplate } from "@/types/uml-entities";
 import {
   calculateSessionDate,
   generateExceptionKey,
@@ -71,18 +71,16 @@ export class WeekSessionGenerator {
         createdBy: template.teacherId,
         classId: template.classId,
         subjectId: template.subjectId,
-        timeSlotId:
-          exception?.type === "moved" && exception.newTimeSlotId
-            ? exception.newTimeSlotId
-            : template.timeSlotId,
+        timeSlotId: template.timeSlotId,
         sessionDate: sessionDate,
-        room: exception?.newRoom || template.room,
-        status: "planned", // Par défaut, session planifiée
-        objectives: "", // À remplir lors de l'observation
-        content: "", // À remplir lors de l'observation
-        homeworkAssigned: "", // À remplir lors de l'observation
-        notes: exception?.reason || "", // Motif d'exception si applicable
-        attendanceTaken: false, // Pas encore pris
+        status: "planned", // Toujours status UML valide
+        objectives: null, // À remplir lors de l'observation
+        content: null, // À remplir lors de l'observation
+        homeworkAssigned: null, // À remplir lors de l'observation
+        room: exception?.newRoom || null, // Salle d'exception si applicable
+        isMakeup: false, // Par défaut, pas un rattrapage
+        isMoved: exception?.type === "moved" || null, // Marquer si session déplacée
+        notes: exception?.reason || null, // Motif d'exception si applicable
         createdAt: new Date(),
         updatedAt: new Date(),
         reschedule: (_newDate: Date) => {},
@@ -93,34 +91,41 @@ export class WeekSessionGenerator {
       sessions.push(session);
     });
 
-    // Ajouter les sessions exceptionnelles (type "added")
+    // Ajouter les sessions déplacées (type "added" créées par un déplacement)
     exceptions
       .filter((exception) => exception.type === "added")
       .forEach((exception) => {
-        // Pour les ajouts, on aurait besoin des infos complètes dans l'exception
-        // Ici on fait un exemple basique
-        const addedSession: CourseSession = {
-          id: `session-added-${exception.id}`,
-          createdBy: "teacher-id", // À définir selon le contexte
-          classId: "class-id", // À définir selon l'exception
-          subjectId: "subject-id", // À définir selon l'exception
+        // Récupérer les données de session depuis l'exception
+        const sessionData = (exception as any).sessionData;
+        
+        // Créer l'ID original pour la session déplacée
+        const originalTemplateId = exception.templateId;
+        const newDate = exception.exceptionDate;
+        
+
+        const movedSession: CourseSession = {
+          id: `session-moved-${originalTemplateId}-${newDate.getFullYear()}-${newDate.getMonth() + 1}-${newDate.getDate()}-${exception.newTimeSlotId}-${exception.id}`,
+          createdBy: sessionData?.createdBy || "teacher-id",
+          classId: sessionData?.classId || "class-id",
+          subjectId: sessionData?.subjectId || "subject-id",
           timeSlotId: exception.newTimeSlotId || "",
           sessionDate: exception.exceptionDate,
-          room: exception.newRoom || "",
-          status: "planned",
-          objectives: "",
-          content: "",
-          homeworkAssigned: "",
-          notes: `Session ajoutée : ${exception.reason}`,
-          attendanceTaken: false,
+          status: (sessionData as any)?.status || "planned", // Utiliser le status depuis sessionData
+          objectives: null,
+          content: null,
+          homeworkAssigned: null,
+          room: exception.newRoom || null,
+          isMakeup: false,
+          isMoved: true,
+          notes: `Session déplacée : ${exception.reason}`,
           createdAt: new Date(),
           updatedAt: new Date(),
           reschedule: (_newDate: Date) => {},
           takeAttendance: () => {},
-          summary: () => `Session ajoutée exceptionnellement`,
+          summary: () => `Session déplacée depuis template ${originalTemplateId}`,
         };
 
-        sessions.push(addedSession);
+        sessions.push(movedSession);
       });
 
     return sessions;

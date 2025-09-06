@@ -18,6 +18,12 @@ import { Badge } from "@/components/atoms/badge";
 import { Button } from "@/components/atoms/button";
 import { Card, CardContent, CardHeader } from "@/components/molecules/card";
 import { SessionForm } from "@/components/molecules/session-form";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/molecules/dialog";
 import { type CalendarEvent, useCalendar } from "@/hooks/use-calendar";
 
 interface CalendarProps {
@@ -51,8 +57,8 @@ export function Calendar({
   // Fonction utilitaire pour obtenir les événements d'un jour donné
   const getEventsForDay = (date: Date | null): CalendarEvent[] => {
     if (!date) return [];
-    return calendarEvents.filter((event) =>
-      event.start.toDateString() === date.toDateString()
+    return calendarEvents.filter(
+      (event) => event.start.toDateString() === date.toDateString(),
     );
   };
 
@@ -81,12 +87,14 @@ export function Calendar({
 
   const getEventStatusColor = (event: CalendarEvent) => {
     switch (event.courseSession.status) {
-      case "completed":
+      case "done":
         return "bg-chart-3/10 text-chart-3 border-chart-3/20";
-      case "active":
+      case "in_progress":
         return "bg-chart-1/10 text-chart-1 border-chart-1/20";
-      case "upcoming":
+      case "planned":
         return "bg-chart-4/10 text-chart-4 border-chart-4/20";
+      case "canceled":
+        return "bg-muted text-muted-foreground border-border";
       default:
         return "bg-muted text-muted-foreground border-border";
     }
@@ -190,7 +198,7 @@ export function Calendar({
               <span>
                 {
                   calendarEvents.filter(
-                    (e) => e.courseSession.status === "completed",
+                    (e) => e.courseSession.status === "done",
                   ).length
                 }{" "}
                 Terminées
@@ -201,7 +209,7 @@ export function Calendar({
               <span>
                 {
                   calendarEvents.filter(
-                    (e) => e.courseSession.status === "active",
+                    (e) => e.courseSession.status === "in_progress",
                   ).length
                 }{" "}
                 En cours
@@ -425,29 +433,39 @@ export function Calendar({
       )}
 
       {/* Formulaire de création de session */}
-      {showSessionForm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="max-h-[90vh] overflow-y-auto">
-            <SessionForm
-              onClose={() => {
-                setShowSessionForm(false);
-                setSessionFormDate(null);
-              }}
-              onSave={(session) => {
-                addSession(session);
-                setShowSessionForm(false);
-                setSessionFormDate(null);
-              }}
-              initialDate={sessionFormDate || undefined}
-              subjects={subjects}
-              classes={classes}
-              timeSlots={timeSlots}
-              teacherId={teacherId}
-              schoolYearId="year-2025"
-            />
-          </div>
-        </div>
-      )}
+      <Dialog
+        open={showSessionForm}
+        onOpenChange={(open) => {
+          if (!open) {
+            setShowSessionForm(false);
+            setSessionFormDate(null);
+          }
+        }}
+      >
+        <DialogContent size="xl" className="max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Nouvelle session</DialogTitle>
+          </DialogHeader>
+          <SessionForm
+            onClose={() => {
+              setShowSessionForm(false);
+              setSessionFormDate(null);
+            }}
+            onSave={(session) => {
+              addSession(session);
+              setShowSessionForm(false);
+              setSessionFormDate(null);
+            }}
+            initialDate={sessionFormDate || undefined}
+            subjects={subjects}
+            classes={classes}
+            timeSlots={timeSlots}
+            teacherId={teacherId}
+            schoolYearId="year-2025"
+            standalone={false}
+          />
+        </DialogContent>
+      </Dialog>
     </Card>
   );
 }

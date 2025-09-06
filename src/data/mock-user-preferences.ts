@@ -46,7 +46,7 @@ export const MOCK_USER_PREFERENCES: UserPreferences[] = [
       },
     },
     createdAt: new Date("2025-09-01"),
-    updatedAt: new Date(),
+    updatedAt: new Date("2025-09-06"),
 
     updateClassColor(classId: string, color: `#${string}`): void {
       this.preferences.classColors[classId] = color;

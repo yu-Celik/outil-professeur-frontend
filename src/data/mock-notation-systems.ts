@@ -23,7 +23,7 @@ export const MOCK_NOTATION_SYSTEMS: NotationSystem[] = [
       },
     },
     createdAt: new Date("2025-08-15"),
-    updatedAt: new Date("2025-08-15"),
+    updatedAt: new Date("2025-09-06"),
     validateGrade: (grade: number) => grade >= 0 && grade <= 20,
     convert: function (value: number, fromSystem: NotationSystem): number {
       const ratio =
@@ -50,7 +50,7 @@ export const MOCK_NOTATION_SYSTEMS: NotationSystem[] = [
       },
     },
     createdAt: new Date("2025-08-15"),
-    updatedAt: new Date("2025-08-15"),
+    updatedAt: new Date("2025-09-06"),
     validateGrade: (grade: number) => grade >= 0 && grade <= 4,
     convert: function (value: number, fromSystem: NotationSystem): number {
       const ratio =
@@ -79,7 +79,7 @@ export const MOCK_NOTATION_SYSTEMS: NotationSystem[] = [
       },
     },
     createdAt: new Date("2025-08-15"),
-    updatedAt: new Date("2025-08-15"),
+    updatedAt: new Date("2025-09-06"),
     validateGrade: (grade: number) => grade >= 0 && grade <= 3,
     convert: function (value: number, fromSystem: NotationSystem): number {
       const ratio =
