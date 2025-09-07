@@ -4,15 +4,15 @@
  * Utilise TeachingAssignment pour ne proposer que les combinaisons valides
  */
 
-import { useMemo, useState, useCallback } from "react";
+import { useCallback, useMemo, useState } from "react";
+import type { Class, Subject } from "@/types/uml-entities";
 import {
+  canTeachSubjectToClass,
+  getAssignmentStats,
   getClassesForSubject,
   getSubjectsForClass,
-  canTeachSubjectToClass,
   getValidClassSubjectCombinations,
-  getAssignmentStats,
 } from "@/utils/teaching-assignment-filters";
-import type { Class, Subject } from "@/types/uml-entities";
 
 interface UseSmartFilteringProps {
   teacherId: string;

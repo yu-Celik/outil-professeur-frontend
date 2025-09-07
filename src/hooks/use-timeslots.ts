@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useCallback, useState } from "react";
 import { MOCK_TIME_SLOTS } from "@/data";
 import type { TimeSlot } from "@/types/uml-entities";
 

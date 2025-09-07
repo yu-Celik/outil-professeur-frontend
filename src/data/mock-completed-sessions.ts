@@ -17,9 +17,8 @@ export const MOCK_COMPLETED_SESSIONS: CourseSession[] = [
     objectives: "Introduction - Getting to know each other",
     content: "Présentations, règles de classe, premiers échanges",
     homeworkAssigned: "Prepare personal presentation",
-    room: "Salle A1",
     isMakeup: false,
-    isMoved: null,
+    isMoved: false,
     notes: "Très bonne première session, élèves motivés",
     createdAt: new Date("2024-09-02"),
     updatedAt: new Date("2024-09-02"),
@@ -38,9 +37,8 @@ export const MOCK_COMPLETED_SESSIONS: CourseSession[] = [
     objectives: "Present Simple vs Present Continuous",
     content: "Grammar focus, exercises, speaking practice",
     homeworkAssigned: "Workbook p.12-13",
-    room: "Salle A1",
     isMakeup: false,
-    isMoved: null,
+    isMoved: false,
     notes: "Bonne participation, quelques difficultés sur le continuous",
     createdAt: new Date("2024-09-03"),
     updatedAt: new Date("2024-09-03"),
@@ -61,9 +59,8 @@ export const MOCK_COMPLETED_SESSIONS: CourseSession[] = [
     objectives: "Class introduction and expectations",
     content: "Course overview, assessment methods, ice-breakers",
     homeworkAssigned: "Complete student information sheet",
-    room: "Salle A1",
     isMakeup: false,
-    isMoved: null,
+    isMoved: false,
     notes: "Classe dynamique, bon niveau général",
     createdAt: new Date("2024-09-02"),
     updatedAt: new Date("2024-09-02"),
@@ -84,9 +81,8 @@ export const MOCK_COMPLETED_SESSIONS: CourseSession[] = [
     objectives: "ETLV Introduction - Science in English",
     content: "What is ETLV? Scientific method vocabulary",
     homeworkAssigned: "Research a scientific discovery",
-    room: "Salle A1",
     isMakeup: false,
-    isMoved: null,
+    isMoved: false,
     notes: "Élèves intéressés par l'approche interdisciplinaire",
     createdAt: new Date("2024-09-05"),
     updatedAt: new Date("2024-09-05"),
@@ -107,9 +103,8 @@ export const MOCK_COMPLETED_SESSIONS: CourseSession[] = [
     objectives: "Bac preparation - Essay writing techniques",
     content: "Argumentative essay structure, thesis statements",
     homeworkAssigned: "Write practice essay on given topic",
-    room: "Salle A1",
     isMakeup: false,
-    isMoved: null,
+    isMoved: false,
     notes: "Niveau avancé, préparation intensive au Bac",
     createdAt: new Date("2024-09-02"),
     updatedAt: new Date("2024-09-02"),
@@ -130,9 +125,8 @@ export const MOCK_COMPLETED_SESSIONS: CourseSession[] = [
     objectives: "Past tenses revision",
     content: "Past simple, past continuous, past perfect",
     homeworkAssigned: "Complete grammar exercises",
-    room: "Salle A1",
     isMakeup: false,
-    isMoved: null,
+    isMoved: false,
     notes: "Progrès visible depuis septembre",
     createdAt: new Date("2024-10-07"),
     updatedAt: new Date("2024-10-07"),
@@ -152,9 +146,8 @@ export const MOCK_COMPLETED_SESSIONS: CourseSession[] = [
     objectives: "Vocabulary - Daily routines",
     content: "Time expressions, frequency adverbs",
     homeworkAssigned: "Describe your typical day",
-    room: "Salle A1",
     isMakeup: false,
-    isMoved: null,
+    isMoved: false,
     notes: "Participation active, bon esprit de classe",
     createdAt: new Date("2024-10-09"),
     updatedAt: new Date("2024-10-09"),
@@ -175,9 +168,8 @@ export const MOCK_COMPLETED_SESSIONS: CourseSession[] = [
     objectives: "Literature analysis - Shakespeare extract",
     content: "Romeo and Juliet Act 2, character analysis",
     homeworkAssigned: "Character profile worksheet",
-    room: "Salle A1",
     isMakeup: false,
-    isMoved: null,
+    isMoved: false,
     notes: "Très bonne analyse littéraire, élèves engagés",
     createdAt: new Date("2024-11-08"),
     updatedAt: new Date("2024-11-08"),
@@ -198,9 +190,8 @@ export const MOCK_COMPLETED_SESSIONS: CourseSession[] = [
     objectives: "Environmental science vocabulary",
     content: "Climate change, renewable energy terms",
     homeworkAssigned: "Research renewable energy project",
-    room: "Salle A1",
     isMakeup: false,
-    isMoved: null,
+    isMoved: false,
     notes: "Sujet d'actualité, très bons échanges",
     createdAt: new Date("2024-12-05"),
     updatedAt: new Date("2024-12-05"),
@@ -221,9 +212,8 @@ export const MOCK_COMPLETED_SESSIONS: CourseSession[] = [
     objectives: "New Year resolutions - Future tenses",
     content: "Will, be going to, present continuous for future",
     homeworkAssigned: "Write about your 2026 goals",
-    room: "Salle A1",
     isMakeup: false,
-    isMoved: null,
+    isMoved: false,
     notes: "Retour de vacances motivant, bons objectifs",
     createdAt: new Date("2026-01-07"),
     updatedAt: new Date("2026-01-07"),
@@ -236,9 +226,11 @@ export const MOCK_COMPLETED_SESSIONS: CourseSession[] = [
 /**
  * Récupère les sessions complétées pour un teacher
  */
-export function getCompletedSessionsForTeacher(teacherId: string): CourseSession[] {
+export function getCompletedSessionsForTeacher(
+  teacherId: string,
+): CourseSession[] {
   return MOCK_COMPLETED_SESSIONS.filter(
-    (session) => session.createdBy === teacherId
+    (session) => session.createdBy === teacherId,
   );
 }
 
@@ -247,9 +239,9 @@ export function getCompletedSessionsForTeacher(teacherId: string): CourseSession
  */
 export function getCompletedSessionsForCourse(
   classId: string,
-  subjectId: string
+  subjectId: string,
 ): CourseSession[] {
   return MOCK_COMPLETED_SESSIONS.filter(
-    (session) => session.classId === classId && session.subjectId === subjectId
+    (session) => session.classId === classId && session.subjectId === subjectId,
   );
 }

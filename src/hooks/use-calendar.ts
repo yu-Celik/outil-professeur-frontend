@@ -1,27 +1,27 @@
 "use client";
 
-import { useEffect, useMemo, useState, useCallback } from "react";
-import { MOCK_TIME_SLOTS, MOCK_SUBJECTS, MOCK_CLASSES } from "@/data";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { MOCK_CLASSES, MOCK_SUBJECTS, MOCK_TIME_SLOTS } from "@/data";
 import { useTeachingAssignments } from "@/hooks/use-teaching-assignments";
 import { useWeeklySessions } from "@/hooks/use-weekly-sessions";
-import type {
-  CourseSession,
-  TimeSlot,
-  Subject,
-  Class,
-} from "@/types/uml-entities";
-import {
-  getWeekStart,
-  isDateInWeek,
-  isSameDay,
-  isToday,
-  combineDateAndTime,
-  formatDateFR,
-} from "@/utils/date-utils";
 import {
   getSessionStatusColor,
   getSessionStatusLabel,
 } from "@/types/calendar-status";
+import type {
+  Class,
+  CourseSession,
+  Subject,
+  TimeSlot,
+} from "@/types/uml-entities";
+import {
+  combineDateAndTime,
+  formatDateFR,
+  getWeekStart,
+  isDateInWeek,
+  isSameDay,
+  isToday,
+} from "@/utils/date-utils";
 
 export interface CalendarEvent {
   id: string;
@@ -84,11 +84,15 @@ export function useCalendar(teacherId: string) {
     const processedSessionIds = new Set<string>();
 
     // Utiliser directement allSessions qui contient toutes les sessions sur une période étendue
-    const allSessionsInMonth = weeklySessionsHook.allSessions.filter((session) => {
-      const sessionDate = new Date(session.sessionDate);
-      return sessionDate.getFullYear() === currentDate.getFullYear() && 
-             sessionDate.getMonth() === currentDate.getMonth();
-    });
+    const allSessionsInMonth = weeklySessionsHook.allSessions.filter(
+      (session) => {
+        const sessionDate = new Date(session.sessionDate);
+        return (
+          sessionDate.getFullYear() === currentDate.getFullYear() &&
+          sessionDate.getMonth() === currentDate.getMonth()
+        );
+      },
+    );
 
     // Traiter toutes les sessions du mois (templates + déplacées) en évitant les doublons
     allSessionsInMonth.forEach((session) => {
@@ -157,7 +161,7 @@ export function useCalendar(teacherId: string) {
       0,
     );
 
-    let currentWeekStart = getWeekStart(monthStart);
+    const currentWeekStart = getWeekStart(monthStart);
     let weekNumber = 1;
 
     // Générer les semaines jusqu'à couvrir tout le mois
@@ -307,8 +311,9 @@ export function useCalendar(teacherId: string) {
         objectives: sessionData.objectives || null,
         content: sessionData.content || null,
         homeworkAssigned: sessionData.homeworkAssigned || null,
-        notes: sessionData.notes || null,
         isMakeup: sessionData.isMakeup || false,
+        isMoved: sessionData.isMoved ?? false,
+        notes: sessionData.notes || null,
         createdAt: new Date(),
         updatedAt: new Date(),
         // Méthodes requises par l'interface (implémentation basique)
@@ -359,17 +364,23 @@ export function useCalendar(teacherId: string) {
       // Si on a sessionDate et timeSlotId, utiliser la nouvelle méthode de déplacement
       if (updates.sessionDate && updates.timeSlotId) {
         const newDate = new Date(updates.sessionDate);
-        
+
         // Trouver la session originale pour obtenir sa date
-        const originalSession = weeklySessionsHook.weekSessions.find(s => s.id === sessionId) ||
-                              dynamicSessions.find(s => s.id === sessionId);
-        
+        const originalSession =
+          weeklySessionsHook.weekSessions.find((s) => s.id === sessionId) ||
+          dynamicSessions.find((s) => s.id === sessionId);
+
         if (originalSession) {
           const originalDate = new Date(originalSession.sessionDate);
-          
+
           // Utiliser la fonction moveSession du hook weekly sessions
           if (weeklySessionsHook.moveSession) {
-            weeklySessionsHook.moveSession(sessionId, newDate, updates.timeSlotId, originalDate);
+            weeklySessionsHook.moveSession(
+              sessionId,
+              newDate,
+              updates.timeSlotId,
+              originalDate,
+            );
           }
         }
       } else {

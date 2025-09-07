@@ -1,13 +1,13 @@
+"use client";
+
+import { useSetPageTitle } from "@/hooks/use-set-page-title";
+
 export default function EvaluationsPage() {
+  useSetPageTitle("Évaluations");
+
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Évaluations</h1>
-          <p className="text-muted-foreground">
-            Créez et gérez vos contrôles et examens
-          </p>
-        </div>
+      <div className="flex justify-end items-center">
         <button
           type="button"
           className="bg-primary text-primary-foreground hover:bg-primary/90 px-4 py-2 rounded-md"

@@ -8,9 +8,15 @@ import type {
   TeachingAssignment,
   TimeSlot,
 } from "@/types/uml-entities";
+import { 
+  MOCK_CLASSES,
+  MOCK_STUDENTS, 
+  MOCK_SUBJECTS,
+  MOCK_TIME_SLOTS,
+  MOCK_COMPLETED_SESSIONS
+} from "@/data";
 import { useAsyncOperation } from "./shared/use-async-operation";
 import { useEntityState } from "./shared/use-entity-state";
-import { findEntityById } from "@/utils/entity-lookups";
 
 interface UseUMLEvaluationReturn {
   // Entités UML principales
@@ -46,85 +52,37 @@ export function useUMLEvaluation(
   studentId: string,
   sessionId?: string,
 ): UseUMLEvaluationReturn {
-  // Mock data basé exactement sur les entités UML
-  const [courseSession, setCourseSession] = useState<CourseSession>({
-    id: sessionId || "session-1",
-    createdBy: "KsmNtVf4zwqO3VV3SQJqPrRlQBA1fFyR",
-    classId: "class-b1",
-    subjectId: "subject-math",
-    timeSlotId: "timeslot-1",
-    sessionDate: new Date("2025-02-18T16:00:00"),
-    room: "Salle A",
-    status: "in_progress",
-    objectives: "Résoudre des équations du second degré",
-    content: "Cours sur les équations quadratiques",
-    homeworkAssigned: "Exercices 1-5 page 42",
-    notes: "",
-    attendanceTaken: false,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    reschedule: (newDate: Date) => console.log("Reschedule to", newDate),
-    takeAttendance: () => console.log("Taking attendance"),
-    summary: () => "Session de mathématiques - Équations du second degré",
+  // Utiliser les données mockées au lieu de données en dur
+  const [courseSession] = useState<CourseSession | null>(() => {
+    if (sessionId) {
+      return MOCK_COMPLETED_SESSIONS.find(s => s.id === sessionId) || null;
+    }
+    return MOCK_COMPLETED_SESSIONS[0] || null;
   });
 
-  const [subject, _setSubject] = useState<Subject>({
-    id: "subject-math",
-    createdBy: "KsmNtVf4zwqO3VV3SQJqPrRlQBA1fFyR",
-    name: "Mathématiques",
-    code: "MATH",
-    description: "Cours de mathématiques niveau secondaire",
-    createdAt: new Date(),
-    updatedAt: new Date(),
+  const [subject, _setSubject] = useState<Subject | null>(() => {
+    if (courseSession?.subjectId) {
+      return MOCK_SUBJECTS.find(s => s.id === courseSession.subjectId) || null;
+    }
+    return MOCK_SUBJECTS[0] || null;
   });
 
-  const [timeSlot, _setTimeSlot] = useState<TimeSlot>({
-    id: "timeslot-1",
-    createdBy: "KsmNtVf4zwqO3VV3SQJqPrRlQBA1fFyR",
-    name: "16h00-17h00",
-    startTime: "16:00",
-    endTime: "17:00",
-    durationMinutes: 60,
-    displayOrder: 1,
-    isBreak: false,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    overlaps: (_other: TimeSlot) => false,
-    getDuration: () => 60,
+  const [timeSlot, _setTimeSlot] = useState<TimeSlot | null>(() => {
+    if (courseSession?.timeSlotId) {
+      return MOCK_TIME_SLOTS.find(ts => ts.id === courseSession.timeSlotId) || null;
+    }
+    return MOCK_TIME_SLOTS[0] || null;
   });
 
-  const [classEntity, _setClassEntity] = useState<Class>({
-    id: "class-b1",
-    createdBy: "KsmNtVf4zwqO3VV3SQJqPrRlQBA1fFyR",
-    classCode: "B1",
-    gradeLabel: "Niveau B1",
-    schoolYearId: "year-2025",
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    assignStudent: (studentId: string) =>
-      console.log("Assign student", studentId),
-    transferStudent: (_studentId: string, _toClassId: string) =>
-      console.log("Transfer student"),
-    getStudents: () => [],
-    getSessions: () => [],
-    getExams: () => [],
+  const [classEntity, _setClassEntity] = useState<Class | null>(() => {
+    if (courseSession?.classId) {
+      return MOCK_CLASSES.find(c => c.id === courseSession.classId) || null;
+    }
+    return MOCK_CLASSES[0] || null;
   });
 
-  const [student, _setStudent] = useState<Student>({
-    id: studentId,
-    createdBy: "KsmNtVf4zwqO3VV3SQJqPrRlQBA1fFyR",
-    firstName: "Pierre",
-    lastName: "Collin",
-    currentClassId: "class-b1",
-    needs: ["Améliorer la concentration"],
-    observations: ["Élève attentif mais timide"],
-    strengths: ["Bon en calcul mental"],
-    improvementAxes: ["Participation orale"],
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    fullName: () => "Pierre Collin",
-    attendanceRate: (_start: Date, _end: Date) => 0.85,
-    participationAverage: (_start: Date, _end: Date) => 16.5,
+  const [student, _setStudent] = useState<Student | null>(() => {
+    return MOCK_STUDENTS.find(s => s.id === studentId) || MOCK_STUDENTS[0] || null;
   });
 
   // Utilisation des hooks partagés pour éliminer la duplication
@@ -142,6 +100,7 @@ export function useUMLEvaluation(
     isPresent: true,
     behavior: "",
     participationLevel: 18,
+    homeworkDone: false,
     specificRemarks: "",
     technicalIssues: "",
     cameraEnabled: true,
@@ -221,10 +180,8 @@ export function useUMLEvaluation(
     if (courseSession && participation) {
       // Appel de la méthode UML CourseSession.takeAttendance()
       courseSession.takeAttendance();
-      setCourseSession((prev) => ({
-        ...prev,
-        attendanceTaken: true,
-      }));
+      // Note: l'état d'attendance est géré via StudentParticipation.isPresent
+      // Pas besoin de modifier CourseSession pour cette information
     }
   }, [courseSession, participation]);
 

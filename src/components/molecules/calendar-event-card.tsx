@@ -1,12 +1,13 @@
 "use client";
 
+import { ArrowRight, Clock, Plus } from "lucide-react";
 import { memo, useState } from "react";
-import { Clock, Plus, ArrowRight } from "lucide-react";
-import { useClassColors } from "@/hooks/use-class-colors";
-import { SessionContextMenu } from "./session-context-menu";
 import { SessionStatusBadge } from "@/components/atoms/session-status-badge";
 import type { CalendarEvent } from "@/hooks/use-calendar";
+import { useClassColors } from "@/hooks/use-class-colors";
 import type { CourseSession } from "@/types/uml-entities";
+import { SessionContextMenu } from "./session-context-menu";
+
 interface CalendarEventCardProps {
   event: CalendarEvent;
   getStatusColor: (status: string) => string;
@@ -104,9 +105,9 @@ export const CalendarEventCard = memo<CalendarEventCardProps>(
           isMoved ? "border-l-blue-400 bg-muted/30 opacity-60" : ""
         }`}
         style={{
-          borderLeftColor: isMoved 
+          borderLeftColor: isMoved
             ? "#3b82f6" // Blue-500 pour déplacé
-            : isMakeup 
+            : isMakeup
               ? "#f59e0b" // Amber-500 pour rattrapage
               : classColors.borderColor,
           backgroundColor: isCurrentEvent

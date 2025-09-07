@@ -1,20 +1,20 @@
 "use client";
 
 import {
+  ArrowRightLeft,
+  FileText,
+  MoreHorizontal,
+  Users,
+  XCircle,
+} from "lucide-react";
+import { Button } from "@/components/atoms/button";
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/molecules/dropdown-menu";
-import { Button } from "@/components/atoms/button";
-import {
-  MoreHorizontal,
-  Users,
-  FileText,
-  XCircle,
-  ArrowRightLeft,
-} from "lucide-react";
 import type { CourseSession } from "@/types/uml-entities";
 
 interface SessionContextMenuProps {

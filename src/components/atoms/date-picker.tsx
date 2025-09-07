@@ -1,7 +1,7 @@
 "use client";
 
-import * as React from "react";
 import { CalendarIcon } from "lucide-react";
+import type * as React from "react";
 import { Input } from "@/components/atoms/input";
 
 interface DatePickerProps {

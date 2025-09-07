@@ -3,7 +3,12 @@
 import { AlertCircle, Calendar, Clock, RotateCcw, Save } from "lucide-react";
 import { Badge } from "@/components/atoms/badge";
 import { Button } from "@/components/atoms/button";
-import type { CourseSession, Subject, TimeSlot, Class } from "@/types/uml-entities";
+import type {
+  Class,
+  CourseSession,
+  Subject,
+  TimeSlot,
+} from "@/types/uml-entities";
 
 interface StudentEvaluationHeaderProps {
   courseSession: CourseSession | null;
@@ -61,11 +66,7 @@ export function StudentEvaluationHeader({
             <span className="text-sm">Modifications non sauvegardées</span>
           </div>
         )}
-        <Button
-          variant="outline"
-          onClick={onReset}
-          className="gap-2"
-        >
+        <Button variant="outline" onClick={onReset} className="gap-2">
           <RotateCcw className="h-4 w-4" />
           Réinitialiser
         </Button>

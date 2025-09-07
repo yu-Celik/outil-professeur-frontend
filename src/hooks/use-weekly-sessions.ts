@@ -1,12 +1,12 @@
 "use client";
 
-import { useState, useMemo, useCallback } from "react";
-import { WeekSessionGenerator } from "@/services/session-generator";
-import { getWeeklyTemplatesForTeacher } from "@/data/mock-weekly-templates";
-import { MOCK_SCHOOL_YEARS } from "@/data/mock-school-years";
+import { useCallback, useMemo, useState } from "react";
 import { getCompletedSessionsForTeacher } from "@/data/mock-completed-sessions";
+import { MOCK_SCHOOL_YEARS } from "@/data/mock-school-years";
+import { getWeeklyTemplatesForTeacher } from "@/data/mock-weekly-templates";
+import { WeekSessionGenerator } from "@/services/session-generator";
 import type { CourseSession } from "@/types/uml-entities";
-import { getWeekStart, isSameDay, isDateInWeek } from "@/utils/date-utils";
+import { getWeekStart, isDateInWeek, isSameDay } from "@/utils/date-utils";
 
 /**
  * Hook pour gérer les sessions générées depuis les templates hebdomadaires
@@ -19,9 +19,11 @@ export function useWeeklySessions(teacherId?: string, dateParam?: string) {
   });
 
   const [loading, setLoading] = useState(false);
-  
+
   // State simple pour les sessions modifiées
-  const [modifiedSessions, setModifiedSessions] = useState<Map<string, CourseSession>>(new Map());
+  const [modifiedSessions, setModifiedSessions] = useState<
+    Map<string, CourseSession>
+  >(new Map());
   // On n'a plus besoin des exceptions complexes
 
   // Récupérer l'année scolaire active
@@ -42,7 +44,7 @@ export function useWeeklySessions(teacherId?: string, dateParam?: string) {
     const sessions: CourseSession[] = [];
 
     // Générer les sessions depuis les templates
-    weeklyTemplates.forEach(template => {
+    weeklyTemplates.forEach((template) => {
       const sessionDate = new Date(currentWeek);
       sessionDate.setDate(sessionDate.getDate() + (template.dayOfWeek - 1)); // 1=Lundi, 2=Mardi, etc.
 
@@ -61,9 +63,8 @@ export function useWeeklySessions(teacherId?: string, dateParam?: string) {
         objectives: null,
         content: null,
         homeworkAssigned: null,
-        room: null,
-        isMakeup: null,
-        isMoved: null,
+        isMakeup: false,
+        isMoved: false,
         notes: null,
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -76,9 +77,11 @@ export function useWeeklySessions(teacherId?: string, dateParam?: string) {
     });
 
     // Ajouter les sessions déplacées vers cette semaine
-    Array.from(modifiedSessions.values()).forEach(session => {
-      if (session.id.startsWith('session-moved-') && 
-          isDateInWeek(session.sessionDate, currentWeek)) {
+    Array.from(modifiedSessions.values()).forEach((session) => {
+      if (
+        session.id.startsWith("session-moved-") &&
+        isDateInWeek(session.sessionDate, currentWeek)
+      ) {
         sessions.push(session);
       }
     });
@@ -89,13 +92,13 @@ export function useWeeklySessions(teacherId?: string, dateParam?: string) {
   // Générer toutes les sessions sur une période étendue (pour la page sessions)
   const allSessions = useMemo(() => {
     const sessions: CourseSession[] = [];
-    
+
     // Ajouter les sessions complétées (historique)
     if (teacherId) {
       const completedSessions = getCompletedSessionsForTeacher(teacherId);
       sessions.push(...completedSessions);
     }
-    
+
     // Générer les sessions futures depuis les templates
     if (weeklyTemplates.length > 0) {
       // Générer les sessions pour 3 mois (passé et futur)
@@ -106,9 +109,9 @@ export function useWeeklySessions(teacherId?: string, dateParam?: string) {
 
       // Générer semaine par semaine
       let currentWeekDate = getWeekStart(startDate);
-      
+
       while (currentWeekDate <= endDate) {
-        weeklyTemplates.forEach(template => {
+        weeklyTemplates.forEach((template) => {
           const sessionDate = new Date(currentWeekDate);
           sessionDate.setDate(sessionDate.getDate() + (template.dayOfWeek - 1));
 
@@ -127,9 +130,8 @@ export function useWeeklySessions(teacherId?: string, dateParam?: string) {
             objectives: null,
             content: null,
             homeworkAssigned: null,
-            room: null,
-            isMakeup: null,
-            isMoved: null,
+            isMakeup: false,
+            isMoved: false,
             notes: null,
             createdAt: new Date(),
             updatedAt: new Date(),
@@ -147,16 +149,17 @@ export function useWeeklySessions(teacherId?: string, dateParam?: string) {
       }
 
       // Ajouter toutes les sessions déplacées
-      Array.from(modifiedSessions.values()).forEach(session => {
-        if (session.id.startsWith('session-moved-')) {
+      Array.from(modifiedSessions.values()).forEach((session) => {
+        if (session.id.startsWith("session-moved-")) {
           sessions.push(session);
         }
       });
     }
 
     // Trier par date
-    return sessions.sort((a, b) => 
-      new Date(a.sessionDate).getTime() - new Date(b.sessionDate).getTime()
+    return sessions.sort(
+      (a, b) =>
+        new Date(a.sessionDate).getTime() - new Date(b.sessionDate).getTime(),
     );
   }, [weeklyTemplates, modifiedSessions, teacherId]);
 
@@ -230,19 +233,20 @@ export function useWeeklySessions(teacherId?: string, dateParam?: string) {
       console.log(
         `Mise à jour du statut de la session ${sessionId} vers "${status}"`,
       );
-      
-      if (status === 'canceled') {
+
+      if (status === "canceled") {
         // Trouver la session dans les sessions actuelles
-        const session = weekSessions.find(s => s.id === sessionId) || 
-                       allSessions.find(s => s.id === sessionId);
-        
+        const session =
+          weekSessions.find((s) => s.id === sessionId) ||
+          allSessions.find((s) => s.id === sessionId);
+
         if (session) {
           // Marquer comme annulée avec le statut UML
-          setModifiedSessions(prev => {
+          setModifiedSessions((prev) => {
             const newMap = new Map(prev);
-            const canceledSession = { 
-              ...session, 
-              status: "canceled" as const
+            const canceledSession = {
+              ...session,
+              status: "canceled" as const,
             };
             newMap.set(session.id, canceledSession);
             return newMap;
@@ -257,24 +261,32 @@ export function useWeeklySessions(teacherId?: string, dateParam?: string) {
    * Déplacer une session vers une nouvelle date/heure
    */
   const moveSession = useCallback(
-    (sessionId: string, newDate: Date, newTimeSlotId: string, originalDate: Date) => {
-      console.log(`Déplacement de la session ${sessionId} vers ${newDate.toISOString()} ${newTimeSlotId}`);
-      
+    (
+      sessionId: string,
+      newDate: Date,
+      newTimeSlotId: string,
+      originalDate: Date,
+    ) => {
+      console.log(
+        `Déplacement de la session ${sessionId} vers ${newDate.toISOString()} ${newTimeSlotId}`,
+      );
+
       // Trouver la session dans les sessions actuelles
-      const originalSession = weekSessions.find(s => s.id === sessionId) || 
-                             allSessions.find(s => s.id === sessionId);
-      
+      const originalSession =
+        weekSessions.find((s) => s.id === sessionId) ||
+        allSessions.find((s) => s.id === sessionId);
+
       if (originalSession) {
-        setModifiedSessions(prev => {
+        setModifiedSessions((prev) => {
           const newMap = new Map(prev);
-          
+
           // 1. Marquer la session originale comme déplacée
-          const movedOriginal = { 
-            ...originalSession, 
-            isMoved: true
+          const movedOriginal = {
+            ...originalSession,
+            isMoved: true,
           };
           newMap.set(originalSession.id, movedOriginal);
-          
+
           // 2. Créer une nouvelle session à la nouvelle position
           const newSession: CourseSession = {
             ...originalSession,
@@ -282,11 +294,11 @@ export function useWeeklySessions(teacherId?: string, dateParam?: string) {
             sessionDate: newDate,
             timeSlotId: newTimeSlotId,
             status: "planned",
-            notes: `Session déplacée depuis ${originalSession.sessionDate.toLocaleDateString('fr-FR')}`,
+            notes: `Session déplacée depuis ${originalSession.sessionDate.toLocaleDateString("fr-FR")}`,
             updatedAt: new Date(),
           };
           newMap.set(newSession.id, newSession);
-          
+
           return newMap;
         });
       }
@@ -300,12 +312,13 @@ export function useWeeklySessions(teacherId?: string, dateParam?: string) {
   const updateSession = useCallback(
     (sessionId: string, updates: Partial<CourseSession>) => {
       console.log(`Mise à jour de la session ${sessionId}`, updates);
-      
+
       // Si c'est un déplacement, utiliser la nouvelle méthode
       if (updates.sessionDate && updates.timeSlotId) {
-        const originalSession = weekSessions.find(s => s.id === sessionId) || 
-                              allSessions.find(s => s.id === sessionId);
-        
+        const originalSession =
+          weekSessions.find((s) => s.id === sessionId) ||
+          allSessions.find((s) => s.id === sessionId);
+
         if (originalSession) {
           const newDate = new Date(updates.sessionDate);
           const originalDate = new Date(originalSession.sessionDate);

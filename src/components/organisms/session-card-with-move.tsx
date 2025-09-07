@@ -1,16 +1,16 @@
 "use client";
 
 import * as React from "react";
-import { Card } from "@/components/atoms/card";
+import { SessionStatusBadge } from "@/components/atoms/session-status-badge";
+import { Card } from "@/components/molecules/card";
 import { SessionContextMenu } from "@/components/molecules/session-context-menu";
 import { SessionMoveDialog } from "@/components/molecules/session-move-dialog";
-import { SessionStatusBadge } from "@/components/atoms/session-status-badge";
 import { useSessionMoves } from "@/hooks/use-session-moves";
 import type {
-  CourseSession,
-  TimeSlot,
   Class,
+  CourseSession,
   Subject,
+  TimeSlot,
 } from "@/types/uml-entities";
 
 interface SessionCardWithMoveProps {
@@ -84,11 +84,7 @@ export function SessionCardWithMove({
             <p className="text-xs text-muted-foreground">
               {sessionClass.classCode} • {formatSessionTime()}
             </p>
-            {session.room && (
-              <p className="text-xs text-muted-foreground">
-                Salle {session.room}
-              </p>
-            )}
+            {/* Salle supprimée - propriété room retirée de l'entité UML CourseSession */}
           </div>
 
           <SessionContextMenu
@@ -102,23 +98,21 @@ export function SessionCardWithMove({
 
         {/* Badges de statut */}
         <div className="flex gap-2">
-          {session.status === "moved" && (
+          {session.isMoved && (
             <SessionStatusBadge
               status="moved"
-              originalDateTime={session.originalDateTime}
             />
           )}
           {session.status === "canceled" && (
             <SessionStatusBadge
               status="canceled"
-              originalDateTime={session.originalDateTime}
             />
           )}
         </div>
 
         {/* Contenu supplémentaire de la séance */}
-        {session.description && (
-          <p className="text-xs text-muted-foreground">{session.description}</p>
+        {session.content && (
+          <p className="text-xs text-muted-foreground">{session.content}</p>
         )}
       </Card>
 

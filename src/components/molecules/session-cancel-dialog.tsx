@@ -1,5 +1,7 @@
 "use client";
 
+import { BookOpen, Calendar, Clock, Users, XCircle } from "lucide-react";
+import { Button } from "@/components/atoms/button";
 import {
   Dialog,
   DialogContent,
@@ -8,8 +10,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/molecules/dialog";
-import { Button } from "@/components/atoms/button";
-import { XCircle, Calendar, Clock, BookOpen, Users } from "lucide-react";
 import type { CourseSession } from "@/types/uml-entities";
 
 interface SessionCancelDialogProps {

@@ -80,17 +80,14 @@ export function StudentEvaluationForm({
           <div className="flex items-center gap-3">
             <User className="h-5 w-5 text-primary" />
             <div>
-              <h2 className="text-xl font-semibold">
-                {student?.fullName()}
-              </h2>
+              <h2 className="text-xl font-semibold">{student?.fullName()}</h2>
               <div className="flex items-center gap-4 text-sm text-muted-foreground">
                 <span>
-                  Taux de présence:{" "}
-                  {Math.round(getAttendanceRate() * 100)}%
+                  Taux de présence: {Math.round(getAttendanceRate() * 100)}%
                 </span>
                 <span>
-                  Participation moyenne:{" "}
-                  {getParticipationAverage().toFixed(1)}/20
+                  Participation moyenne: {getParticipationAverage().toFixed(1)}
+                  /20
                 </span>
               </div>
             </div>
@@ -181,13 +178,12 @@ export function StudentEvaluationForm({
               ))}
             </SelectContent>
           </Select>
-          {participation?.technicalIssues &&
-            !participation.cameraEnabled && (
-              <div className="flex items-center gap-2 text-sm text-chart-4">
-                <AlertCircle className="h-4 w-4" />
-                <span>Caméra désactivée</span>
-              </div>
-            )}
+          {participation?.technicalIssues && !participation.cameraEnabled && (
+            <div className="flex items-center gap-2 text-sm text-chart-4">
+              <AlertCircle className="h-4 w-4" />
+              <span>Caméra désactivée</span>
+            </div>
+          )}
         </div>
 
         {/* Présence/Absence (UML: isPresent + markedAt) */}
@@ -196,9 +192,7 @@ export function StudentEvaluationForm({
             <Label>Présence/Absence</Label>
             <Select
               value={participation?.isPresent ? "present" : "absent"}
-              onValueChange={(value) =>
-                markAttendance(value === "present")
-              }
+              onValueChange={(value) => markAttendance(value === "present")}
             >
               <SelectTrigger className="w-32">
                 <SelectValue />

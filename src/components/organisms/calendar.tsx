@@ -17,13 +17,13 @@ import { useState } from "react";
 import { Badge } from "@/components/atoms/badge";
 import { Button } from "@/components/atoms/button";
 import { Card, CardContent, CardHeader } from "@/components/molecules/card";
-import { SessionForm } from "@/components/molecules/session-form";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
 } from "@/components/molecules/dialog";
+import { SessionForm } from "@/components/molecules/session-form";
 import { type CalendarEvent, useCalendar } from "@/hooks/use-calendar";
 
 interface CalendarProps {
@@ -220,7 +220,7 @@ export function Calendar({
               <span>
                 {
                   calendarEvents.filter(
-                    (e) => e.courseSession.status === "upcoming",
+                    (e) => e.courseSession.status === "planned",
                   ).length
                 }{" "}
                 À venir
@@ -357,18 +357,15 @@ export function Calendar({
                               <Users className="h-3 w-3" />
                               {event.class.classCode}
                             </span>
-                            <span className="flex items-center gap-1">
-                              <BookOpen className="h-3 w-3" />
-                              {event.courseSession.room}
-                            </span>
+                            {/* Salle supprimée - propriété room retirée de l'entité UML CourseSession */}
                           </div>
                         </div>
                         <Badge className={getEventStatusColor(event)}>
-                          {event.courseSession.status === "completed" &&
+                          {event.courseSession.status === "done" &&
                             "Terminé"}
-                          {event.courseSession.status === "active" &&
+                          {event.courseSession.status === "in_progress" &&
                             "En cours"}
-                          {event.courseSession.status === "upcoming" &&
+                          {event.courseSession.status === "planned" &&
                             "À venir"}
                         </Badge>
                       </div>
@@ -395,7 +392,7 @@ export function Calendar({
                           </Link>
                         )}
                         {event.canEdit &&
-                          event.courseSession.status === "upcoming" && (
+                          event.courseSession.status === "planned" && (
                             <Button
                               variant="outline"
                               size="sm"

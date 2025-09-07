@@ -1,18 +1,18 @@
 "use client";
 
-import { useState } from "react";
 import {
-  Clock,
-  Plus,
-  Edit,
-  Trash2,
-  EyeOff,
-  Eye,
-  GripVertical,
   AlertTriangle,
+  Clock,
+  Edit,
+  Eye,
+  EyeOff,
+  GripVertical,
+  Plus,
+  Trash2,
 } from "lucide-react";
-import { Button } from "@/components/atoms/button";
+import { useState } from "react";
 import { Badge } from "@/components/atoms/badge";
+import { Button } from "@/components/atoms/button";
 import { Card, CardContent, CardHeader } from "@/components/molecules/card";
 import {
   Dialog,
@@ -20,7 +20,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/molecules/dialog";
-import { TimeSlotForm } from "@/components/molecules/timeslot-form";
+import { TimeSlotCrudForm } from "@/components/organisms/timeslot-crud-form";
 import { useTimeSlots } from "@/hooks/use-timeslots";
 import type { TimeSlot } from "@/types/uml-entities";
 
@@ -49,11 +49,25 @@ export function TimeSlotsManagement({ teacherId }: TimeSlotsManagementProps) {
   const inactiveSlots = timeSlots.filter((slot) => slot.isBreak);
 
   const handleCreate = async (data: any) => {
-    await createTimeSlot(data);
+    try {
+      await createTimeSlot(data);
+      setShowForm(false);
+      setEditingSlot(null);
+    } catch (error) {
+      console.error("Erreur lors de la création du créneau:", error);
+      throw error;
+    }
   };
 
   const handleUpdate = async (data: any) => {
-    await updateTimeSlot(data);
+    try {
+      await updateTimeSlot(data);
+      setShowForm(false);
+      setEditingSlot(null);
+    } catch (error) {
+      console.error("Erreur lors de la mise à jour du créneau:", error);
+      throw error;
+    }
   };
 
   const handleDelete = async (id: string) => {
@@ -320,17 +334,19 @@ export function TimeSlotsManagement({ teacherId }: TimeSlotsManagementProps) {
               {editingSlot ? "Modifier le créneau" : "Nouveau créneau"}
             </DialogTitle>
           </DialogHeader>
-          <TimeSlotForm
+          <TimeSlotCrudForm
+            isOpen={showForm}
             onClose={() => {
               setShowForm(false);
               setEditingSlot(null);
             }}
-            onSave={handleCreate}
-            onUpdate={editingSlot ? handleUpdate : undefined}
-            initialData={editingSlot || undefined}
+            onSubmit={editingSlot ? handleUpdate : handleCreate}
+            editingTimeSlot={editingSlot}
+            existingTimeSlots={timeSlots}
             calculateDuration={calculateDuration}
-            checkConflicts={checkConflicts}
-            standalone={false}
+            checkConflicts={(data, excludeId) => 
+              checkConflicts(data, excludeId).map(slot => slot.name)
+            }
           />
         </DialogContent>
       </Dialog>

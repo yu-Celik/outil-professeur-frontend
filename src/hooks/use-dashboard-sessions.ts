@@ -1,8 +1,8 @@
 "use client";
 
 import { useMemo } from "react";
+import { MOCK_CLASSES, MOCK_SUBJECTS, MOCK_TIME_SLOTS } from "@/data";
 import { useWeeklySessions } from "@/hooks/use-weekly-sessions";
-import { MOCK_TIME_SLOTS, MOCK_CLASSES, MOCK_SUBJECTS } from "@/data";
 import { combineDateAndTime, isToday } from "@/utils/date-utils";
 
 interface UpcomingSession {
@@ -12,7 +12,7 @@ interface UpcomingSession {
   time: string;
   duration: string;
   status: string;
-  room: string;
+  // room: string; // Propriété supprimée - non disponible dans CourseSession UML
 }
 
 /**
@@ -20,7 +20,8 @@ interface UpcomingSession {
  * Utilise les sessions générées depuis les templates hebdomadaires
  */
 export function useDashboardSessions(teacherId: string) {
-  const { getSessionsForDay, weeklyTemplates, activeSchoolYear } = useWeeklySessions(teacherId);
+  const { getSessionsForDay, weeklyTemplates, activeSchoolYear } =
+    useWeeklySessions(teacherId);
 
   // Sessions d'aujourd'hui
   const todaySessions = useMemo(() => {
@@ -67,7 +68,7 @@ export function useDashboardSessions(teacherId: string) {
           time: timeSlot.startTime,
           duration: `${timeSlot.durationMinutes}min`,
           status: session.status,
-          room: session.room,
+          // room: session.room, // Propriété supprimée de l'entité UML CourseSession
           sessionDateTime, // Pour le tri
         };
       })

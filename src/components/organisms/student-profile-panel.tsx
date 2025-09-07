@@ -1,0 +1,367 @@
+"use client";
+
+import {
+  Activity,
+  ArrowRight,
+  Award,
+  BookOpen,
+  Calendar,
+  Clock,
+  Edit,
+  Eye,
+  GraduationCap,
+  Lightbulb,
+  MessageSquare,
+  Save,
+  Star,
+  Target,
+  X,
+} from "lucide-react";
+import { useState } from "react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/atoms/avatar";
+import { Badge } from "@/components/atoms/badge";
+import { Button } from "@/components/atoms/button";
+import { Card, CardContent, CardHeader } from "@/components/molecules/card";
+import { getCompletedSessionsForTeacher } from "@/data/mock-completed-sessions";
+import { getStudentParticipation } from "@/data/mock-student-participation";
+import { getSubjectById } from "@/data/mock-subjects";
+import { getTimeSlotById } from "@/data/mock-time-slots";
+import type { Student } from "@/types/uml-entities";
+
+interface StudentProfilePanelProps {
+  student: Student;
+  teacherId: string;
+  onClose: () => void;
+  onSessionClick: (sessionId: string) => void;
+}
+
+export function StudentProfilePanel({
+  student,
+  teacherId,
+  onClose,
+  onSessionClick,
+}: StudentProfilePanelProps) {
+  const [isEditing, setIsEditing] = useState(false);
+
+  // Récupérer l'historique des sessions de cet élève
+  const allSessions = getCompletedSessionsForTeacher(teacherId);
+  const studentSessions = allSessions.filter(
+    (session) => session.classId === student.currentClassId,
+  );
+
+  const getParticipationSummary = () => {
+    let totalSessions = 0;
+    let presentSessions = 0;
+    let totalParticipation = 0;
+    let evaluatedSessions = 0;
+
+    studentSessions.forEach((session) => {
+      const participation = getStudentParticipation(student.id, session.id);
+      if (participation) {
+        totalSessions++;
+        if (participation.isPresent) {
+          presentSessions++;
+        }
+        if (participation.participationLevel > 0) {
+          totalParticipation += participation.participationLevel;
+          evaluatedSessions++;
+        }
+      }
+    });
+
+    return {
+      totalSessions,
+      presentSessions,
+      attendanceRate:
+        totalSessions > 0
+          ? Math.round((presentSessions / totalSessions) * 100)
+          : 0,
+      averageParticipation:
+        evaluatedSessions > 0
+          ? Math.round(totalParticipation / evaluatedSessions)
+          : 0,
+    };
+  };
+
+  const stats = getParticipationSummary();
+
+  return (
+    <div className="w-96 border-l border-border bg-gradient-to-b from-background/95 to-muted/30 flex flex-col h-full overflow-hidden">
+      {/* En-tête du profil */}
+      <div className="p-6 border-b border-border/50 bg-background/80 backdrop-blur-sm flex-shrink-0">
+        <div className="flex items-start justify-between">
+          <div className="flex items-start gap-4">
+            <Avatar className="h-16 w-16 ring-4 ring-primary/20">
+              <AvatarImage src="" />
+              <AvatarFallback className="bg-primary/10 text-primary text-lg font-bold">
+                {student.firstName.charAt(0)}
+                {student.lastName.charAt(0)}
+              </AvatarFallback>
+            </Avatar>
+            <div>
+              <h3 className="text-xl font-bold text-foreground">
+                {student.firstName} {student.lastName}
+              </h3>
+              <div className="flex items-center gap-2 text-sm text-muted-foreground mt-1">
+                <GraduationCap className="h-4 w-4" />
+                <span>Classe actuelle</span>
+              </div>
+              <div className="flex items-center gap-2 mt-2">
+                <Badge variant="outline" className="text-xs">
+                  {stats.attendanceRate}% présence
+                </Badge>
+                <Badge variant="secondary" className="text-xs">
+                  {stats.averageParticipation}/10 participation
+                </Badge>
+              </div>
+            </div>
+          </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onClose}
+            className="text-muted-foreground hover:text-foreground"
+          >
+            <X className="h-4 w-4" />
+          </Button>
+        </div>
+      </div>
+
+      {/* Contenu scrollable */}
+      <div className="flex-1 overflow-y-auto p-6 space-y-6">
+        {/* Statistiques rapides */}
+        <Card>
+          <CardHeader className="pb-3">
+            <div className="flex items-center gap-2">
+              <Activity className="h-4 w-4 text-primary" />
+              <h4 className="font-semibold">Statistiques</h4>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="text-center p-3 bg-primary/5 rounded-lg">
+                <div className="text-2xl font-bold text-primary">
+                  {stats.totalSessions}
+                </div>
+                <div className="text-xs text-muted-foreground">Sessions</div>
+              </div>
+              <div className="text-center p-3 bg-success/10 rounded-lg">
+                <div className="text-2xl font-bold text-success">
+                  {stats.presentSessions}
+                </div>
+                <div className="text-xs text-muted-foreground">Présences</div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Profil pédagogique */}
+        <Card>
+          <CardHeader className="pb-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Target className="h-4 w-4 text-primary" />
+                <h4 className="font-semibold">Profil pédagogique</h4>
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setIsEditing(!isEditing)}
+                className="text-xs"
+              >
+                {isEditing ? (
+                  <Save className="h-3 w-3" />
+                ) : (
+                  <Edit className="h-3 w-3" />
+                )}
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {/* Besoins */}
+            <div>
+              <label className="text-sm font-medium text-foreground mb-2 flex items-center gap-2">
+                <MessageSquare className="h-3 w-3" />
+                Besoins spécifiques
+              </label>
+              {isEditing ? (
+                <textarea
+                  className="w-full p-2 text-xs border border-border rounded-md bg-background"
+                  rows={3}
+                  defaultValue={student.needs?.join(", ") || ""}
+                  placeholder="Décrivez les besoins spécifiques..."
+                />
+              ) : (
+                <div className="text-xs text-muted-foreground p-2 bg-muted/30 rounded-md">
+                  {student.needs?.length
+                    ? student.needs.join(", ")
+                    : "Aucun besoin spécifique identifié"}
+                </div>
+              )}
+            </div>
+
+            {/* Points forts */}
+            <div>
+              <label className="text-sm font-medium text-foreground mb-2 flex items-center gap-2">
+                <Award className="h-3 w-3 text-success" />
+                Points forts
+              </label>
+              {isEditing ? (
+                <textarea
+                  className="w-full p-2 text-xs border border-border rounded-md bg-background"
+                  rows={3}
+                  defaultValue={student.strengths?.join(", ") || ""}
+                  placeholder="Listez les points forts..."
+                />
+              ) : (
+                <div className="text-xs text-muted-foreground p-2 bg-success/5 rounded-md">
+                  {student.strengths?.length
+                    ? student.strengths.join(", ")
+                    : "Points forts à identifier"}
+                </div>
+              )}
+            </div>
+
+            {/* Observations */}
+            <div>
+              <label className="text-sm font-medium text-foreground mb-2 flex items-center gap-2">
+                <Eye className="h-3 w-3" />
+                Observations générales
+              </label>
+              {isEditing ? (
+                <textarea
+                  className="w-full p-2 text-xs border border-border rounded-md bg-background"
+                  rows={4}
+                  defaultValue={student.observations?.join("; ") || ""}
+                  placeholder="Notez vos observations..."
+                />
+              ) : (
+                <div className="text-xs text-muted-foreground p-2 bg-muted/30 rounded-md">
+                  {student.observations?.length
+                    ? student.observations.join("; ")
+                    : "Aucune observation particulière"}
+                </div>
+              )}
+            </div>
+
+            {/* Axes d'amélioration */}
+            <div>
+              <label className="text-sm font-medium text-foreground mb-2 flex items-center gap-2">
+                <Lightbulb className="h-3 w-3 text-warning" />
+                Axes d'amélioration
+              </label>
+              {isEditing ? (
+                <textarea
+                  className="w-full p-2 text-xs border border-border rounded-md bg-background"
+                  rows={3}
+                  defaultValue={student.improvementAxes?.join(", ") || ""}
+                  placeholder="Identifiez les axes d'amélioration..."
+                />
+              ) : (
+                <div className="text-xs text-muted-foreground p-2 bg-warning/5 rounded-md">
+                  {student.improvementAxes?.length
+                    ? student.improvementAxes.join(", ")
+                    : "Axes d'amélioration à définir"}
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Historique des sessions */}
+        <Card>
+          <CardHeader className="pb-3">
+            <div className="flex items-center gap-2">
+              <Calendar className="h-4 w-4 text-primary" />
+              <h4 className="font-semibold">Historique des sessions</h4>
+              <Badge variant="outline" className="text-xs">
+                {studentSessions.length} session
+                {studentSessions.length > 1 ? "s" : ""}
+              </Badge>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2 max-h-64 overflow-y-auto">
+              {studentSessions.slice(0, 10).map((session) => {
+                const participation = getStudentParticipation(
+                  student.id,
+                  session.id,
+                );
+                const subject = getSubjectById(session.subjectId);
+                const timeSlot = getTimeSlotById(session.timeSlotId);
+
+                return (
+                  <div
+                    key={session.id}
+                    className="group p-3 bg-muted/20 hover:bg-muted/40 rounded-lg transition-all duration-200 cursor-pointer"
+                    onClick={() => onSessionClick(session.id)}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                          <BookOpen className="h-3 w-3 text-primary" />
+                          <span className="text-sm font-medium text-foreground truncate">
+                            {subject?.name || "Matière"}
+                          </span>
+                          <ArrowRight className="h-3 w-3 text-muted-foreground group-hover:text-primary transition-colors" />
+                        </div>
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                          <Calendar className="h-3 w-3" />
+                          <span>
+                            {new Date(session.sessionDate).toLocaleDateString(
+                              "fr-FR",
+                            )}
+                          </span>
+                          <Clock className="h-3 w-3" />
+                          <span>{timeSlot?.startTime || "Horaire"}</span>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        {participation?.isPresent ? (
+                          <Badge
+                            variant="default"
+                            className="text-xs bg-success text-success-foreground"
+                          >
+                            Présent
+                          </Badge>
+                        ) : (
+                          <Badge variant="destructive" className="text-xs">
+                            Absent
+                          </Badge>
+                        )}
+                        {participation &&
+                          participation.participationLevel > 0 && (
+                            <div className="flex items-center gap-1">
+                              <Star className="h-3 w-3 text-warning" />
+                              <span className="text-xs font-medium">
+                                {participation.participationLevel}/10
+                              </span>
+                            </div>
+                          )}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+
+              {studentSessions.length === 0 && (
+                <div className="text-center py-6 text-muted-foreground">
+                  <Calendar className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                  <p className="text-sm">Aucune session enregistrée</p>
+                </div>
+              )}
+
+              {studentSessions.length > 10 && (
+                <div className="text-center pt-2">
+                  <Button variant="ghost" size="sm" className="text-xs">
+                    Voir plus...
+                  </Button>
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+}

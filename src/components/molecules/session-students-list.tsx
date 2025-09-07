@@ -56,9 +56,7 @@ export function SessionStudentsList({
       <CardHeader>
         <div className="flex items-center gap-2">
           <Users className="h-4 w-4 text-primary" />
-          <h3 className="font-semibold">
-            Session {classEntity?.classCode}
-          </h3>
+          <h3 className="font-semibold">Session {classEntity?.classCode}</h3>
         </div>
         <p className="text-sm text-muted-foreground">
           {subject?.name} • {timeSlot?.name}

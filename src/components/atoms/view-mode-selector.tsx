@@ -1,6 +1,6 @@
 "use client";
 
-import { Grid3X3, Calendar } from "lucide-react";
+import { Calendar, Grid3X3 } from "lucide-react";
 import { Button } from "@/components/atoms/button";
 
 interface ViewModeSelectorProps {

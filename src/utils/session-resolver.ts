@@ -3,9 +3,9 @@
  * Permet de récupérer une session générée depuis les templates hebdomadaires
  */
 
-import { WeekSessionGenerator } from "@/services/session-generator";
-import { MOCK_WEEKLY_TEMPLATES } from "@/data/mock-weekly-templates";
 import { MOCK_SESSION_EXCEPTIONS } from "@/data/mock-session-exceptions";
+import { MOCK_WEEKLY_TEMPLATES } from "@/data/mock-weekly-templates";
+import { WeekSessionGenerator } from "@/services/session-generator";
 import type { CourseSession } from "@/types/uml-entities";
 import { getWeekStart, isDateInWeek } from "@/utils/date-utils";
 

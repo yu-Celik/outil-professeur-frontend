@@ -5,10 +5,10 @@
  * via les affectations d'enseignement (TeachingAssignment)
  */
 
-import { MOCK_TEACHING_ASSIGNMENTS } from "@/data/mock-teaching-assignments";
 import { MOCK_CLASSES } from "@/data/mock-classes";
 import { MOCK_SUBJECTS } from "@/data/mock-subjects";
-import type { TeachingAssignment, Class, Subject } from "@/types/uml-entities";
+import { MOCK_TEACHING_ASSIGNMENTS } from "@/data/mock-teaching-assignments";
+import type { Class, Subject, TeachingAssignment } from "@/types/uml-entities";
 
 /**
  * Obtient les classes autorisées pour une matière donnée

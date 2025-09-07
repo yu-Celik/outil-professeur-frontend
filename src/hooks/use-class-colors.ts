@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, useCallback, useMemo } from "react";
+import { useCallback, useMemo, useState } from "react";
 import {
+  createUserPreferences,
   getUserPreferences,
   updateUserPreferences,
-  createUserPreferences,
 } from "@/data/mock-user-preferences";
 import type { UserPreferences } from "@/types/uml-entities";
 

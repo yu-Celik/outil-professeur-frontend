@@ -1,19 +1,19 @@
 "use client";
 
 import {
-  ChevronDown,
-  ChevronRight,
-  Users,
-  TrendingUp,
-  Star,
-  Eye,
-  Camera,
-  Wifi,
-  CheckCircle2,
-  XCircle,
   AlertTriangle,
   BookOpen,
+  Camera,
+  CheckCircle2,
+  ChevronDown,
+  ChevronRight,
   ClipboardList,
+  Eye,
+  Star,
+  TrendingUp,
+  Users,
+  Wifi,
+  XCircle,
 } from "lucide-react";
 import { Badge } from "@/components/atoms/badge";
 import { Button } from "@/components/atoms/button";
@@ -58,7 +58,8 @@ export function StudentParticipationAccordion({
       );
     }
 
-    const isComplete = participationData.isPresent &&
+    const isComplete =
+      participationData.isPresent &&
       participationData.behavior &&
       participationData.participationLevel > 0;
 
@@ -105,7 +106,9 @@ export function StudentParticipationAccordion({
                 <div className="h-1 w-1 rounded-full bg-muted-foreground/30" />
                 <div className="flex items-center gap-1">
                   <Star className="h-3 w-3 text-warning" />
-                  <span className="font-medium text-muted-foreground">{participationData.participationLevel}/10</span>
+                  <span className="font-medium text-muted-foreground">
+                    {participationData.participationLevel}/10
+                  </span>
                 </div>
               </div>
             </div>
@@ -116,8 +119,12 @@ export function StudentParticipationAccordion({
                 {participationData.behavior}
               </div>
               <div className="flex items-center gap-2">
-                {participationData.cameraEnabled && <Camera className="h-3 w-3 text-success" />}
-                {participationData.homeworkDone && <BookOpen className="h-3 w-3 text-primary" />}
+                {participationData.cameraEnabled && (
+                  <Camera className="h-3 w-3 text-success" />
+                )}
+                {participationData.homeworkDone && (
+                  <BookOpen className="h-3 w-3 text-primary" />
+                )}
                 <Wifi className="h-3 w-3 text-muted-foreground/60" />
               </div>
             </div>
@@ -135,7 +142,9 @@ export function StudentParticipationAccordion({
               <div className="p-1 rounded-lg bg-primary/10">
                 <Eye className="h-4 w-4 text-primary" />
               </div>
-              <h4 className="font-semibold text-foreground">Évaluation détaillée</h4>
+              <h4 className="font-semibold text-foreground">
+                Évaluation détaillée
+              </h4>
             </div>
 
             {/* Formulaire de participation pour cet élève */}
@@ -148,19 +157,21 @@ export function StudentParticipationAccordion({
                   </label>
                   <div className="flex gap-3">
                     <button
-                      className={`px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 flex-1 ${participationData.isPresent
-                          ? 'bg-success text-success-foreground shadow-lg transform scale-105'
-                          : 'bg-muted text-muted-foreground border border-border hover:bg-muted/80'
-                        }`}
+                      className={`px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 flex-1 ${
+                        participationData.isPresent
+                          ? "bg-success text-success-foreground shadow-lg transform scale-105"
+                          : "bg-muted text-muted-foreground border border-border hover:bg-muted/80"
+                      }`}
                     >
                       <CheckCircle2 className="h-4 w-4 mr-1 inline" />
                       Présent
                     </button>
                     <button
-                      className={`px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 flex-1 ${!participationData.isPresent
-                          ? 'bg-destructive text-destructive-foreground shadow-lg transform scale-105'
-                          : 'bg-muted text-muted-foreground border border-border hover:bg-muted/80'
-                        }`}
+                      className={`px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 flex-1 ${
+                        !participationData.isPresent
+                          ? "bg-destructive text-destructive-foreground shadow-lg transform scale-105"
+                          : "bg-muted text-muted-foreground border border-border hover:bg-muted/80"
+                      }`}
                     >
                       <XCircle className="h-4 w-4 mr-1 inline" />
                       Absent
@@ -175,17 +186,23 @@ export function StudentParticipationAccordion({
                   </label>
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
-                      <span className="text-sm text-muted-foreground">Score</span>
+                      <span className="text-sm text-muted-foreground">
+                        Score
+                      </span>
                       <div className="flex items-center gap-1">
                         <Star className="h-4 w-4 text-warning" />
-                        <span className="text-lg font-bold text-foreground">{participationData.participationLevel}/10</span>
+                        <span className="text-lg font-bold text-foreground">
+                          {participationData.participationLevel}/10
+                        </span>
                       </div>
                     </div>
                     <div className="relative">
                       <div className="h-3 bg-muted rounded-full overflow-hidden shadow-inner">
                         <div
                           className="h-full bg-gradient-to-r from-warning via-warning/80 to-destructive rounded-full transition-all duration-500 shadow-sm"
-                          style={{ width: `${participationData.participationLevel * 10}%` }}
+                          style={{
+                            width: `${participationData.participationLevel * 10}%`,
+                          }}
                         />
                       </div>
                     </div>
@@ -199,17 +216,25 @@ export function StudentParticipationAccordion({
                   </label>
                   <div className="p-3 rounded-lg bg-muted border border-border">
                     <div className="flex items-center gap-3">
-                      <div className={`p-1.5 rounded-full ${participationData.homeworkDone
-                          ? 'bg-success'
-                          : 'bg-muted-foreground/30'
-                        } transition-all duration-200`}>
+                      <div
+                        className={`p-1.5 rounded-full ${
+                          participationData.homeworkDone
+                            ? "bg-success"
+                            : "bg-muted-foreground/30"
+                        } transition-all duration-200`}
+                      >
                         <CheckCircle2 className="h-3 w-3 text-white" />
                       </div>
-                      <span className={`text-sm font-medium ${participationData.homeworkDone
-                          ? 'text-success-foreground'
-                          : 'text-muted-foreground'
-                        }`}>
-                        {participationData.homeworkDone ? "Devoirs faits" : "Devoirs non faits"}
+                      <span
+                        className={`text-sm font-medium ${
+                          participationData.homeworkDone
+                            ? "text-success-foreground"
+                            : "text-muted-foreground"
+                        }`}
+                      >
+                        {participationData.homeworkDone
+                          ? "Devoirs faits"
+                          : "Devoirs non faits"}
                       </span>
                     </div>
                   </div>
@@ -227,7 +252,9 @@ export function StudentParticipationAccordion({
                       <div className="p-1 rounded-full bg-primary">
                         <div className="h-2 w-2 bg-primary-foreground rounded-full" />
                       </div>
-                      <span className="text-primary font-medium">{participationData.behavior}</span>
+                      <span className="text-primary font-medium">
+                        {participationData.behavior}
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -240,14 +267,32 @@ export function StudentParticipationAccordion({
                   <div className="space-y-2">
                     <div className="p-3 rounded-lg bg-muted border border-border">
                       <div className="flex items-center gap-3">
-                        <Camera className={`h-4 w-4 ${participationData.cameraEnabled ? 'text-success' : 'text-muted-foreground/60'
-                          }`} />
-                        <span className={`text-sm font-medium ${participationData.cameraEnabled ? 'text-success-foreground' : 'text-muted-foreground'
-                          }`}>
-                          Caméra {participationData.cameraEnabled ? "activée" : "désactivée"}
+                        <Camera
+                          className={`h-4 w-4 ${
+                            participationData.cameraEnabled
+                              ? "text-success"
+                              : "text-muted-foreground/60"
+                          }`}
+                        />
+                        <span
+                          className={`text-sm font-medium ${
+                            participationData.cameraEnabled
+                              ? "text-success-foreground"
+                              : "text-muted-foreground"
+                          }`}
+                        >
+                          Caméra{" "}
+                          {participationData.cameraEnabled
+                            ? "activée"
+                            : "désactivée"}
                         </span>
-                        <div className={`ml-auto h-2 w-2 rounded-full ${participationData.cameraEnabled ? 'bg-success' : 'bg-muted-foreground/30'
-                          } animate-pulse`} />
+                        <div
+                          className={`ml-auto h-2 w-2 rounded-full ${
+                            participationData.cameraEnabled
+                              ? "bg-success"
+                              : "bg-muted-foreground/30"
+                          } animate-pulse`}
+                        />
                       </div>
                     </div>
                   </div>
@@ -261,7 +306,10 @@ export function StudentParticipationAccordion({
                 </label>
                 <div className="relative">
                   <textarea
-                    value={participationData.specificRemarks || "Aucune remarque particulière pour cette séance"}
+                    value={
+                      participationData.specificRemarks ||
+                      "Aucune remarque particulière pour cette séance"
+                    }
                     className="w-full p-4 border-2 border-border rounded-xl text-sm bg-background focus:border-primary focus:ring-4 focus:ring-primary/20 transition-all duration-200 resize-none"
                     rows={3}
                     placeholder="Ajoutez des observations spécifiques..."
@@ -304,7 +352,11 @@ export function StudentParticipationAccordion({
                   <Eye className="h-4 w-4 mr-1" />
                   Modifier
                 </Button>
-                <Button size="sm" variant="ghost" className="text-muted-foreground hover:text-destructive hover:bg-destructive/10">
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  className="text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                >
                   <XCircle className="h-4 w-4 mr-1" />
                   Effacer
                 </Button>

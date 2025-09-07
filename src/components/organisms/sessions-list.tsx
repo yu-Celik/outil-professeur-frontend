@@ -1,13 +1,13 @@
 "use client";
 
-import { ClipboardList, Users, Calendar, Clock, BookOpen } from "lucide-react";
+import { BookOpen, Calendar, ClipboardList, Clock, Users } from "lucide-react";
 import { Badge } from "@/components/atoms/badge";
 import { Card, CardContent } from "@/components/molecules/card";
 import { StudentParticipationAccordion } from "@/components/molecules/student-participation-accordion";
-import { getStudentsByClass } from "@/data/mock-students";
-import { getTimeSlotById } from "@/data/mock-time-slots";
-import { getSubjectById } from "@/data/mock-subjects";
 import { getClassById } from "@/data/mock-classes";
+import { getStudentsByClass } from "@/data/mock-students";
+import { getSubjectById } from "@/data/mock-subjects";
+import { getTimeSlotById } from "@/data/mock-time-slots";
 import type { CourseSession, Student } from "@/types/uml-entities";
 
 interface SessionsListProps {
@@ -25,7 +25,7 @@ export function SessionsList({
   openAccordions,
   onToggleAccordion,
 }: SessionsListProps) {
-  if (selectedSessionId === 'all') {
+  if (selectedSessionId === "all") {
     return (
       <div className="relative">
         <div className="absolute inset-0 bg-muted/20 rounded-3xl opacity-60" />
@@ -39,9 +39,12 @@ export function SessionsList({
               </div>
 
               <div className="space-y-3">
-                <h3 className="text-2xl font-bold text-card-foreground">Sélectionnez une séance</h3>
+                <h3 className="text-2xl font-bold text-card-foreground">
+                  Sélectionnez une séance
+                </h3>
                 <p className="text-muted-foreground leading-relaxed">
-                  Choisissez une séance spécifique dans les filtres ci-dessus pour commencer l'évaluation de vos élèves
+                  Choisissez une séance spécifique dans les filtres ci-dessus
+                  pour commencer l'évaluation de vos élèves
                 </p>
               </div>
 
@@ -62,7 +65,9 @@ export function SessionsList({
       <Card>
         <CardContent className="p-8 text-center">
           <ClipboardList className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-          <h3 className="text-lg font-semibold mb-2 text-card-foreground">Séance non trouvée</h3>
+          <h3 className="text-lg font-semibold mb-2 text-card-foreground">
+            Séance non trouvée
+          </h3>
           <p className="text-muted-foreground">
             La séance sélectionnée n'existe pas
           </p>
@@ -76,7 +81,9 @@ export function SessionsList({
       <Card>
         <CardContent className="p-8 text-center">
           <Users className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-          <h3 className="text-lg font-semibold mb-2 text-card-foreground">Aucun élève trouvé</h3>
+          <h3 className="text-lg font-semibold mb-2 text-card-foreground">
+            Aucun élève trouvé
+          </h3>
           <p className="text-muted-foreground">
             Aucun élève inscrit dans cette classe
           </p>
@@ -99,33 +106,48 @@ export function SessionsList({
                 </div>
                 <div>
                   <h3 className="text-xl font-bold text-card-foreground">
-                    {getSubjectById(selectedSession.subjectId)?.name || selectedSession.subjectId} - {getClassById(selectedSession.classId)?.classCode || selectedSession.classId}
+                    {getSubjectById(selectedSession.subjectId)?.name ||
+                      selectedSession.subjectId}{" "}
+                    -{" "}
+                    {getClassById(selectedSession.classId)?.classCode ||
+                      selectedSession.classId}
                   </h3>
                   <div className="flex items-center gap-2 text-muted-foreground mt-1">
                     <Calendar className="h-4 w-4" />
                     <span className="font-medium">
-                      {new Date(selectedSession.sessionDate).toLocaleDateString('fr-FR', {
-                        weekday: 'long',
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric'
-                      })}
+                      {new Date(selectedSession.sessionDate).toLocaleDateString(
+                        "fr-FR",
+                        {
+                          weekday: "long",
+                          year: "numeric",
+                          month: "long",
+                          day: "numeric",
+                        },
+                      )}
                     </span>
                     <div className="h-1 w-1 bg-muted-foreground/60 rounded-full" />
                     <Clock className="h-4 w-4" />
-                    <span>{getTimeSlotById(selectedSession.timeSlotId)?.startTime || 'Horaire non défini'}</span>
+                    <span>
+                      {getTimeSlotById(selectedSession.timeSlotId)?.startTime ||
+                        "Horaire non défini"}
+                    </span>
                   </div>
                 </div>
               </div>
               <div className="flex items-center gap-3">
                 <Badge
-                  variant={selectedSession.status === 'done' ? 'default' : 'secondary'}
-                  className={`px-3 py-1 ${selectedSession.status === 'done'
-                      ? 'bg-success text-success-foreground shadow-md'
-                      : 'bg-warning/20 text-warning-foreground border-warning/30'
-                    }`}
+                  variant={
+                    selectedSession.status === "done" ? "default" : "secondary"
+                  }
+                  className={`px-3 py-1 ${
+                    selectedSession.status === "done"
+                      ? "bg-success text-success-foreground shadow-md"
+                      : "bg-warning/20 text-warning-foreground border-warning/30"
+                  }`}
                 >
-                  {selectedSession.status === 'done' ? '✅ Terminée' : '📅 Prévue'}
+                  {selectedSession.status === "done"
+                    ? "✅ Terminée"
+                    : "📅 Prévue"}
                 </Badge>
               </div>
             </div>
@@ -149,7 +171,8 @@ export function SessionsList({
         <CardContent className="p-4">
           <div className="flex justify-between items-center">
             <div className="text-sm text-muted-foreground">
-              {studentsForSession.length} élève{studentsForSession.length > 1 ? 's' : ''} dans cette séance
+              {studentsForSession.length} élève
+              {studentsForSession.length > 1 ? "s" : ""} dans cette séance
             </div>
           </div>
         </CardContent>

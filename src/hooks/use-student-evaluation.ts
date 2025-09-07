@@ -11,7 +11,7 @@ interface SessionStudent {
 
 export function useStudentEvaluation(studentId: string, sessionId?: string) {
   const umlData = useUMLEvaluation(studentId, sessionId);
-  
+
   // Données mock pour la liste des étudiants de la session
   const sessionStudents: SessionStudent[] = [
     { id: "1", name: "Pierre", status: "current", completion: "in_progress" },
@@ -39,10 +39,10 @@ export function useStudentEvaluation(studentId: string, sessionId?: string) {
   return {
     // UML data
     ...umlData,
-    
+
     // Local data
     sessionStudents,
-    
+
     // Actions
     handleSave,
     handleReset,

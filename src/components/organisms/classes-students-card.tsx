@@ -14,18 +14,18 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/atoms/avatar";
 import { Button } from "@/components/atoms/button";
 import { Card } from "@/components/molecules/card";
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/molecules/dialog";
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/molecules/dropdown-menu";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from "@/components/molecules/dialog";
 import {
   Select,
   SelectContent,
@@ -33,10 +33,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/molecules/select";
-import { AddClassForm } from "@/components/organisms/add-class-form";
+import { ClassCrudForm } from "@/components/organisms/class-crud-form";
 import { AddStudentForm } from "@/components/organisms/add-student-form";
+import { useClassManagement } from "@/hooks/use-class-management";
 import { useClassColors } from "@/hooks/use-class-colors";
-import { MOCK_CLASSES } from "@/data";
+import { MOCK_CLASSES } from "@/data/mock-classes";
 
 interface Class {
   id: string;
@@ -89,6 +90,7 @@ export function ClassesStudentsCard({
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isStudentModalOpen, setIsStudentModalOpen] = useState(false);
   const { getClassColorWithText } = useClassColors(teacherId, "year-2024");
+  const { createClass, schoolYears, loading: classLoading } = useClassManagement();
 
   const handleClassClick = (classId: string) => {
     setSelectedClass(classId);
@@ -110,13 +112,23 @@ export function ClassesStudentsCard({
     setIsModalOpen(false);
   };
 
-  const handleSubmitClass = (classData: {
-    identifier: string;
-    level: string;
-    schoolYear: string;
+  const handleSubmitClass = async (classData: {
+    classCode: string;
+    gradeLabel: string;
+    schoolYearId: string;
   }) => {
-    onAddClass?.(classData);
-    setIsModalOpen(false);
+    try {
+      await createClass(classData);
+      setIsModalOpen(false);
+      // Adapter pour l'ancienne interface si nécessaire
+      onAddClass?.({
+        identifier: classData.classCode,
+        level: classData.gradeLabel,
+        schoolYear: classData.schoolYearId,
+      });
+    } catch (error) {
+      console.error("Erreur lors de la création de la classe:", error);
+    }
   };
 
   const handleAddStudentClick = () => {
@@ -415,23 +427,13 @@ export function ClassesStudentsCard({
         </div>
       </div>
 
-      <Dialog
-        open={isModalOpen}
-        onOpenChange={(open) => !open && handleCloseModal()}
-      >
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Ajouter une classe</DialogTitle>
-            <DialogDescription>
-              Remplissez les informations pour créer une nouvelle classe
-            </DialogDescription>
-          </DialogHeader>
-          <AddClassForm
-            onSubmit={handleSubmitClass}
-            onCancel={handleCloseModal}
-          />
-        </DialogContent>
-      </Dialog>
+      <ClassCrudForm
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        onSubmit={handleSubmitClass}
+        schoolYears={schoolYears}
+        isLoading={classLoading}
+      />
 
       <Dialog
         open={isStudentModalOpen}

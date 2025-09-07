@@ -1,29 +1,31 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { Toaster } from "sonner";
 import { LoadingSpinner } from "@/components/atoms/loading-spinner";
-import { CalendarHeader } from "@/components/organisms/calendar-header";
-import { CalendarToolbar } from "@/components/organisms/calendar-toolbar";
-import { CalendarWeekView } from "@/components/organisms/calendar-week-view";
-import { SessionForm } from "@/components/molecules/session-form";
 import { ClassColorPicker } from "@/components/molecules/class-color-picker";
-import { SessionCancelDialog } from "@/components/molecules/session-cancel-dialog";
-import { SessionMoveDialog } from "@/components/molecules/session-move-dialog";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
 } from "@/components/molecules/dialog";
-import { Toaster } from "sonner";
+import { SessionCancelDialog } from "@/components/molecules/session-cancel-dialog";
+import { SessionForm } from "@/components/molecules/session-form";
+import { SessionMoveDialog } from "@/components/molecules/session-move-dialog";
+import { CalendarToolbar } from "@/components/organisms/calendar-toolbar";
+import { CalendarWeekView } from "@/components/organisms/calendar-week-view";
 import { useCalendar } from "@/hooks/use-calendar";
-import { useUserSession } from "@/hooks/use-user-session";
 import { useClassColors } from "@/hooks/use-class-colors";
 import { useModal, useSimpleModal } from "@/hooks/use-modal";
 import { useSessionMoves } from "@/hooks/use-session-moves";
+import { useSetPageTitle } from "@/hooks/use-set-page-title";
+import { useUserSession } from "@/hooks/use-user-session";
 import type { CourseSession, TimeSlot } from "@/types/uml-entities";
 
 export default function CalendrierPage() {
+  useSetPageTitle("Calendrier");
+
   // Vue hebdomadaire uniquement
   const [showFilters, setShowFilters] = useState(false);
 
@@ -166,8 +168,6 @@ export default function CalendrierPage() {
 
   return (
     <div className="space-y-6">
-      <CalendarHeader />
-
       <CalendarToolbar
         monthYear={weekTitle}
         showFilters={showFilters}

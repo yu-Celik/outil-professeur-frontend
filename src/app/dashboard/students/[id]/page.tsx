@@ -4,10 +4,10 @@ import { AlertCircle, Bot } from "lucide-react";
 import { use } from "react";
 import { Button } from "@/components/atoms/button";
 import { Card, CardContent } from "@/components/molecules/card";
-import { StudentEvaluationHeader } from "@/components/molecules/student-evaluation-header";
-import { StudentEvaluationForm } from "@/components/organisms/student-evaluation-form";
 import { SessionStudentsList } from "@/components/molecules/session-students-list";
 import { SessionSummaryCard } from "@/components/molecules/session-summary-card";
+import { StudentEvaluationHeader } from "@/components/molecules/student-evaluation-header";
+import { StudentEvaluationForm } from "@/components/organisms/student-evaluation-form";
 import { useNotationSystem } from "@/hooks/use-notation-system";
 import { useStudentEvaluation } from "@/hooks/use-student-evaluation";
 

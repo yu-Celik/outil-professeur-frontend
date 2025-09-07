@@ -6,9 +6,9 @@ import { Button } from "@/components/atoms/button";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogDescription,
 } from "@/components/molecules/dialog";
 import { MOCK_CLASSES } from "@/data";
 import { useClassColors } from "@/hooks/use-class-colors";

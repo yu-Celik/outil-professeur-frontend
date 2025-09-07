@@ -1,7 +1,8 @@
 "use client";
 
-import { Filter, Plus, Palette } from "lucide-react";
+import { Filter, Palette, Plus } from "lucide-react";
 import { Button } from "@/components/atoms/button";
+
 interface CalendarActionsProps {
   showFilters: boolean;
   onToggleFilters: () => void;

@@ -1,8 +1,8 @@
 "use client";
 
-import { Card, CardContent } from "@/components/molecules/card";
 import { CalendarEventCard } from "@/components/molecules/calendar-event-card";
-import type { TimeSlot, CourseSession } from "@/types/uml-entities";
+import { Card, CardContent } from "@/components/molecules/card";
+import type { CourseSession, TimeSlot } from "@/types/uml-entities";
 
 interface WeekDay {
   date: Date;
@@ -126,10 +126,11 @@ export function CalendarWeekView({
                   {/* Cases pour chaque jour - simplifiées */}
                   {getCurrentWeek()?.map((day, dayIndex) => {
                     if (!day) return null;
-                    const dayEvents = day.events?.filter((event) => {
-                      const eventTimeSlot = event?.timeSlot?.id;
-                      return eventTimeSlot === timeSlot.id;
-                    }) || [];
+                    const dayEvents =
+                      day.events?.filter((event) => {
+                        const eventTimeSlot = event?.timeSlot?.id;
+                        return eventTimeSlot === timeSlot.id;
+                      }) || [];
 
                     const isPastDay = day.date < now && !day.isToday;
                     const isDayPastTime = day.isToday && isPast;

@@ -4,8 +4,7 @@
  * Respecte strictement les entités UML existantes
  */
 
-import type { CourseSession } from "@/types/uml-entities";
-import type { WeeklyTemplate } from "@/types/uml-entities";
+import type { CourseSession, WeeklyTemplate } from "@/types/uml-entities";
 import {
   calculateSessionDate,
   generateExceptionKey,
@@ -77,9 +76,9 @@ export class WeekSessionGenerator {
         objectives: null, // À remplir lors de l'observation
         content: null, // À remplir lors de l'observation
         homeworkAssigned: null, // À remplir lors de l'observation
-        room: exception?.newRoom || null, // Salle d'exception si applicable
+        // room: exception?.newRoom || null, // Propriété supprimée de l'entité UML CourseSession
         isMakeup: false, // Par défaut, pas un rattrapage
-        isMoved: exception?.type === "moved" || null, // Marquer si session déplacée
+        isMoved: exception?.type === "moved" || false, // boolean - true si session déplacée
         notes: exception?.reason || null, // Motif d'exception si applicable
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -97,11 +96,10 @@ export class WeekSessionGenerator {
       .forEach((exception) => {
         // Récupérer les données de session depuis l'exception
         const sessionData = (exception as any).sessionData;
-        
+
         // Créer l'ID original pour la session déplacée
         const originalTemplateId = exception.templateId;
         const newDate = exception.exceptionDate;
-        
 
         const movedSession: CourseSession = {
           id: `session-moved-${originalTemplateId}-${newDate.getFullYear()}-${newDate.getMonth() + 1}-${newDate.getDate()}-${exception.newTimeSlotId}-${exception.id}`,
@@ -114,7 +112,7 @@ export class WeekSessionGenerator {
           objectives: null,
           content: null,
           homeworkAssigned: null,
-          room: exception.newRoom || null,
+          // room: exception.newRoom || null, // Propriété supprimée de l'entité UML CourseSession
           isMakeup: false,
           isMoved: true,
           notes: `Session déplacée : ${exception.reason}`,
@@ -122,7 +120,8 @@ export class WeekSessionGenerator {
           updatedAt: new Date(),
           reschedule: (_newDate: Date) => {},
           takeAttendance: () => {},
-          summary: () => `Session déplacée depuis template ${originalTemplateId}`,
+          summary: () =>
+            `Session déplacée depuis template ${originalTemplateId}`,
         };
 
         sessions.push(movedSession);
@@ -153,7 +152,7 @@ export class WeekSessionGenerator {
         isDateInWeek(exception.exceptionDate, currentWeek),
       );
 
-      const weekSessions = this.generateWeekSessions(
+      const weekSessions = WeekSessionGenerator.generateWeekSessions(
         currentWeek,
         templates,
         weekExceptions,
@@ -218,7 +217,7 @@ export class SessionExceptionUtils {
   static createAddition(
     date: Date,
     timeSlotId: string,
-    room: string,
+    room: string, // Conservé pour WeeklyTemplate, même si CourseSession n'a plus cette propriété
     reason: string,
   ): SessionException {
     return {

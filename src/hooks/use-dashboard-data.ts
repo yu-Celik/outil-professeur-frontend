@@ -2,8 +2,8 @@ import { useState } from "react";
 import {
   MOCK_CLASSES,
   MOCK_STUDENTS,
-  MOCK_TIME_SLOTS,
   MOCK_SUBJECTS,
+  MOCK_TIME_SLOTS,
 } from "@/data";
 import { useWeeklySessions } from "@/hooks/use-weekly-sessions";
 import { combineDateAndTime } from "@/utils/date-utils";

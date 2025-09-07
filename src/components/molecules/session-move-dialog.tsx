@@ -1,23 +1,23 @@
 "use client";
 
-import * as React from "react";
 import { AlertTriangle, ArrowRightLeft } from "lucide-react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "@/components/molecules/dialog";
+import * as React from "react";
+import { Badge } from "@/components/atoms/badge";
 import { Button } from "@/components/atoms/button";
 import { DatePicker } from "@/components/atoms/date-picker";
 import { TimeSlotSelector } from "@/components/atoms/time-slot-selector";
-import { Badge } from "@/components/atoms/badge";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/molecules/dialog";
 import type {
-  CourseSession,
-  TimeSlot,
   Class,
+  CourseSession,
   Subject,
+  TimeSlot,
 } from "@/types/uml-entities";
 
 interface SessionMoveDialogProps {
@@ -132,11 +132,7 @@ export function SessionMoveDialog({
               <p className="text-sm text-muted-foreground">
                 Classe : {sessionClass.classCode}
               </p>
-              {session.room && (
-                <p className="text-sm text-muted-foreground">
-                  Salle : {session.room}
-                </p>
-              )}
+              {/* Salle supprimée - propriété room retirée de l'entité UML CourseSession */}
             </div>
           </div>
 

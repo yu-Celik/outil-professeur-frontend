@@ -3,17 +3,22 @@
 import { useState } from "react";
 import { ClassColorPicker } from "@/components/molecules/class-color-picker";
 import { TimeSlotsManagement } from "@/components/organisms/timeslots-management";
+import { SubjectsManagement } from "@/components/organisms/subjects-management";
+import { useSetPageTitle } from "@/hooks/use-set-page-title";
 import { useUserSession } from "@/hooks/use-user-session";
 
 export default function ReglagesPage() {
+  useSetPageTitle("Réglages");
+
   const { user } = useUserSession();
   const [activeTab, setActiveTab] = useState<
-    "profil" | "creneaux" | "couleurs" | "preferences" | "securite"
+    "profil" | "creneaux" | "matieres" | "couleurs" | "preferences" | "securite"
   >("profil");
 
   const tabs = [
     { id: "profil" as const, label: "Profil", icon: "👤" },
     { id: "creneaux" as const, label: "Créneaux horaires", icon: "🕐" },
+    { id: "matieres" as const, label: "Matières", icon: "📚" },
     { id: "couleurs" as const, label: "Couleurs des classes", icon: "🎨" },
     { id: "preferences" as const, label: "Préférences", icon: "⚙️" },
     { id: "securite" as const, label: "Sécurité", icon: "🔒" },
@@ -21,13 +26,6 @@ export default function ReglagesPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Réglages</h1>
-        <p className="text-muted-foreground">
-          Configurez votre profil et les paramètres de l'application
-        </p>
-      </div>
-
       {/* Navigation par onglets */}
       <div className="border-b border-border">
         <nav className="-mb-px flex space-x-8" aria-label="Tabs">
@@ -53,6 +51,9 @@ export default function ReglagesPage() {
         {activeTab === "profil" && <ProfilSettings />}
         {activeTab === "creneaux" && (
           <TimeSlotsManagement teacherId={user?.id} />
+        )}
+        {activeTab === "matieres" && (
+          <SubjectsManagement teacherId={user?.id} />
         )}
         {activeTab === "couleurs" && (
           <div>

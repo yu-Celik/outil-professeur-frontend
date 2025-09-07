@@ -1,12 +1,12 @@
 "use client";
 
-import { useState, useCallback } from "react";
-import type { CourseSession, TimeSlot } from "@/types/uml-entities";
+import { useCallback, useState } from "react";
 import {
-  showSessionMoveToast,
   showSessionMoveErrorToast,
+  showSessionMoveToast,
   showSessionUndoMoveToast,
 } from "@/components/atoms/toast-notifications";
+import type { CourseSession, TimeSlot } from "@/types/uml-entities";
 
 interface MoveOperation {
   sessionId: string;
@@ -41,13 +41,13 @@ export function useSessionMoves() {
 
         // Apply the move
         onUpdate(sessionId, {
-          sessionDate: newDate.toISOString().split("T")[0],
+          sessionDate: newDate,
           timeSlotId: newTimeSlot.id,
-          status: "moved" as const,
-          originalDateTime: formatDateTime(
+          isMoved: true,
+          notes: `Déplacé depuis ${formatDateTime(
             new Date(originalSession.sessionDate),
             originalSession.timeSlotId,
-          ),
+          )}`,
         });
 
         // Add to recent moves
@@ -79,10 +79,10 @@ export function useSessionMoves() {
     ) => {
       // Restore original session data
       onUpdate(moveOp.sessionId, {
-        sessionDate: moveOp.originalDate.toISOString().split("T")[0],
+        sessionDate: moveOp.originalDate,
         timeSlotId: moveOp.originalTimeSlotId,
-        status: "scheduled" as const,
-        originalDateTime: undefined,
+        isMoved: false,
+        notes: null,
       });
 
       // Remove from recent moves

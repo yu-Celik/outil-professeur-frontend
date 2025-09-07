@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowLeftRight, XCircle, Clock } from "lucide-react";
+import { ArrowLeftRight, Clock, XCircle } from "lucide-react";
 import { Badge } from "@/components/atoms/badge";
 
 interface SessionStatusBadgeProps {

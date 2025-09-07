@@ -1,13 +1,13 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
 import { useSearchParams } from "next/navigation";
-import { useUserSession } from "@/hooks/use-user-session";
-import { useTeachingAssignments } from "@/hooks/use-teaching-assignments";
-import { getStudentsByClass } from "@/data/mock-students";
+import { useEffect, useMemo, useState } from "react";
 import { getCompletedSessionsForTeacher } from "@/data/mock-completed-sessions";
+import { getStudentsByClass } from "@/data/mock-students";
 import { getWeeklyTemplatesForTeacher } from "@/data/mock-weekly-templates";
-import type { CourseSession, Class } from "@/types/uml-entities";
+import { useTeachingAssignments } from "@/hooks/use-teaching-assignments";
+import { useUserSession } from "@/hooks/use-user-session";
+import type { Class, CourseSession } from "@/types/uml-entities";
 
 export function useSessionManagement() {
   const { user } = useUserSession();
@@ -15,24 +15,30 @@ export function useSessionManagement() {
   const searchParams = useSearchParams();
 
   // Paramètres de route
-  const sessionIdParam = searchParams.get('sessionId');
-  const classIdParam = searchParams.get('classId');
-  const dateParam = searchParams.get('date');
+  const sessionIdParam = searchParams.get("sessionId");
+  const classIdParam = searchParams.get("classId");
+  const dateParam = searchParams.get("date");
 
   // Get today's date consistently - utiliser une date pour l'année scolaire 2024-2025
   const todayDate = useMemo(() => {
     // Utiliser une date de l'année scolaire en cours (octobre 2024)
-    if (typeof window === 'undefined') {
-      return '2024-10-15'; // Date fixe pour le SSR - octobre 2024
+    if (typeof window === "undefined") {
+      return "2024-10-15"; // Date fixe pour le SSR - octobre 2024
     }
     // En production, utiliser une date de l'année scolaire actuelle
-    return '2024-10-15';
+    return "2024-10-15";
   }, []);
 
   // États locaux
-  const [selectedClassId, setSelectedClassId] = useState<string>(classIdParam || 'all');
-  const [selectedDate, setSelectedDate] = useState<string>(dateParam || todayDate);
-  const [selectedSessionId, setSelectedSessionId] = useState<string>(sessionIdParam || 'all');
+  const [selectedClassId, setSelectedClassId] = useState<string>(
+    classIdParam || "all",
+  );
+  const [selectedDate, setSelectedDate] = useState<string>(
+    dateParam || todayDate,
+  );
+  const [selectedSessionId, setSelectedSessionId] = useState<string>(
+    sessionIdParam || "all",
+  );
   const [openAccordions, setOpenAccordions] = useState<Set<string>>(new Set());
 
   // Hooks
@@ -52,10 +58,12 @@ export function useSessionManagement() {
     const teacherTemplates = getWeeklyTemplatesForTeacher(teacherId);
 
     for (let week = 0; week < futureWeeks; week++) {
-      teacherTemplates.forEach(template => {
+      teacherTemplates.forEach((template) => {
         // Calculer la date de la session
         const sessionDate = new Date(today);
-        sessionDate.setDate(today.getDate() + (week * 7) + (template.dayOfWeek - today.getDay()));
+        sessionDate.setDate(
+          today.getDate() + week * 7 + (template.dayOfWeek - today.getDay()),
+        );
 
         const sessionId = `session-generated-${template.id}-${week}`;
 
@@ -70,14 +78,14 @@ export function useSessionManagement() {
           objectives: null,
           content: null,
           homeworkAssigned: null,
-          room: template.room,
+          // room: template.room, // Propriété supprimée de CourseSession UML
           isMakeup: false,
-          isMoved: null,
+          isMoved: false,
           notes: null,
           createdAt: today,
           updatedAt: today,
-          reschedule: () => { },
-          takeAttendance: () => { },
+          reschedule: () => {},
+          takeAttendance: () => {},
           summary: () => `Session générée depuis template ${template.id}`,
         };
 
@@ -86,14 +94,18 @@ export function useSessionManagement() {
     }
 
     // Trier par date
-    const sortedSessions = sessions.sort((a, b) =>
-      new Date(a.sessionDate).getTime() - new Date(b.sessionDate).getTime()
+    const sortedSessions = sessions.sort(
+      (a, b) =>
+        new Date(a.sessionDate).getTime() - new Date(b.sessionDate).getTime(),
     );
 
     // Debug : afficher le nombre de sessions générées
     console.log(`Sessions générées pour ${teacherId}:`, sortedSessions.length);
-    console.log('Sessions complétées:', getCompletedSessionsForTeacher(teacherId).length);
-    console.log('Templates:', getWeeklyTemplatesForTeacher(teacherId).length);
+    console.log(
+      "Sessions complétées:",
+      getCompletedSessionsForTeacher(teacherId).length,
+    );
+    console.log("Templates:", getWeeklyTemplatesForTeacher(teacherId).length);
 
     return sortedSessions;
   }, [teacherId]);
@@ -111,14 +123,15 @@ export function useSessionManagement() {
 
     return Array.from(classMap.entries()).map(([classId, classData]) => ({
       id: classId,
-      ...classData
+      ...classData,
     })) as Class[];
   }, [assignments]);
 
   // Récupérer la session sélectionnée si une session spécifique est choisie
-  const selectedSession = selectedSessionId !== 'all'
-    ? allSessions.find(session => session.id === selectedSessionId)
-    : null;
+  const selectedSession =
+    selectedSessionId !== "all"
+      ? allSessions.find((session) => session.id === selectedSessionId)
+      : null;
 
   // Récupérer les élèves de la session sélectionnée
   const studentsForSession = selectedSession
@@ -129,7 +142,9 @@ export function useSessionManagement() {
   useEffect(() => {
     if (sessionIdParam && selectedSession) {
       // Si on vient du calendrier avec un sessionId, on ouvre tous les accordéons pour cette session
-      const allStudentIds = getStudentsByClass(selectedSession.classId).map(s => s.id);
+      const allStudentIds = getStudentsByClass(selectedSession.classId).map(
+        (s) => s.id,
+      );
       setOpenAccordions(new Set(allStudentIds));
     } else {
       // Sinon, tout fermer
@@ -139,7 +154,8 @@ export function useSessionManagement() {
 
   // Réinitialiser les accordéons fermés quand la session change manuellement
   useEffect(() => {
-    if (!sessionIdParam) { // Ne pas réinitialiser si on vient du calendrier
+    if (!sessionIdParam) {
+      // Ne pas réinitialiser si on vient du calendrier
       setOpenAccordions(new Set());
     }
   }, [selectedSessionId, sessionIdParam]);
@@ -160,13 +176,13 @@ export function useSessionManagement() {
     selectedDate,
     selectedSessionId,
     openAccordions,
-    
+
     // Data
     allSessions,
     uniqueClasses,
     selectedSession,
     studentsForSession,
-    
+
     // Actions
     setSelectedClassId,
     setSelectedDate,

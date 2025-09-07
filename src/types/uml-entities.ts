@@ -145,9 +145,8 @@ export interface CourseSession {
   objectives: string | null;
   content: string | null;
   homeworkAssigned: string | null;
-  room: string | null;
   isMakeup: boolean | null;
-  isMoved: boolean | null;
+  isMoved: boolean;
   notes: string | null;
   createdAt: Date;
   updatedAt: Date;
@@ -376,7 +375,9 @@ export interface UMLRelations {
 
   // WeeklyTemplate relationships
   teacher_weeklyTemplates: Teacher & { weeklyTemplates: WeeklyTemplate[] };
-  schoolYear_weeklyTemplates: SchoolYear & { weeklyTemplates: WeeklyTemplate[] };
+  schoolYear_weeklyTemplates: SchoolYear & {
+    weeklyTemplates: WeeklyTemplate[];
+  };
   weeklyTemplate_timeSlot: WeeklyTemplate & { timeSlot: TimeSlot };
   weeklyTemplate_subject: WeeklyTemplate & { subject: Subject };
   weeklyTemplate_class: WeeklyTemplate & { class: Class };
