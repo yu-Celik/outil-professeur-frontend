@@ -1,169 +1,118 @@
+/**
+ * Hook de gestion des classes
+ * Utilise l'architecture partagée pour éliminer la duplication
+ */
+
 import { useState, useCallback } from "react";
 import type { Class, SchoolYear } from "@/types/uml-entities";
 import { MOCK_CLASSES } from "@/data/mock-classes";
 import { MOCK_SCHOOL_YEARS } from "@/data/mock-school-years";
+import { useBaseManagement, generateUniqueId } from "@/hooks/shared/use-base-management";
+import { requiredRule, customRule } from "@/hooks/shared/use-validation";
 
-interface ClassFormData {
+export interface ClassFormData {
   classCode: string;
   gradeLabel: string;
   schoolYearId: string;
 }
 
-interface UseClassManagementReturn {
+export interface UseClassManagementReturn {
+  // Données de base héritées du hook partagé
   classes: Class[];
-  schoolYears: SchoolYear[];
   loading: boolean;
   error: string | null;
   createClass: (data: ClassFormData) => Promise<Class>;
   updateClass: (id: string, data: ClassFormData) => Promise<Class>;
   deleteClass: (id: string) => Promise<void>;
   getClassById: (id: string) => Class | undefined;
+  validateForm: (data: ClassFormData, excludeId?: string) => Record<keyof ClassFormData, string | null>;
+  hasValidationErrors: (errors: Record<keyof ClassFormData, string | null>) => boolean;
+
+  // Données et méthodes spécifiques aux classes
+  schoolYears: SchoolYear[];
   getClassesBySchoolYear: (schoolYearId: string) => Class[];
+  refresh: () => void;
 }
 
 export function useClassManagement(): UseClassManagementReturn {
-  const [classes, setClasses] = useState<Class[]>(MOCK_CLASSES);
   const [schoolYears] = useState<SchoolYear[]>(MOCK_SCHOOL_YEARS);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
-  const createClass = useCallback(async (data: ClassFormData): Promise<Class> => {
-    setLoading(true);
-    setError(null);
+  // Configuration pour le hook de base
+  const baseManagement = useBaseManagement<Class, ClassFormData>({
+    entityName: "classe",
+    mockData: MOCK_CLASSES,
+    generateId: () => `class-${generateUniqueId()}`,
+    
+    // Règles de validation
+    validationRules: {
+      classCode: [
+        requiredRule("classCode", "Code de classe"),
+        customRule(
+          (value: string, items: Class[], excludeId?: string) => {
+            // Vérifier l'unicité du code dans l'année scolaire
+            const formData = arguments[3] as ClassFormData;
+            return !items.some((cls) => 
+              cls.id !== excludeId && 
+              cls.classCode === value && 
+              cls.schoolYearId === (formData as any).schoolYearId
+            );
+          },
+          "Une classe avec ce code existe déjà pour cette année scolaire"
+        ),
+      ],
+      gradeLabel: [
+        requiredRule("gradeLabel", "Niveau de classe"),
+      ],
+      schoolYearId: [
+        requiredRule("schoolYearId", "Année scolaire"),
+      ],
+    },
 
-    try {
-      // Simuler un délai API
-      await new Promise((resolve) => setTimeout(resolve, 500));
+    // Création d'entité
+    createEntity: (data: ClassFormData) => ({
+      createdBy: "current-user-id", // TODO: remplacer par l'utilisateur connecté
+      classCode: data.classCode,
+      gradeLabel: data.gradeLabel,
+      schoolYearId: data.schoolYearId,
+      assignStudent: (studentId: string) => {
+        console.log("Assign student:", studentId);
+      },
+      transferStudent: (studentId: string, toClassId: string) => {
+        console.log("Transfer student:", studentId, "to:", toClassId);
+      },
+      getStudents: () => [],
+      getSessions: () => [],
+      getExams: () => [],
+    }),
 
-      // Vérifier la duplication
-      const exists = classes.some(
-        (cls) => cls.classCode === data.classCode && cls.schoolYearId === data.schoolYearId
-      );
+    // Mise à jour d'entité
+    updateEntity: (existing: Class, data: ClassFormData) => ({
+      classCode: data.classCode,
+      gradeLabel: data.gradeLabel,
+      schoolYearId: data.schoolYearId,
+    }),
+  });
 
-      if (exists) {
-        throw new Error("Une classe avec ce code existe déjà pour cette année scolaire");
-      }
-
-      const newClass: Class = {
-        id: `class-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-        createdBy: "current-user-id", // À remplacer par l'ID de l'utilisateur connecté
-        classCode: data.classCode,
-        gradeLabel: data.gradeLabel,
-        schoolYearId: data.schoolYearId,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        assignStudent: (studentId: string) => {
-          console.log("Assign student:", studentId);
-        },
-        transferStudent: (studentId: string, toClassId: string) => {
-          console.log("Transfer student:", studentId, "to:", toClassId);
-        },
-        getStudents: () => [],
-        getSessions: () => [],
-        getExams: () => [],
-      };
-
-      setClasses((prev) => [...prev, newClass]);
-      return newClass;
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Erreur lors de la création de la classe";
-      setError(errorMessage);
-      throw err;
-    } finally {
-      setLoading(false);
-    }
-  }, [classes]);
-
-  const updateClass = useCallback(async (id: string, data: ClassFormData): Promise<Class> => {
-    setLoading(true);
-    setError(null);
-
-    try {
-      // Simuler un délai API
-      await new Promise((resolve) => setTimeout(resolve, 500));
-
-      const existingClass = classes.find((cls) => cls.id === id);
-      if (!existingClass) {
-        throw new Error("Classe introuvable");
-      }
-
-      // Vérifier la duplication (exclure la classe actuelle)
-      const exists = classes.some(
-        (cls) => 
-          cls.id !== id && 
-          cls.classCode === data.classCode && 
-          cls.schoolYearId === data.schoolYearId
-      );
-
-      if (exists) {
-        throw new Error("Une classe avec ce code existe déjà pour cette année scolaire");
-      }
-
-      const updatedClass: Class = {
-        ...existingClass,
-        classCode: data.classCode,
-        gradeLabel: data.gradeLabel,
-        schoolYearId: data.schoolYearId,
-        updatedAt: new Date(),
-      };
-
-      setClasses((prev) => prev.map((cls) => (cls.id === id ? updatedClass : cls)));
-      return updatedClass;
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Erreur lors de la modification de la classe";
-      setError(errorMessage);
-      throw err;
-    } finally {
-      setLoading(false);
-    }
-  }, [classes]);
-
-  const deleteClass = useCallback(async (id: string): Promise<void> => {
-    setLoading(true);
-    setError(null);
-
-    try {
-      // Simuler un délai API
-      await new Promise((resolve) => setTimeout(resolve, 300));
-
-      const existingClass = classes.find((cls) => cls.id === id);
-      if (!existingClass) {
-        throw new Error("Classe introuvable");
-      }
-
-      // Vérifier s'il y a des élèves associés
-      const hasStudents = existingClass.getStudents().length > 0;
-      if (hasStudents) {
-        throw new Error("Impossible de supprimer une classe qui contient des élèves");
-      }
-
-      setClasses((prev) => prev.filter((cls) => cls.id !== id));
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Erreur lors de la suppression de la classe";
-      setError(errorMessage);
-      throw err;
-    } finally {
-      setLoading(false);
-    }
-  }, [classes]);
-
-  const getClassById = useCallback((id: string): Class | undefined => {
-    return classes.find((cls) => cls.id === id);
-  }, [classes]);
-
-  const getClassesBySchoolYear = useCallback((schoolYearId: string): Class[] => {
-    return classes.filter((cls) => cls.schoolYearId === schoolYearId);
-  }, [classes]);
+  // Méthodes spécifiques aux classes
+  const getClassesBySchoolYear = useCallback((schoolYearId: string) => {
+    return baseManagement.items.filter((cls) => cls.schoolYearId === schoolYearId);
+  }, [baseManagement.items]);
 
   return {
-    classes,
+    // Propriétés héritées du hook de base
+    classes: baseManagement.items,
+    loading: baseManagement.loading,
+    error: baseManagement.error,
+    createClass: baseManagement.create,
+    updateClass: baseManagement.update,
+    deleteClass: baseManagement.delete,
+    getClassById: baseManagement.getById,
+    validateForm: baseManagement.validateForm,
+    hasValidationErrors: baseManagement.hasValidationErrors,
+    refresh: baseManagement.refresh,
+
+    // Propriétés spécifiques
     schoolYears,
-    loading,
-    error,
-    createClass,
-    updateClass,
-    deleteClass,
-    getClassById,
     getClassesBySchoolYear,
   };
 }

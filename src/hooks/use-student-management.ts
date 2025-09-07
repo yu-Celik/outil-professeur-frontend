@@ -1,9 +1,16 @@
+/**
+ * Hook de gestion des étudiants
+ * Utilise l'architecture partagée pour éliminer la duplication
+ */
+
 import { useState, useCallback } from "react";
 import type { Student, Class } from "@/types/uml-entities";
 import { MOCK_STUDENTS } from "@/data/mock-students";
 import { MOCK_CLASSES } from "@/data/mock-classes";
+import { useBaseManagement, generateUniqueId } from "@/hooks/shared/use-base-management";
+import { requiredRule, customRule } from "@/hooks/shared/use-validation";
 
-interface StudentFormData {
+export interface StudentFormData {
   firstName: string;
   lastName: string;
   currentClassId: string;
@@ -13,220 +20,163 @@ interface StudentFormData {
   improvementAxes: string[];
 }
 
-interface UseStudentManagementReturn {
+export interface UseStudentManagementReturn {
+  // Données de base héritées du hook partagé
   students: Student[];
-  classes: Class[];
   loading: boolean;
   error: string | null;
   createStudent: (data: StudentFormData) => Promise<Student>;
   updateStudent: (id: string, data: StudentFormData) => Promise<Student>;
   deleteStudent: (id: string) => Promise<void>;
   getStudentById: (id: string) => Student | undefined;
+  validateForm: (data: StudentFormData, excludeId?: string) => Record<keyof StudentFormData, string | null>;
+  hasValidationErrors: (errors: Record<keyof StudentFormData, string | null>) => boolean;
+  refresh: () => void;
+
+  // Données et méthodes spécifiques aux étudiants
+  classes: Class[];
   getStudentsByClass: (classId: string) => Student[];
   transferStudent: (studentId: string, newClassId: string) => Promise<Student>;
 }
 
 export function useStudentManagement(): UseStudentManagementReturn {
-  const [students, setStudents] = useState<Student[]>(MOCK_STUDENTS);
   const [classes] = useState<Class[]>(MOCK_CLASSES);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
-  const createStudent = useCallback(async (data: StudentFormData): Promise<Student> => {
-    setLoading(true);
-    setError(null);
+  // Configuration pour le hook de base
+  const baseManagement = useBaseManagement<Student, StudentFormData>({
+    entityName: "élève",
+    mockData: MOCK_STUDENTS,
+    generateId: () => `student-${generateUniqueId()}`,
+    
+    // Règles de validation
+    validationRules: {
+      firstName: [
+        requiredRule("firstName", "Prénom"),
+      ],
+      lastName: [
+        requiredRule("lastName", "Nom de famille"),
+      ],
+      currentClassId: [
+        requiredRule("currentClassId", "Classe"),
+        customRule(
+          (value: string, items: Student[]) => {
+            // Vérifier que la classe existe
+            return classes.some((cls) => cls.id === value);
+          },
+          "La classe sélectionnée n'existe pas"
+        ),
+        customRule(
+          (value: string, items: Student[], excludeId?: string) => {
+            // Vérifier l'unicité prénom+nom dans la classe
+            const formData = arguments[3] as StudentFormData;
+            if (!formData) return true;
+            
+            return !items.some((student) => 
+              student.id !== excludeId &&
+              student.firstName.toLowerCase() === formData.firstName.toLowerCase() &&
+              student.lastName.toLowerCase() === formData.lastName.toLowerCase() &&
+              student.currentClassId === value
+            );
+          },
+          "Un élève avec ce nom existe déjà dans cette classe"
+        ),
+      ],
+      needs: [], // Optionnel
+      observations: [], // Optionnel
+      strengths: [], // Optionnel
+      improvementAxes: [], // Optionnel
+    },
 
-    try {
-      // Simuler un délai API
-      await new Promise((resolve) => setTimeout(resolve, 500));
+    // Création d'entité
+    createEntity: (data: StudentFormData) => ({
+      firstName: data.firstName.trim(),
+      lastName: data.lastName.trim(),
+      currentClassId: data.currentClassId,
+      needs: data.needs || [],
+      observations: data.observations || [],
+      strengths: data.strengths || [],
+      improvementAxes: data.improvementAxes || [],
+      // Méthodes UML
+      getCurrentClass: () => classes.find((cls) => cls.id === data.currentClassId) || null,
+      getParticipations: () => [],
+      getExamResults: () => [],
+      calculateAverage: () => 0,
+      generateAppreciations: () => [],
+    }),
 
-      // Vérifier que la classe existe
-      const classExists = classes.find((cls) => cls.id === data.currentClassId);
-      if (!classExists) {
-        throw new Error("La classe sélectionnée n'existe pas");
-      }
+    // Mise à jour d'entité
+    updateEntity: (existing: Student, data: StudentFormData) => ({
+      firstName: data.firstName.trim(),
+      lastName: data.lastName.trim(),
+      currentClassId: data.currentClassId,
+      needs: data.needs || [],
+      observations: data.observations || [],
+      strengths: data.strengths || [],
+      improvementAxes: data.improvementAxes || [],
+      // Mettre à jour la méthode getCurrentClass si la classe a changé
+      getCurrentClass: data.currentClassId !== existing.currentClassId 
+        ? () => classes.find((cls) => cls.id === data.currentClassId) || null
+        : existing.getCurrentClass,
+    }),
+  });
 
-      // Vérifier la duplication
-      const exists = students.some(
-        (student) => 
-          student.firstName.toLowerCase() === data.firstName.toLowerCase() &&
-          student.lastName.toLowerCase() === data.lastName.toLowerCase() &&
-          student.currentClassId === data.currentClassId
-      );
-
-      if (exists) {
-        throw new Error("Un élève avec ce nom existe déjà dans cette classe");
-      }
-
-      const newStudent: Student = {
-        id: `student-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-        createdBy: "current-user-id", // À remplacer par l'ID de l'utilisateur connecté
-        firstName: data.firstName,
-        lastName: data.lastName,
-        currentClassId: data.currentClassId,
-        needs: data.needs,
-        observations: data.observations,
-        strengths: data.strengths,
-        improvementAxes: data.improvementAxes,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        fullName: () => `${data.firstName} ${data.lastName}`,
-        attendanceRate: (start: Date, end: Date) => {
-          console.log("Calculate attendance rate:", start, end);
-          return 85; // Placeholder
-        },
-        participationAverage: (start: Date, end: Date) => {
-          console.log("Calculate participation average:", start, end);
-          return 3.5; // Placeholder
-        },
-      };
-
-      setStudents((prev) => [...prev, newStudent]);
-      return newStudent;
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Erreur lors de la création de l'élève";
-      setError(errorMessage);
-      throw err;
-    } finally {
-      setLoading(false);
-    }
-  }, [students, classes]);
-
-  const updateStudent = useCallback(async (id: string, data: StudentFormData): Promise<Student> => {
-    setLoading(true);
-    setError(null);
-
-    try {
-      // Simuler un délai API
-      await new Promise((resolve) => setTimeout(resolve, 500));
-
-      const existingStudent = students.find((student) => student.id === id);
-      if (!existingStudent) {
-        throw new Error("Élève introuvable");
-      }
-
-      // Vérifier que la classe existe
-      const classExists = classes.find((cls) => cls.id === data.currentClassId);
-      if (!classExists) {
-        throw new Error("La classe sélectionnée n'existe pas");
-      }
-
-      // Vérifier la duplication (exclure l'élève actuel)
-      const exists = students.some(
-        (student) => 
-          student.id !== id &&
-          student.firstName.toLowerCase() === data.firstName.toLowerCase() &&
-          student.lastName.toLowerCase() === data.lastName.toLowerCase() &&
-          student.currentClassId === data.currentClassId
-      );
-
-      if (exists) {
-        throw new Error("Un élève avec ce nom existe déjà dans cette classe");
-      }
-
-      const updatedStudent: Student = {
-        ...existingStudent,
-        firstName: data.firstName,
-        lastName: data.lastName,
-        currentClassId: data.currentClassId,
-        needs: data.needs,
-        observations: data.observations,
-        strengths: data.strengths,
-        improvementAxes: data.improvementAxes,
-        updatedAt: new Date(),
-        fullName: () => `${data.firstName} ${data.lastName}`,
-      };
-
-      setStudents((prev) => prev.map((student) => (student.id === id ? updatedStudent : student)));
-      return updatedStudent;
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Erreur lors de la modification de l'élève";
-      setError(errorMessage);
-      throw err;
-    } finally {
-      setLoading(false);
-    }
-  }, [students, classes]);
-
-  const deleteStudent = useCallback(async (id: string): Promise<void> => {
-    setLoading(true);
-    setError(null);
-
-    try {
-      // Simuler un délai API
-      await new Promise((resolve) => setTimeout(resolve, 300));
-
-      const existingStudent = students.find((student) => student.id === id);
-      if (!existingStudent) {
-        throw new Error("Élève introuvable");
-      }
-
-      // Vérifier s'il y a des données liées (participations, examens, etc.)
-      // Pour l'instant, on permet la suppression directe
-      // Dans un vrai système, on vérifierait les relations
-
-      setStudents((prev) => prev.filter((student) => student.id !== id));
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Erreur lors de la suppression de l'élève";
-      setError(errorMessage);
-      throw err;
-    } finally {
-      setLoading(false);
-    }
-  }, [students]);
+  // Méthodes spécifiques aux étudiants
+  const getStudentsByClass = useCallback((classId: string) => {
+    return baseManagement.items.filter((student) => student.currentClassId === classId);
+  }, [baseManagement.items]);
 
   const transferStudent = useCallback(async (studentId: string, newClassId: string): Promise<Student> => {
-    setLoading(true);
-    setError(null);
-
-    try {
-      // Simuler un délai API
-      await new Promise((resolve) => setTimeout(resolve, 400));
-
-      const existingStudent = students.find((student) => student.id === studentId);
-      if (!existingStudent) {
-        throw new Error("Élève introuvable");
-      }
-
-      const newClass = classes.find((cls) => cls.id === newClassId);
-      if (!newClass) {
-        throw new Error("Classe de destination introuvable");
-      }
-
-      const updatedStudent: Student = {
-        ...existingStudent,
-        currentClassId: newClassId,
-        updatedAt: new Date(),
-      };
-
-      setStudents((prev) => prev.map((student) => (student.id === studentId ? updatedStudent : student)));
-      return updatedStudent;
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Erreur lors du transfert de l'élève";
-      setError(errorMessage);
-      throw err;
-    } finally {
-      setLoading(false);
+    // Vérifier que la nouvelle classe existe
+    const newClass = classes.find((cls) => cls.id === newClassId);
+    if (!newClass) {
+      throw new Error("La classe de destination n'existe pas");
     }
-  }, [students, classes]);
 
-  const getStudentById = useCallback((id: string): Student | undefined => {
-    return students.find((student) => student.id === id);
-  }, [students]);
+    // Vérifier que l'étudiant existe
+    const student = baseManagement.getById(studentId);
+    if (!student) {
+      throw new Error("Élève introuvable");
+    }
 
-  const getStudentsByClass = useCallback((classId: string): Student[] => {
-    return students.filter((student) => student.currentClassId === classId);
-  }, [students]);
+    // Vérifier qu'il n'y a pas déjà un élève avec ce nom dans la nouvelle classe
+    const conflict = baseManagement.items.some((s) => 
+      s.id !== studentId &&
+      s.firstName.toLowerCase() === student.firstName.toLowerCase() &&
+      s.lastName.toLowerCase() === student.lastName.toLowerCase() &&
+      s.currentClassId === newClassId
+    );
+
+    if (conflict) {
+      throw new Error("Un élève avec ce nom existe déjà dans la classe de destination");
+    }
+
+    // Effectuer le transfert via la méthode update
+    return baseManagement.update(studentId, {
+      firstName: student.firstName,
+      lastName: student.lastName,
+      currentClassId: newClassId,
+      needs: student.needs,
+      observations: student.observations,
+      strengths: student.strengths,
+      improvementAxes: student.improvementAxes,
+    });
+  }, [baseManagement, classes]);
 
   return {
-    students,
+    // Propriétés héritées du hook de base
+    students: baseManagement.items,
+    loading: baseManagement.loading,
+    error: baseManagement.error,
+    createStudent: baseManagement.create,
+    updateStudent: baseManagement.update,
+    deleteStudent: baseManagement.delete,
+    getStudentById: baseManagement.getById,
+    validateForm: baseManagement.validateForm,
+    hasValidationErrors: baseManagement.hasValidationErrors,
+    refresh: baseManagement.refresh,
+
+    // Propriétés spécifiques
     classes,
-    loading,
-    error,
-    createStudent,
-    updateStudent,
-    deleteStudent,
-    getStudentById,
     getStudentsByClass,
     transferStudent,
   };

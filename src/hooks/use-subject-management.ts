@@ -1,14 +1,22 @@
-import { useState, useCallback } from "react";
+/**
+ * Hook de gestion des matières
+ * Utilise l'architecture partagée pour éliminer la duplication
+ */
+
+import { useCallback } from "react";
 import type { Subject } from "@/types/uml-entities";
 import { MOCK_SUBJECTS } from "@/data/mock-subjects";
+import { useBaseManagement, generateUniqueId } from "@/hooks/shared/use-base-management";
+import { requiredRule, uniqueRule, lengthRule } from "@/hooks/shared/use-validation";
 
-interface SubjectFormData {
+export interface SubjectFormData {
   name: string;
   code: string;
   description: string;
 }
 
-interface UseSubjectManagementReturn {
+export interface UseSubjectManagementReturn {
+  // Données de base héritées du hook partagé
   subjects: Subject[];
   loading: boolean;
   error: string | null;
@@ -16,176 +24,93 @@ interface UseSubjectManagementReturn {
   updateSubject: (id: string, data: SubjectFormData) => Promise<Subject>;
   deleteSubject: (id: string) => Promise<void>;
   getSubjectById: (id: string) => Subject | undefined;
+  validateForm: (data: SubjectFormData, excludeId?: string) => Record<keyof SubjectFormData, string | null>;
+  hasValidationErrors: (errors: Record<keyof SubjectFormData, string | null>) => boolean;
+  refresh: () => void;
+
+  // Méthodes spécifiques aux matières
   getSubjectByCode: (code: string) => Subject | undefined;
   searchSubjects: (query: string) => Subject[];
 }
 
 export function useSubjectManagement(): UseSubjectManagementReturn {
-  const [subjects, setSubjects] = useState<Subject[]>(MOCK_SUBJECTS);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  
+  // Configuration pour le hook de base
+  const baseManagement = useBaseManagement<Subject, SubjectFormData>({
+    entityName: "matière",
+    mockData: MOCK_SUBJECTS,
+    generateId: () => `subject-${generateUniqueId()}`,
+    
+    // Règles de validation
+    validationRules: {
+      name: [
+        requiredRule("name", "Nom de la matière"),
+        lengthRule(2, 100, "Nom de la matière"),
+        uniqueRule("name", "Nom de matière"),
+      ],
+      code: [
+        requiredRule("code", "Code de la matière"),
+        lengthRule(2, 10, "Code de la matière"),
+        uniqueRule("code", "Code de matière"),
+      ],
+      description: [
+        lengthRule(0, 500, "Description"),
+      ],
+    },
 
-  const createSubject = useCallback(async (data: SubjectFormData): Promise<Subject> => {
-    setLoading(true);
-    setError(null);
+    // Création d'entité
+    createEntity: (data: SubjectFormData) => ({
+      name: data.name.trim(),
+      code: data.code.trim().toUpperCase(),
+      description: data.description.trim(),
+      // Méthodes UML
+      getTeachingAssignments: () => [],
+      getSessions: () => [],
+      getExams: () => [],
+    }),
 
-    try {
-      // Simuler un délai API
-      await new Promise((resolve) => setTimeout(resolve, 500));
+    // Mise à jour d'entité
+    updateEntity: (existing: Subject, data: SubjectFormData) => ({
+      name: data.name.trim(),
+      code: data.code.trim().toUpperCase(),
+      description: data.description.trim(),
+    }),
+  });
 
-      // Vérifier la duplication par code
-      const codeExists = subjects.some(
-        (subject) => subject.code.toLowerCase() === data.code.toLowerCase()
-      );
+  // Méthodes spécifiques aux matières
+  const getSubjectByCode = useCallback((code: string) => {
+    return baseManagement.items.find((subject) => 
+      subject.code.toLowerCase() === code.toLowerCase()
+    );
+  }, [baseManagement.items]);
 
-      if (codeExists) {
-        throw new Error("Une matière avec ce code existe déjà");
-      }
-
-      // Vérifier la duplication par nom
-      const nameExists = subjects.some(
-        (subject) => subject.name.toLowerCase() === data.name.toLowerCase()
-      );
-
-      if (nameExists) {
-        throw new Error("Une matière avec ce nom existe déjà");
-      }
-
-      const newSubject: Subject = {
-        id: `subject-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-        createdBy: "current-user-id", // À remplacer par l'ID de l'utilisateur connecté
-        name: data.name,
-        code: data.code.toUpperCase(),
-        description: data.description,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      };
-
-      setSubjects((prev) => [...prev, newSubject]);
-      return newSubject;
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Erreur lors de la création de la matière";
-      setError(errorMessage);
-      throw err;
-    } finally {
-      setLoading(false);
-    }
-  }, [subjects]);
-
-  const updateSubject = useCallback(async (id: string, data: SubjectFormData): Promise<Subject> => {
-    setLoading(true);
-    setError(null);
-
-    try {
-      // Simuler un délai API
-      await new Promise((resolve) => setTimeout(resolve, 500));
-
-      const existingSubject = subjects.find((subject) => subject.id === id);
-      if (!existingSubject) {
-        throw new Error("Matière introuvable");
-      }
-
-      // Vérifier la duplication par code (exclure la matière actuelle)
-      const codeExists = subjects.some(
-        (subject) => 
-          subject.id !== id && 
-          subject.code.toLowerCase() === data.code.toLowerCase()
-      );
-
-      if (codeExists) {
-        throw new Error("Une matière avec ce code existe déjà");
-      }
-
-      // Vérifier la duplication par nom (exclure la matière actuelle)
-      const nameExists = subjects.some(
-        (subject) => 
-          subject.id !== id && 
-          subject.name.toLowerCase() === data.name.toLowerCase()
-      );
-
-      if (nameExists) {
-        throw new Error("Une matière avec ce nom existe déjà");
-      }
-
-      const updatedSubject: Subject = {
-        ...existingSubject,
-        name: data.name,
-        code: data.code.toUpperCase(),
-        description: data.description,
-        updatedAt: new Date(),
-      };
-
-      setSubjects((prev) => prev.map((subject) => (subject.id === id ? updatedSubject : subject)));
-      return updatedSubject;
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Erreur lors de la modification de la matière";
-      setError(errorMessage);
-      throw err;
-    } finally {
-      setLoading(false);
-    }
-  }, [subjects]);
-
-  const deleteSubject = useCallback(async (id: string): Promise<void> => {
-    setLoading(true);
-    setError(null);
-
-    try {
-      // Simuler un délai API
-      await new Promise((resolve) => setTimeout(resolve, 300));
-
-      const existingSubject = subjects.find((subject) => subject.id === id);
-      if (!existingSubject) {
-        throw new Error("Matière introuvable");
-      }
-
-      // Vérifier s'il y a des données liées (sessions de cours, examens, etc.)
-      // Pour l'instant, on permet la suppression directe
-      // Dans un vrai système, on vérifierait les relations avec:
-      // - TeachingAssignments
-      // - CourseSessions
-      // - Exams
-      
-      setSubjects((prev) => prev.filter((subject) => subject.id !== id));
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Erreur lors de la suppression de la matière";
-      setError(errorMessage);
-      throw err;
-    } finally {
-      setLoading(false);
-    }
-  }, [subjects]);
-
-  const getSubjectById = useCallback((id: string): Subject | undefined => {
-    return subjects.find((subject) => subject.id === id);
-  }, [subjects]);
-
-  const getSubjectByCode = useCallback((code: string): Subject | undefined => {
-    return subjects.find((subject) => subject.code.toLowerCase() === code.toLowerCase());
-  }, [subjects]);
-
-  const searchSubjects = useCallback((query: string): Subject[] => {
+  const searchSubjects = useCallback((query: string) => {
     if (!query.trim()) {
-      return subjects;
+      return baseManagement.items;
     }
 
     const searchTerm = query.toLowerCase().trim();
-    
-    return subjects.filter((subject) => 
+    return baseManagement.items.filter((subject) => 
       subject.name.toLowerCase().includes(searchTerm) ||
       subject.code.toLowerCase().includes(searchTerm) ||
       subject.description.toLowerCase().includes(searchTerm)
     );
-  }, [subjects]);
+  }, [baseManagement.items]);
 
   return {
-    subjects,
-    loading,
-    error,
-    createSubject,
-    updateSubject,
-    deleteSubject,
-    getSubjectById,
+    // Propriétés héritées du hook de base
+    subjects: baseManagement.items,
+    loading: baseManagement.loading,
+    error: baseManagement.error,
+    createSubject: baseManagement.create,
+    updateSubject: baseManagement.update,
+    deleteSubject: baseManagement.delete,
+    getSubjectById: baseManagement.getById,
+    validateForm: baseManagement.validateForm,
+    hasValidationErrors: baseManagement.hasValidationErrors,
+    refresh: baseManagement.refresh,
+
+    // Propriétés spécifiques
     getSubjectByCode,
     searchSubjects,
   };
