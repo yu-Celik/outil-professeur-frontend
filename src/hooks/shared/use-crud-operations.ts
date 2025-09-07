@@ -11,7 +11,7 @@ export interface CRUDConfig<T, FormData> {
   generateId: () => string;
   validateCreate: (data: FormData, existingItems: T[]) => string | null;
   validateUpdate: (id: string, data: FormData, existingItems: T[]) => string | null;
-  createEntity: (data: FormData) => Omit<T, 'id' | 'createdAt' | 'updatedAt'>;
+  createEntity: (data: FormData) => Partial<T>;
   updateEntity: (existing: T, data: FormData) => Partial<T>;
 }
 

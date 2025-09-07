@@ -6,7 +6,12 @@
 import { useCRUDOperations, type CRUDConfig } from "./use-crud-operations";
 import { validateObject, type ValidationRule, hasValidationErrors } from "./use-validation";
 
-export interface BaseManagementConfig<T, FormData> extends CRUDConfig<T, FormData> {
+export interface BaseManagementConfig<T, FormData> {
+  entityName: string;
+  mockData: T[];
+  generateId: () => string;
+  createEntity: (data: FormData) => Partial<T>;
+  updateEntity: (existing: T, data: FormData) => Partial<T>;
   validationRules: Record<keyof FormData, ValidationRule<T>[]>;
 }
 
@@ -41,18 +46,18 @@ export function useBaseManagement<T extends { id: string; createdAt: Date; updat
     generateId: config.generateId,
     createEntity: config.createEntity,
     updateEntity: config.updateEntity,
-    validateCreate: (data: FormData, existingItems: T[]) => {
+    validateCreate: (data: FormData, existingItems: T[]): string | null => {
       const errors = validateObject(data, config.validationRules, existingItems);
       if (hasValidationErrors(errors)) {
-        const firstError = Object.values(errors).find(error => error !== null);
+        const firstError = Object.values(errors).find(error => error !== null) as string | undefined;
         return firstError || "Erreur de validation";
       }
       return null;
     },
-    validateUpdate: (id: string, data: FormData, existingItems: T[]) => {
+    validateUpdate: (id: string, data: FormData, existingItems: T[]): string | null => {
       const errors = validateObject(data, config.validationRules, existingItems, id);
       if (hasValidationErrors(errors)) {
-        const firstError = Object.values(errors).find(error => error !== null);
+        const firstError = Object.values(errors).find(error => error !== null) as string | undefined;
         return firstError || "Erreur de validation";
       }
       return null;

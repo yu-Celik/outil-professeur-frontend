@@ -113,10 +113,8 @@ export function useStudentManagement(): UseStudentManagementReturn {
       observations: data.observations || [],
       strengths: data.strengths || [],
       improvementAxes: data.improvementAxes || [],
-      // Mettre à jour la méthode getCurrentClass si la classe a changé
-      getCurrentClass: data.currentClassId !== existing.currentClassId 
-        ? () => classes.find((cls) => cls.id === data.currentClassId) || null
-        : existing.getCurrentClass,
+      // Mettre à jour la méthode getCurrentClass
+      getCurrentClass: () => classes.find((cls) => cls.id === data.currentClassId) || null,
     }),
   });
 
