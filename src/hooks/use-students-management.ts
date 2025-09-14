@@ -56,7 +56,7 @@ export function useStudentsManagement(externalSelectedClassId?: string | null) {
   // Sélectionner automatiquement la première classe s'il y en a une
   const selectFirstClassIfAvailable = useCallback(() => {
     if (!selectedClassId && classes && classes.length > 0) {
-      setSelectedClassId(classes[0].id);
+      setInternalSelectedClassId(classes[0].id);
     }
   }, [selectedClassId, classes]);
 

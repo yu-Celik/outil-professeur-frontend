@@ -28,6 +28,7 @@ export interface ExamFormData {
   totalPoints: number;
   coefficient: number;
   instructions: string;
+  rubricId?: string;
 }
 
 export interface StudentExamResultFormData {
@@ -87,6 +88,7 @@ export function useExamManagement(teacherId: string = "KsmNtVf4zwqO3VV3SQJqPrRlQ
         totalPoints: data.totalPoints,
         coefficient: data.coefficient,
         instructions: data.instructions,
+        rubricId: data.rubricId,
         isPublished: false,
         createdAt: new Date(),
         updatedAt: new Date(),

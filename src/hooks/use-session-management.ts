@@ -7,12 +7,16 @@ import { getStudentsByClass } from "@/data/mock-students";
 import { getWeeklyTemplatesForTeacher } from "@/data/mock-weekly-templates";
 import { useTeachingAssignments } from "@/hooks/use-teaching-assignments";
 import { useUserSession } from "@/hooks/use-user-session";
+import { useClassSelection } from "@/contexts/class-selection-context";
 import type { Class, CourseSession } from "@/types/uml-entities";
 
 export function useSessionManagement() {
   const { user } = useUserSession();
   const teacherId = user?.id || "KsmNtVf4zwqO3VV3SQJqPrRlQBA1fFyR";
   const searchParams = useSearchParams();
+
+  // Utiliser le contexte global pour la sélection de classe
+  const { selectedClassId, handleClassSelect, classes } = useClassSelection();
 
   // Paramètres de route
   const sessionIdParam = searchParams.get("sessionId");
@@ -29,10 +33,24 @@ export function useSessionManagement() {
     return "2024-10-15";
   }, []);
 
-  // États locaux
-  const [selectedClassId, setSelectedClassId] = useState<string>(
-    classIdParam || "all",
-  );
+  // Initialiser la classe depuis l'URL si fournie
+  useEffect(() => {
+    if (classIdParam && classIdParam !== "all") {
+      handleClassSelect(classIdParam);
+    }
+  }, [classIdParam, handleClassSelect]);
+
+  // Créer un selectedClassId compatible (string au lieu de string|null)
+  const sessionSelectedClassId = selectedClassId || "all";
+
+  // Fonction compatible pour setSelectedClassId
+  const setSessionSelectedClassId = (classId: string) => {
+    if (classId === "all") {
+      handleClassSelect(null);
+    } else {
+      handleClassSelect(classId);
+    }
+  };
   const [selectedDate, setSelectedDate] = useState<string>(
     dateParam || todayDate,
   );
@@ -171,7 +189,7 @@ export function useSessionManagement() {
 
   return {
     // States
-    selectedClassId,
+    selectedClassId: sessionSelectedClassId,
     selectedDate,
     selectedSessionId,
     openAccordions,
@@ -183,7 +201,7 @@ export function useSessionManagement() {
     studentsForSession,
 
     // Actions
-    setSelectedClassId,
+    setSelectedClassId: setSessionSelectedClassId,
     setSelectedDate,
     setSelectedSessionId,
     toggleAccordion,

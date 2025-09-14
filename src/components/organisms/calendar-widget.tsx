@@ -29,14 +29,23 @@ export function CalendarWidget({
 
   if (loading) {
     return (
-      <Card className={className}>
-        <CardHeader>
+      <Card className={`${className} h-full flex flex-col`}>
+        <CardHeader className="flex-shrink-0">
           <div className="flex items-center justify-between">
-            <h3 className="text-lg font-semibold">Sessions à venir</h3>
-            <CalendarIcon className="h-5 w-5 text-muted-foreground" />
+            <div>
+              <h3 className="text-lg font-semibold">Mes dernières sessions</h3>
+              <p className="text-sm text-muted-foreground">Chargement...</p>
+            </div>
+            <Link href="/dashboard/calendrier">
+              <Button variant="ghost" size="sm" className="gap-1">
+                <CalendarIcon className="h-4 w-4" />
+                Calendrier
+                <ArrowRight className="h-3 w-3" />
+              </Button>
+            </Link>
           </div>
         </CardHeader>
-        <CardContent>
+        <CardContent className="flex-1 min-h-0 overflow-y-auto">
           <div className="space-y-3">
             {Array.from({ length: 3 }, (_, i) => (
               <div
@@ -56,24 +65,25 @@ export function CalendarWidget({
     );
   }
 
-  // Sessions des 7 prochains jours
-  const upcomingSessions = calendarEvents
+  // Sessions des 7 derniers jours (accomplies)
+  const recentCompletedSessions = calendarEvents
     .filter((event) => {
       const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      const weekFromNow = new Date(today);
-      weekFromNow.setDate(weekFromNow.getDate() + 7);
+      today.setHours(23, 59, 59, 999);
+      const weekAgo = new Date(today);
+      weekAgo.setDate(weekAgo.getDate() - 7);
+      weekAgo.setHours(0, 0, 0, 0);
 
       return (
-        event.start >= today &&
-        event.start < weekFromNow &&
-        event.courseSession.status !== "done"
+        event.end <= today &&
+        event.start >= weekAgo &&
+        event.courseSession.status === "done"
       );
     })
-    .sort((a, b) => a.start.getTime() - b.start.getTime())
+    .sort((a, b) => b.start.getTime() - a.start.getTime()) // Tri décroissant (plus récentes en premier)
     .slice(0, 5);
 
-  const todaySessions = upcomingSessions.filter((event) => {
+  const todayCompletedSessions = recentCompletedSessions.filter((event) => {
     const today = new Date();
     return event.start.toDateString() === today.toDateString();
   });
@@ -119,15 +129,15 @@ export function CalendarWidget({
   };
 
   return (
-    <Card className={className}>
-      <CardHeader>
+    <Card className={`${className} h-full flex flex-col`}>
+      <CardHeader className="flex-shrink-0">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="text-lg font-semibold">Mes sessions à venir</h3>
+            <h3 className="text-lg font-semibold">Mes dernières sessions</h3>
             <p className="text-sm text-muted-foreground">
-              {todaySessions.length > 0
-                ? `${todaySessions.length} session${todaySessions.length > 1 ? "s" : ""} aujourd'hui`
-                : `${upcomingSessions.length} prochaine${upcomingSessions.length > 1 ? "s" : ""} session${upcomingSessions.length > 1 ? "s" : ""}`}
+              {todayCompletedSessions.length > 0
+                ? `${todayCompletedSessions.length} session${todayCompletedSessions.length > 1 ? "s" : ""} terminée${todayCompletedSessions.length > 1 ? "s" : ""} aujourd'hui`
+                : `${recentCompletedSessions.length} session${recentCompletedSessions.length > 1 ? "s" : ""} récente${recentCompletedSessions.length > 1 ? "s" : ""}`}
             </p>
           </div>
           <Link href="/dashboard/calendrier">
@@ -140,10 +150,10 @@ export function CalendarWidget({
         </div>
       </CardHeader>
 
-      <CardContent>
-        {upcomingSessions.length > 0 ? (
+      <CardContent className="flex-1 min-h-0 overflow-y-auto">
+        {recentCompletedSessions.length > 0 ? (
           <div className="space-y-3">
-            {upcomingSessions.map((event) => (
+            {recentCompletedSessions.map((event) => (
               <Link
                 key={event.id}
                 href={`/dashboard/sessions/${event.courseSession.id}`}
@@ -160,7 +170,7 @@ export function CalendarWidget({
                     <div
                       className="w-10 h-10 rounded-md flex items-center justify-center"
                       style={{
-                        backgroundColor: `${getClassColorWithText(event.class.id).backgroundColor}20`, // 20 = ~12% opacity
+                        backgroundColor: `${getClassColorWithText(event.class.id).backgroundColor}20`,
                       }}
                     >
                       <BookOpen
@@ -213,7 +223,7 @@ export function CalendarWidget({
               </Link>
             ))}
 
-            {upcomingSessions.length >= 5 && (
+            {recentCompletedSessions.length >= 5 && (
               <div className="pt-2 border-t">
                 <Link href="/dashboard/calendrier">
                   <Button variant="outline" className="w-full gap-2">
@@ -228,9 +238,9 @@ export function CalendarWidget({
           <div className="text-center py-8">
             <CalendarIcon className="h-12 w-12 mx-auto mb-3 text-muted-foreground/50" />
             <div className="text-muted-foreground mb-4">
-              <p className="font-medium">Aucune session prévue</p>
+              <p className="font-medium">Aucune session récente</p>
               <p className="text-sm">
-                Vous pouvez créer de nouvelles sessions dans le calendrier
+                Vos sessions terminées apparaîtront ici
               </p>
             </div>
             <Link href="/dashboard/calendrier">

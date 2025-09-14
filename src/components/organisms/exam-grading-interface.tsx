@@ -31,6 +31,8 @@ import {
 } from "lucide-react";
 import { useExamManagement, type StudentExamResultFormData } from "@/hooks/use-exam-management";
 import { useNotationSystem } from "@/hooks/use-notation-system";
+import { useRubricManagement, type RubricEvaluationData } from "@/hooks/use-rubric-management";
+import { RubricGradingInterface } from "@/components/organisms/rubric-grading-interface";
 import { MOCK_STUDENTS } from "@/data";
 import type { Exam, Student, StudentExamResult } from "@/types/uml-entities";
 import { cn } from "@/lib/utils";
@@ -44,10 +46,15 @@ export function ExamGradingInterface({ exam, className }: ExamGradingInterfacePr
   const [activeTab, setActiveTab] = useState("grading");
   const [selectedStudentId, setSelectedStudentId] = useState<string | null>(null);
   const [gradeData, setGradeData] = useState<Record<string, StudentExamResultFormData>>({});
+  const [rubricEvaluations, setRubricEvaluations] = useState<Record<string, Record<string, Record<string, number>>>>({});
+  const [rubricComments, setRubricComments] = useState<Record<string, string>>({});
   const [isSaving, setIsSaving] = useState(false);
   const [showExportDialog, setShowExportDialog] = useState(false);
-  
-  const { 
+
+  const { getRubric } = useRubricManagement();
+  const examRubric = exam.rubricId ? getRubric(exam.rubricId) : null;
+
+  const {
     getResultsForExam, 
     addExamResult, 
     updateExamResult,
@@ -123,6 +130,39 @@ export function ExamGradingInterface({ exam, className }: ExamGradingInterfacePr
     } finally {
       setIsSaving(false);
     }
+  };
+
+  // Gestion des évaluations par grille
+  const handleRubricEvaluationChange = (studentId: string, evaluation: RubricEvaluationData) => {
+    setRubricEvaluations(prev => ({
+      ...prev,
+      [studentId]: evaluation.evaluations,
+    }));
+
+    // Synchroniser avec les données de note traditionnelles
+    setGradeData(prev => ({
+      ...prev,
+      [studentId]: {
+        ...prev[studentId],
+        pointsObtained: evaluation.totalScore,
+      },
+    }));
+  };
+
+  const handleRubricCommentsChange = (studentId: string, comments: string) => {
+    setRubricComments(prev => ({
+      ...prev,
+      [studentId]: comments,
+    }));
+
+    // Synchroniser avec les commentaires traditionnels
+    setGradeData(prev => ({
+      ...prev,
+      [studentId]: {
+        ...prev[studentId],
+        comments,
+      },
+    }));
   };
 
   const validatePoints = (points: number): boolean => {
@@ -312,74 +352,88 @@ export function ExamGradingInterface({ exam, className }: ExamGradingInterfacePr
 
                       {!data.isAbsent && (
                         <>
-                          {/* Note */}
-                          <div className="space-y-2">
-                            <Label htmlFor={`points-${selectedStudentId}`}>
-                              Note obtenue (sur {exam.totalPoints} points)
-                            </Label>
-                            <div className="flex items-center gap-4">
-                              <Input
-                                id={`points-${selectedStudentId}`}
-                                type="number"
-                                min="0"
-                                max={exam.totalPoints}
-                                step="0.5"
-                                value={data.pointsObtained}
-                                onChange={(e) =>
-                                  handleGradeChange(
-                                    selectedStudentId,
-                                    "pointsObtained",
-                                    parseFloat(e.target.value) || 0
-                                  )
-                                }
-                                className={cn(
-                                  "w-32",
-                                  !validatePoints(data.pointsObtained) && "border-destructive"
-                                )}
-                              />
-                              
-                              {notationSystem && (
-                                <div className="text-sm text-muted-foreground">
-                                  = {formatGrade(data.pointsObtained, notationSystem, "fr-FR")}
-                                </div>
-                              )}
-                              
-                              <div className="text-sm text-muted-foreground">
-                                ({((data.pointsObtained / exam.totalPoints) * 100).toFixed(1)}%)
-                              </div>
-                            </div>
-                          </div>
+                          {examRubric ? (
+                            /* Interface de notation par grille */
+                            <RubricGradingInterface
+                              rubric={examRubric}
+                              student={student}
+                              onEvaluationChange={(evaluation) => handleRubricEvaluationChange(selectedStudentId, evaluation)}
+                              onCommentsChange={(comments) => handleRubricCommentsChange(selectedStudentId, comments)}
+                              initialEvaluation={rubricEvaluations[selectedStudentId] || {}}
+                              initialComments={rubricComments[selectedStudentId] || ""}
+                            />
+                          ) : (
+                            <>
+                              {/* Note traditionnelle */}
+                              <div className="space-y-2">
+                                <Label htmlFor={`points-${selectedStudentId}`}>
+                                  Note obtenue (sur {exam.totalPoints} points)
+                                </Label>
+                                <div className="flex items-center gap-4">
+                                  <Input
+                                    id={`points-${selectedStudentId}`}
+                                    type="number"
+                                    min="0"
+                                    max={exam.totalPoints}
+                                    step="0.5"
+                                    value={data.pointsObtained}
+                                    onChange={(e) =>
+                                      handleGradeChange(
+                                        selectedStudentId,
+                                        "pointsObtained",
+                                        parseFloat(e.target.value) || 0
+                                      )
+                                    }
+                                    className={cn(
+                                      "w-32",
+                                      !validatePoints(data.pointsObtained) && "border-destructive"
+                                    )}
+                                  />
 
-                          {/* Aperçu de la note */}
-                          <div className="p-4 bg-muted/50 rounded-lg">
-                            <div className="flex items-center gap-4">
-                              <span className="text-sm font-medium">Aperçu:</span>
-                              <ExamGradeDisplay
-                                grade={data.pointsObtained}
-                                isAbsent={false}
-                                notationSystemId={exam.notationSystemId}
-                                showBadge={true}
-                              />
-                            </div>
-                          </div>
+                                  {notationSystem && (
+                                    <div className="text-sm text-muted-foreground">
+                                      = {formatGrade(data.pointsObtained, notationSystem, "fr-FR")}
+                                    </div>
+                                  )}
+
+                                  <div className="text-sm text-muted-foreground">
+                                    ({((data.pointsObtained / exam.totalPoints) * 100).toFixed(1)}%)
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* Aperçu de la note */}
+                              <div className="p-4 bg-muted/50 rounded-lg">
+                                <div className="flex items-center gap-4">
+                                  <span className="text-sm font-medium">Aperçu:</span>
+                                  <ExamGradeDisplay
+                                    grade={data.pointsObtained}
+                                    isAbsent={false}
+                                    notationSystemId={exam.notationSystemId}
+                                    showBadge={true}
+                                  />
+                                </div>
+                              </div>
+
+                              {/* Commentaires traditionnels */}
+                              <div className="space-y-2">
+                                <Label htmlFor={`comments-${selectedStudentId}`}>
+                                  Commentaires
+                                </Label>
+                                <Textarea
+                                  id={`comments-${selectedStudentId}`}
+                                  value={data.comments}
+                                  onChange={(e) =>
+                                    handleGradeChange(selectedStudentId, "comments", e.target.value)
+                                  }
+                                  placeholder="Commentaires sur la copie, conseils d'amélioration..."
+                                  rows={4}
+                                />
+                              </div>
+                            </>
+                          )}
                         </>
                       )}
-
-                      {/* Commentaires */}
-                      <div className="space-y-2">
-                        <Label htmlFor={`comments-${selectedStudentId}`}>
-                          Commentaires
-                        </Label>
-                        <Textarea
-                          id={`comments-${selectedStudentId}`}
-                          value={data.comments}
-                          onChange={(e) =>
-                            handleGradeChange(selectedStudentId, "comments", e.target.value)
-                          }
-                          placeholder="Commentaires sur la copie, conseils d'amélioration..."
-                          rows={4}
-                        />
-                      </div>
                     </div>
                   );
                 })()

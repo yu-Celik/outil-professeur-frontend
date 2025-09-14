@@ -30,6 +30,8 @@ import { getStudentParticipation } from "@/data/mock-student-participation";
 import { getSubjectById } from "@/data/mock-subjects";
 import { getTimeSlotById } from "@/data/mock-time-slots";
 import { useExamManagement } from "@/hooks/use-exam-management";
+import { useTeachingAssignments } from "@/hooks/use-teaching-assignments";
+import { EditableResultDisplay } from "@/components/molecules/editable-result-display";
 import { getStudentExamResults, getExamById as getExamByIdMock } from "@/data/mock-exams";
 import type { Student } from "@/types/uml-entities";
 
@@ -50,6 +52,9 @@ export function StudentProfilePanel({
   
   // Hook pour gérer les examens
   const { getExamById } = useExamManagement(teacherId);
+
+  // Hook pour les autorisations d'édition
+  const { rights } = useTeachingAssignments();
 
   // Récupérer l'historique des sessions de cet élève
   const allSessions = getCompletedSessionsForTeacher(teacherId);
@@ -123,8 +128,15 @@ export function StudentProfilePanel({
   
   const examStats = getExamStatistics();
 
+  // Handler pour sauvegarder les modifications de notes
+  const handleGradeSave = (resultData: any) => {
+    // TODO: Implement actual save logic to backend
+    console.log("Saving grade data:", resultData);
+    // For now, just log the save operation
+  };
+
   return (
-    <div className="flex-1 border-l border-border bg-gradient-to-b from-background/95 to-muted/30 flex flex-col h-full overflow-hidden">
+    <div className="flex-1 border-l border-border bg-gradient-to-b from-background/95 to-muted/30 flex flex-col min-h-0">
       {/* En-tête du profil */}
       <div className="p-6 border-b border-border/50 bg-background/80 backdrop-blur-sm flex-shrink-0">
         <div className="flex items-start justify-between">
@@ -166,7 +178,7 @@ export function StudentProfilePanel({
       </div>
 
       {/* Onglets et contenu */}
-      <div className="flex-1 overflow-hidden p-6">
+      <div className="flex-1 min-h-0 p-6">
         <Tabs defaultValue="profile" className="h-full flex flex-col">
           <TabsList className="flex-shrink-0 mb-4">
             <TabsTrigger value="profile" className="flex items-center gap-2">
@@ -184,7 +196,7 @@ export function StudentProfilePanel({
           </TabsList>
 
           {/* Onglet Profil */}
-          <TabsContent value="profile" className="flex-1 overflow-y-auto space-y-6">
+          <TabsContent value="profile" className="flex-1 min-h-0 overflow-y-auto space-y-6">
 
         {/* Profil pédagogique */}
         <Card>
@@ -302,7 +314,7 @@ export function StudentProfilePanel({
           </TabsContent>
 
           {/* Onglet Participations */}
-          <TabsContent value="participations" className="flex-1 overflow-y-auto space-y-6">
+          <TabsContent value="participations" className="flex-1 min-h-0 overflow-y-auto space-y-6">
             {/* Statistiques rapides */}
             <Card>
               <CardHeader className="pb-3">
@@ -425,7 +437,7 @@ export function StudentProfilePanel({
           </TabsContent>
 
           {/* Onglet Résultats */}
-          <TabsContent value="results" className="flex-1 overflow-y-auto space-y-6">
+          <TabsContent value="results" className="flex-1 min-h-0 overflow-y-auto space-y-6">
             {/* Statistiques d'examens */}
             <Card>
               <CardHeader className="pb-3">
@@ -483,65 +495,22 @@ export function StudentProfilePanel({
                     {studentExamResults.map((result) => {
                       const exam = getExamByIdMock(result.examId);
                       const subject = exam ? getSubjectById(exam.subjectId) : null;
-                      
+
+                      if (!exam) return null;
+
                       return (
-                        <div
+                        <EditableResultDisplay
                           key={result.id}
-                          className="p-3 bg-muted/20 hover:bg-muted/40 rounded-lg transition-all duration-200"
-                        >
-                          <div className="flex items-center justify-between">
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center gap-2 mb-1">
-                                <Trophy className="h-3 w-3 text-primary" />
-                                <span className="text-sm font-medium text-foreground truncate">
-                                  {exam?.title || 'Évaluation'}
-                                </span>
-                              </div>
-                              <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                                <span>{subject?.name || 'Matière'}</span>
-                                <div className="h-1 w-1 rounded-full bg-muted-foreground/30" />
-                                <span>
-                                  {exam?.examDate ? new Date(exam.examDate).toLocaleDateString('fr-FR') : 'Date inconnue'}
-                                </span>
-                                <div className="h-1 w-1 rounded-full bg-muted-foreground/30" />
-                                <span>{exam?.examType || 'Contrôle'}</span>
-                              </div>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              {result.isAbsent ? (
-                                <Badge variant="destructive" className="text-xs">
-                                  Absent
-                                </Badge>
-                              ) : (
-                                <>
-                                  <div className="text-right">
-                                    <div className="text-sm font-bold text-foreground">
-                                      {result.gradeDisplay}
-                                    </div>
-                                    <div className="text-xs text-muted-foreground">
-                                      {result.pointsObtained}/{exam?.totalPoints}
-                                    </div>
-                                  </div>
-                                  <Badge
-                                    variant={result.grade >= 10 ? 'default' : 'destructive'}
-                                    className={`text-xs ${
-                                      result.grade >= 10 
-                                        ? 'bg-success text-success-foreground'
-                                        : ''
-                                    }`}
-                                  >
-                                    {result.grade >= 10 ? 'Réussi' : 'Échoué'}
-                                  </Badge>
-                                </>
-                              )}
-                            </div>
-                          </div>
-                          {result.comments && (
-                            <div className="mt-2 text-xs text-muted-foreground p-2 bg-muted/30 rounded">
-                              {result.comments}
-                            </div>
-                          )}
-                        </div>
+                          result={result}
+                          exam={exam}
+                          student={student}
+                          subject={subject || undefined}
+                          // TODO: Récupérer les évaluations détaillées par grille depuis les données sauvegardées
+                          rubricEvaluations={{}}
+                          className="mb-3"
+                          canEdit={rights.canEditStudentData(student.id, student.currentClassId)}
+                          onSave={handleGradeSave}
+                        />
                       );
                     })}
                   </div>

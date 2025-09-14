@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ClassColorPicker } from "@/components/molecules/class-color-picker";
 import { TimeSlotsManagement } from "@/components/organisms/timeslots-management";
 import { SubjectsManagement } from "@/components/organisms/subjects-management";
+import { AcademicStructuresManagement } from "@/components/organisms/academic-structures-management";
 import { useSetPageTitle } from "@/hooks/use-set-page-title";
 import { useUserSession } from "@/hooks/use-user-session";
 
@@ -12,13 +13,14 @@ export default function ReglagesPage() {
 
   const { user } = useUserSession();
   const [activeTab, setActiveTab] = useState<
-    "profil" | "creneaux" | "matieres" | "couleurs" | "preferences" | "securite"
+    "profil" | "creneaux" | "matieres" | "structures" | "couleurs" | "preferences" | "securite"
   >("profil");
 
   const tabs = [
     { id: "profil" as const, label: "Profil", icon: "👤" },
     { id: "creneaux" as const, label: "Créneaux horaires", icon: "🕐" },
     { id: "matieres" as const, label: "Matières", icon: "📚" },
+    { id: "structures" as const, label: "Structures académiques", icon: "📅" },
     { id: "couleurs" as const, label: "Couleurs des classes", icon: "🎨" },
     { id: "preferences" as const, label: "Préférences", icon: "⚙️" },
     { id: "securite" as const, label: "Sécurité", icon: "🔒" },
@@ -55,14 +57,11 @@ export default function ReglagesPage() {
         {activeTab === "matieres" && (
           <SubjectsManagement teacherId={user?.id} />
         )}
+        {activeTab === "structures" && (
+          <AcademicStructuresManagement teacherId={user?.id} />
+        )}
         {activeTab === "couleurs" && (
-          <div>
-            <ClassColorPicker
-              isOpen={true}
-              onClose={() => {}}
-              teacherId={user?.id || "KsmNtVf4zwqO3VV3SQJqPrRlQBA1fFyR"}
-            />
-          </div>
+          <CouleursSettings teacherId={user?.id || "KsmNtVf4zwqO3VV3SQJqPrRlQBA1fFyR"} />
         )}
         {activeTab === "preferences" && <PreferencesSettings />}
         {activeTab === "securite" && <SecuritySettings />}
@@ -158,12 +157,62 @@ function ProfilSettings() {
 }
 
 function PreferencesSettings() {
+  const [hoverDelay, setHoverDelay] = useState(1000);
+  const [isClient, setIsClient] = useState(false);
+
+  // Charger la valeur depuis localStorage côté client seulement
+  useEffect(() => {
+    setIsClient(true);
+    const saved = localStorage.getItem('sidebar-hover-delay');
+    if (saved) {
+      setHoverDelay(parseInt(saved));
+    }
+  }, []);
+
+  const handleHoverDelayChange = (value: number) => {
+    setHoverDelay(value);
+    localStorage.setItem('sidebar-hover-delay', value.toString());
+    // Déclencher un événement personnalisé pour notifier les composants
+    window.dispatchEvent(new CustomEvent('sidebar-hover-delay-change', { detail: value }));
+  };
+
   return (
-    <div className="grid gap-6 md:grid-cols-2">
+    <div className="grid gap-6 md:grid-cols-1">
       <div className="rounded-lg border bg-card text-card-foreground shadow-sm">
         <div className="p-6">
-          <h3 className="text-lg font-semibold mb-4">Préférences</h3>
-          <div className="space-y-4">
+          <h3 className="text-lg font-semibold mb-4">Interface</h3>
+          <div className="space-y-6">
+            <div>
+              <label
+                htmlFor="hover-delay"
+                className="text-sm font-medium mb-2 block"
+              >
+                Délai d'ouverture du sélecteur de classe (ms)
+              </label>
+              <div className="space-y-2">
+                <input
+                  id="hover-delay"
+                  type="range"
+                  min="0"
+                  max="2000"
+                  step="100"
+                  value={hoverDelay}
+                  onChange={(e) => handleHoverDelayChange(parseInt(e.target.value))}
+                  className="w-full"
+                />
+                <div className="flex justify-between text-xs text-muted-foreground">
+                  <span>Immédiat (0ms)</span>
+                  <span className="font-medium text-foreground">{hoverDelay}ms</span>
+                  <span>Lent (2s)</span>
+                </div>
+              </div>
+              <p className="text-sm text-muted-foreground mt-2">
+                Temps d'attente avant que le sélecteur de classe s'ouvre automatiquement au survol
+              </p>
+            </div>
+
+            <hr className="border-border" />
+
             <div>
               <label
                 htmlFor="langue"
@@ -182,6 +231,35 @@ function PreferencesSettings() {
           </div>
         </div>
       </div>
+    </div>
+  );
+}
+
+function CouleursSettings({ teacherId }: { teacherId: string }) {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  return (
+    <div className="grid gap-6 md:grid-cols-1">
+      <div className="rounded-lg border bg-card text-card-foreground shadow-sm">
+        <div className="p-6">
+          <h3 className="text-lg font-semibold mb-4">Couleurs des classes</h3>
+          <p className="text-muted-foreground mb-4">
+            Personnalisez les couleurs de vos classes pour une meilleure organisation visuelle dans le calendrier et les autres vues.
+          </p>
+          <button
+            onClick={() => setIsModalOpen(true)}
+            className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors"
+          >
+            🎨 Gérer les couleurs
+          </button>
+        </div>
+      </div>
+
+      <ClassColorPicker
+        open={isModalOpen}
+        onOpenChange={setIsModalOpen}
+        teacherId={teacherId}
+      />
     </div>
   );
 }

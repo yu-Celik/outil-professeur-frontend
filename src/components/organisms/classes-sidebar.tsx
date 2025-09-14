@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { GraduationCap, Users, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/atoms/button";
 import { getStudentsByClass } from "@/data/mock-students";
@@ -26,6 +26,30 @@ export function ClassesSidebar({
 }: ClassesSidebarProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isInitialLoad, setIsInitialLoad] = useState(true);
+  const [hoverOpenTimeoutId, setHoverOpenTimeoutId] = useState<NodeJS.Timeout | null>(null);
+  const [hoverCloseTimeoutId, setHoverCloseTimeoutId] = useState<NodeJS.Timeout | null>(null);
+  const [hoverDelay, setHoverDelay] = useState(1000);
+
+  // Initialiser le délai depuis localStorage côté client
+  useEffect(() => {
+    const saved = localStorage.getItem('sidebar-hover-delay');
+    if (saved) {
+      setHoverDelay(parseInt(saved));
+    }
+  }, []);
+
+  // Écouter les changements de préférences de délai
+  useEffect(() => {
+    const handleDelayChange = (event: CustomEvent) => {
+      setHoverDelay(event.detail);
+    };
+
+    window.addEventListener('sidebar-hover-delay-change', handleDelayChange as EventListener);
+
+    return () => {
+      window.removeEventListener('sidebar-hover-delay-change', handleDelayChange as EventListener);
+    };
+  }, []);
 
   // Auto-collapse quand une classe est sélectionnée
   useEffect(() => {
@@ -33,7 +57,7 @@ export function ClassesSidebar({
       setIsInitialLoad(false);
       return;
     }
-    
+
     if (autoCollapse && selectedClassId && selectedClassId !== "all") {
       setIsCollapsed(true);
     }
@@ -43,14 +67,63 @@ export function ClassesSidebar({
     setIsCollapsed(!isCollapsed);
   };
 
+  // Gestionnaires d'événements hover
+  const handleMouseEnter = useCallback(() => {
+    if (isCollapsed) {
+      // Annuler tout timeout de fermeture en cours
+      if (hoverCloseTimeoutId) {
+        clearTimeout(hoverCloseTimeoutId);
+        setHoverCloseTimeoutId(null);
+      }
+
+      // Utiliser le délai personnalisable
+      const openTimeoutId = setTimeout(() => {
+        setIsCollapsed(false);
+        setHoverOpenTimeoutId(null);
+      }, hoverDelay);
+      setHoverOpenTimeoutId(openTimeoutId);
+    }
+  }, [isCollapsed, hoverCloseTimeoutId, hoverDelay]);
+
+  const handleMouseLeave = useCallback(() => {
+    // Annuler l'ouverture en cours si on quitte avant la fin du délai
+    if (hoverOpenTimeoutId) {
+      clearTimeout(hoverOpenTimeoutId);
+      setHoverOpenTimeoutId(null);
+    }
+
+    if (!isCollapsed && autoCollapse) {
+      // Délai de fermeture pour éviter les fermetures accidentelles
+      const closeTimeoutId = setTimeout(() => {
+        setIsCollapsed(true);
+        setHoverCloseTimeoutId(null);
+      }, 300); // 300ms de délai
+      setHoverCloseTimeoutId(closeTimeoutId);
+    }
+  }, [isCollapsed, autoCollapse, hoverOpenTimeoutId]);
+
+  // Nettoyer les timeouts au démontage
+  useEffect(() => {
+    return () => {
+      if (hoverOpenTimeoutId) {
+        clearTimeout(hoverOpenTimeoutId);
+      }
+      if (hoverCloseTimeoutId) {
+        clearTimeout(hoverCloseTimeoutId);
+      }
+    };
+  }, [hoverOpenTimeoutId, hoverCloseTimeoutId]);
+
   const selectedClass = selectedClassId 
     ? classes.find(c => c.id === selectedClassId) 
     : null;
   return (
-    <div 
+    <div
       className={`border-r border-border/50 bg-gradient-to-b from-muted/30 to-muted/10 flex flex-col transition-all duration-300 ease-in-out ${
         isCollapsed ? "w-16" : "w-64"
       }`}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
     >
       {/* Mode rétracté - Classe sélectionnée + toggle */}
       {isCollapsed && selectedClass && (

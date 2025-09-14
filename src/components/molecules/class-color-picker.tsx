@@ -57,7 +57,7 @@ export function ClassColorPicker({
 
   const [_selectedColor, setSelectedColor] = useState<string>("");
 
-  if (!isOpen) return null;
+  // Removed early return - let Dialog handle its own open/close state
 
   const _currentColors = getAllCurrentColors();
 

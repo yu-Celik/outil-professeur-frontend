@@ -188,6 +188,7 @@ export interface Exam {
   totalPoints: number;
   coefficient: number;
   instructions: string;
+  rubricId?: string; // → Rubric.id - Grille d'évaluation optionnelle pour notation structurée
   isPublished: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -380,4 +381,9 @@ export interface UMLRelations {
   weeklyTemplate_timeSlot: WeeklyTemplate & { timeSlot: TimeSlot };
   weeklyTemplate_subject: WeeklyTemplate & { subject: Subject };
   weeklyTemplate_class: WeeklyTemplate & { class: Class };
+
+  // Rubric relationships
+  teacher_rubrics: Teacher & { rubrics: Rubric[] };
+  exam_rubric: Exam & { rubric?: Rubric };
+  rubric_exams: Rubric & { exams: Exam[] };
 }

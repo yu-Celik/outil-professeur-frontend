@@ -66,11 +66,6 @@ const data = {
       url: "/dashboard/evaluations",
       icon: FileBarChart,
     },
-    {
-      title: "Réglages",
-      url: "/dashboard/reglages",
-      icon: Settings,
-    },
   ],
   navClouds: [
     {
@@ -122,19 +117,14 @@ const data = {
   ],
   navSecondary: [
     {
-      title: "Settings",
-      url: "#",
+      title: "Paramètres",
+      url: "/dashboard/reglages",
       icon: Settings,
     },
     {
-      title: "Get Help",
-      url: "#",
+      title: "Aide",
+      url: "/dashboard/#",
       icon: HelpCircle,
-    },
-    {
-      title: "Search",
-      url: "#",
-      icon: Search,
     },
   ],
   documents: [

@@ -158,7 +158,7 @@ classDiagram
     +Void updateBehavior(String behavior)
   }
 
-    class WeeklyTemplate {
+  class WeeklyTemplate {
     +Uuid id
     +Uuid teacherId
     +Int dayOfWeek
@@ -169,7 +169,7 @@ classDiagram
     +Boolean isActive
   }
 
- class Exam {
+  class Exam {
     +Uuid id
     +Uuid createdBy
     +String title
@@ -177,13 +177,14 @@ classDiagram
     +Uuid classId
     +Uuid subjectId
     +Uuid academicPeriodId
-    +Uuid notationSystemId   %% <--- nouveau
+    +Uuid notationSystemId
     +Date examDate
     +String examType
     +Integer durationMinutes
     +Decimal totalPoints
     +Decimal coefficient
     +String instructions
+    +Uuid rubricId          <<optional>>
     +Boolean isPublished
     +DateTime createdAt
     +DateTime updatedAt
@@ -328,7 +329,7 @@ Teacher "1" o-- "*" TimeSlot : owns
 Teacher "1" o-- "*" SchoolYear : owns
 Teacher "1" o-- "*" AcademicPeriod : owns
 Teacher "1" o-- "*" NotationSystem : owns
-Teacher "1" o-- "*" AcademicStructure : owns
+Teacher "1" o-- "0..1" AcademicStructure : uses   %% <= un seul système par professeur
 Teacher "1" o-- "*" CourseSession : owns
 Teacher "1" o-- "*" Exam : owns
 Teacher "1" o-- "*" StudentExamResult : owns
@@ -370,6 +371,7 @@ AcademicPeriod "1" -- "*" StudentProfile : scopedIn
 
 Exam "*" -- "1" NotationSystem : uses
 Exam "1" -- "*" StudentExamResult : results
+Exam "*" -- "0..1" Rubric : evaluatedWith
 
 NotationSystem "1" -- "*" StudentExamResult : formats
 

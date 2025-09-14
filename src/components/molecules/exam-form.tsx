@@ -22,6 +22,7 @@ import { CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { cn } from "@/lib/utils";
+import { RubricSelector } from "@/components/molecules/rubric-selector";
 import type { ExamFormData } from "@/hooks/use-exam-management";
 import type { Exam, Class, Subject, AcademicPeriod, NotationSystem } from "@/types/uml-entities";
 
@@ -70,6 +71,7 @@ export function ExamForm({
     totalPoints: exam?.totalPoints || 20,
     coefficient: exam?.coefficient || 1,
     instructions: exam?.instructions || "",
+    rubricId: exam?.rubricId || undefined,
   });
 
   const [errors, setErrors] = useState<Partial<Record<keyof ExamFormData, string>>>({});
@@ -371,6 +373,14 @@ export function ExamForm({
           )}
         </div>
       </div>
+
+      {/* Grille d'évaluation */}
+      <RubricSelector
+        value={formData.rubricId}
+        onValueChange={(rubricId) => updateField("rubricId", rubricId || undefined)}
+        teacherId={exam?.createdBy}
+        className="w-full"
+      />
 
       {/* Instructions */}
       <div className="space-y-2">

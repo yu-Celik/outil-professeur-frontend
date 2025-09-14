@@ -1,10 +1,12 @@
 // Centralized mock data exports
 
 export * from "./mock-academic-periods";
+export * from "./mock-academic-structures";
 export * from "./mock-classes";
 export * from "./mock-completed-sessions";
 export * from "./mock-exams";
 export * from "./mock-notation-systems";
+export * from "./mock-rubrics";
 export * from "./mock-school-years";
 export * from "./mock-student-participation";
 export * from "./mock-students";

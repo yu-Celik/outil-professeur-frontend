@@ -10,7 +10,7 @@ import { ExamFormDialog } from "@/components/organisms/exam-form-dialog";
 import { ExamGradingPage } from "@/components/organisms/exam-grading-page";
 import { useExamManagement } from "@/hooks/use-exam-management";
 import { useClassSelection } from "@/contexts/class-selection-context";
-import { Plus, BookOpen } from "lucide-react";
+import { BookOpen } from "lucide-react";
 import type { Exam } from "@/types/uml-entities";
 
 export default function EvaluationsPage() {
@@ -69,24 +69,6 @@ export default function EvaluationsPage() {
         emptyStateTitle="Sélectionnez une classe"
         emptyStateDescription="Choisissez une classe dans la sidebar pour créer et gérer ses évaluations"
       >
-        {/* Section principale de création */}
-        <Card className="border-2 border-dashed border-primary/20 bg-primary/5">
-          <CardHeader className="text-center">
-            <div className="mx-auto w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-4">
-              <BookOpen className="h-6 w-6 text-primary" />
-            </div>
-            <CardTitle>Créer une nouvelle évaluation</CardTitle>
-            <p className="text-sm text-muted-foreground">
-              Ajoutez une nouvelle entité d'évaluation pour cette classe
-            </p>
-          </CardHeader>
-          <CardContent className="text-center">
-            <Button onClick={handleCreateExam} size="lg" className="gap-2">
-              <Plus className="h-5 w-5" />
-              Nouvelle évaluation
-            </Button>
-          </CardContent>
-        </Card>
 
         {/* Liste des évaluations */}
         <ExamsList

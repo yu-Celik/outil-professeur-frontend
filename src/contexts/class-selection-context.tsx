@@ -36,11 +36,17 @@ export function ClassSelectionProvider({ children }: ClassSelectionProviderProps
   const { assignments, loading: assignmentsLoading } = useTeachingAssignments(currentTeacherId);
   const { getClassColorWithText } = useClassColors(currentTeacherId);
 
-  // Classes disponibles
-  const classes: Class[] = assignments?.map(assignment => ({
-    id: assignment.classId,
-    ...assignment.class
-  })) || [];
+  // Classes disponibles (déduplication basée sur l'ID)
+  const classes: Class[] = assignments?.reduce((uniqueClasses, assignment) => {
+    const classExists = uniqueClasses.some(c => c.id === assignment.classId);
+    if (!classExists) {
+      uniqueClasses.push({
+        ...assignment.class,
+        id: assignment.classId
+      });
+    }
+    return uniqueClasses;
+  }, [] as Class[]) || [];
 
   // Gestionnaire de sélection de classe
   const handleClassSelect = useCallback((classId: string | null) => {

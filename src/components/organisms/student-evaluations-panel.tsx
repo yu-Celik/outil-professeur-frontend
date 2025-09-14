@@ -142,7 +142,7 @@ export function StudentEvaluationsPanel({
                             {exam?.title || "Évaluation supprimée"}
                           </h5>
                           <p className="text-xs text-muted-foreground">
-                            {subject?.name} • {exam ? formatDate(exam.examDate) : "—"}
+                            {subject?.name} • {exam ? formatDate(exam.examDate.toISOString()) : "—"}
                           </p>
                         </div>
                         <div className="text-right">
@@ -155,17 +155,17 @@ export function StudentEvaluationsPanel({
                         </div>
                       </div>
                       
-                      {result.teacherComment && (
+                      {result.comments && (
                         <div className="bg-muted/30 rounded-md p-2">
                           <p className="text-xs text-muted-foreground italic">
-                            "{result.teacherComment}"
+                            "{result.comments}"
                           </p>
                         </div>
                       )}
                       
                       <div className="flex items-center justify-between text-xs">
                         <span className="text-muted-foreground">
-                          Soumis le {formatDate(result.submittedAt)}
+                          Noté le {formatDate(result.markedAt.toISOString())}
                         </span>
                         {exam && (
                           <Button
