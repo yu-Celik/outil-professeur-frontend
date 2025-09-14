@@ -14,7 +14,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/molecules/select";
+} from "@/components/atoms/select";
 import type { Student, StudentParticipation } from "@/types/uml-entities";
 
 interface StudentEvaluationFormProps {

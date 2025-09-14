@@ -15,7 +15,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from "@/components/molecules/dialog";
+} from "@/components/atoms/dialog";
 import { SubjectCrudForm } from "@/components/organisms/subject-crud-form";
 import { useSubjectManagement } from "@/hooks/use-subject-management";
 import type { Subject } from "@/types/uml-entities";
@@ -206,7 +206,7 @@ export function SubjectsManagement({ teacherId }: SubjectsManagementProps) {
           }
         }}
       >
-        <DialogContent size="lg" className="max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>
               {editingSubject ? "Modifier la matière" : "Nouvelle matière"}

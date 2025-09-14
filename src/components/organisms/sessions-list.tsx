@@ -93,90 +93,70 @@ export function SessionsList({
   }
 
   return (
-    <>
+    <div className="flex flex-col flex-1 min-h-0">
       {/* Informations sur la session sélectionnée */}
-      <div className="relative mb-6">
-        <div className="absolute inset-0 bg-primary/5 rounded-2xl opacity-50" />
-        <Card className="relative shadow-lg bg-card/70 backdrop-blur-sm">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <div className="p-3 rounded-xl bg-primary shadow-lg">
-                  <BookOpen className="h-6 w-6 text-primary-foreground" />
-                </div>
-                <div>
-                  <h3 className="text-xl font-bold text-card-foreground">
-                    {getSubjectById(selectedSession.subjectId)?.name ||
-                      selectedSession.subjectId}{" "}
-                    -{" "}
-                    {getClassById(selectedSession.classId)?.classCode ||
-                      selectedSession.classId}
-                  </h3>
-                  <div className="flex items-center gap-2 text-muted-foreground mt-1">
-                    <Calendar className="h-4 w-4" />
-                    <span className="font-medium">
-                      {new Date(selectedSession.sessionDate).toLocaleDateString(
-                        "fr-FR",
-                        {
-                          weekday: "long",
-                          year: "numeric",
-                          month: "long",
-                          day: "numeric",
-                        },
-                      )}
-                    </span>
-                    <div className="h-1 w-1 bg-muted-foreground/60 rounded-full" />
-                    <Clock className="h-4 w-4" />
-                    <span>
-                      {getTimeSlotById(selectedSession.timeSlotId)?.startTime ||
-                        "Horaire non défini"}
-                    </span>
-                  </div>
-                </div>
-              </div>
-              <div className="flex items-center gap-3">
-                <Badge
-                  variant={
-                    selectedSession.status === "done" ? "default" : "secondary"
-                  }
-                  className={`px-3 py-1 ${
-                    selectedSession.status === "done"
-                      ? "bg-success text-success-foreground shadow-md"
-                      : "bg-warning/20 text-warning-foreground border-warning/30"
-                  }`}
-                >
-                  {selectedSession.status === "done"
-                    ? "✅ Terminée"
-                    : "📅 Prévue"}
-                </Badge>
-              </div>
+      <div className="mb-3 flex-shrink-0 p-3 bg-muted/20 rounded-md border border-border/30">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="p-1.5 rounded-lg bg-primary">
+              <BookOpen className="h-4 w-4 text-primary-foreground" />
             </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Accordéons par élève */}
-      {studentsForSession.map((student) => (
-        <StudentParticipationAccordion
-          key={student.id}
-          student={student}
-          session={selectedSession}
-          isOpen={openAccordions.has(student.id)}
-          onToggle={() => onToggleAccordion(student.id)}
-        />
-      ))}
-
-      {/* Actions globales */}
-      <Card>
-        <CardContent className="p-4">
-          <div className="flex justify-between items-center">
-            <div className="text-sm text-muted-foreground">
-              {studentsForSession.length} élève
-              {studentsForSession.length > 1 ? "s" : ""} dans cette séance
+            <div className="min-w-0 flex-1">
+              <h3 className="text-sm font-semibold text-foreground truncate">
+                {getSubjectById(selectedSession.subjectId)?.name ||
+                  selectedSession.subjectId}{" "}
+                - {getClassById(selectedSession.classId)?.classCode ||
+                  selectedSession.classId}
+              </h3>
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <Calendar className="h-3 w-3" />
+                <span>
+                  {new Date(selectedSession.sessionDate).toLocaleDateString(
+                    "fr-FR",
+                    {
+                      weekday: "short",
+                      day: "numeric",
+                      month: "short",
+                    },
+                  )}
+                </span>
+                <div className="h-1 w-1 bg-muted-foreground/60 rounded-full" />
+                <Clock className="h-3 w-3" />
+                <span>
+                  {getTimeSlotById(selectedSession.timeSlotId)?.startTime ||
+                    "Non défini"}
+                </span>
+              </div>
             </div>
           </div>
-        </CardContent>
-      </Card>
-    </>
+          <Badge
+            variant={
+              selectedSession.status === "done" ? "default" : "secondary"
+            }
+            className={`text-xs ${
+              selectedSession.status === "done"
+                ? "bg-success text-success-foreground"
+                : "bg-warning/20 text-warning-foreground border-warning/30"
+            }`}
+          >
+            {selectedSession.status === "done" ? "✅ Terminée" : "📅 Prévue"}
+          </Badge>
+        </div>
+      </div>
+
+      {/* Zone scrollable avec accordéons */}
+      <div className="flex-1 space-y-4 overflow-y-auto min-h-0">
+        {/* Accordéons par élève */}
+        {studentsForSession.map((student) => (
+          <StudentParticipationAccordion
+            key={student.id}
+            student={student}
+            session={selectedSession}
+            isOpen={openAccordions.has(student.id)}
+            onToggle={() => onToggleAccordion(student.id)}
+          />
+        ))}
+      </div>
+    </div>
   );
 }

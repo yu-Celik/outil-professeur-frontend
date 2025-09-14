@@ -21,7 +21,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/molecules/select";
+} from "@/components/atoms/select";
 import { useTeachingAssignments } from "@/hooks/use-teaching-assignments";
 import type {
   Class,

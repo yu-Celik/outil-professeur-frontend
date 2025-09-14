@@ -86,7 +86,7 @@ export function CalendarWidget({
         return "bg-chart-4/10 text-chart-4 border-chart-4/20";
       case "done":
         return "bg-chart-3/10 text-chart-3 border-chart-3/20";
-      case "canceled":
+      case "cancelled":
         return "bg-destructive/10 text-destructive border-destructive/20";
       default:
         return "bg-muted text-muted-foreground border-border";
@@ -185,7 +185,7 @@ export function CalendarWidget({
                         {event.courseSession.status === "planned" &&
                           "Planifiée"}
                         {event.courseSession.status === "done" && "Terminée"}
-                        {event.courseSession.status === "canceled" && "Annulée"}
+                        {event.courseSession.status === "cancelled" && "Annulée"}
                       </Badge>
                     </div>
 

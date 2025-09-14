@@ -20,14 +20,14 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/molecules/select";
+} from "@/components/atoms/select";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogDescription,
-} from "@/components/molecules/dialog";
+} from "@/components/atoms/dialog";
 import type { TimeSlot } from "@/types/uml-entities";
 
 interface TimeSlotCrudFormProps {
@@ -214,7 +214,7 @@ export function TimeSlotCrudForm({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent size="2xl" className="sm:max-w-[600px]">
+      <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Clock className="h-5 w-5 text-primary" />

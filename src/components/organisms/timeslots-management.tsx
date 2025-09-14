@@ -19,7 +19,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from "@/components/molecules/dialog";
+} from "@/components/atoms/dialog";
 import { TimeSlotCrudForm } from "@/components/organisms/timeslot-crud-form";
 import { useTimeSlots } from "@/hooks/use-timeslots";
 import type { TimeSlot } from "@/types/uml-entities";
@@ -328,7 +328,7 @@ export function TimeSlotsManagement({ teacherId }: TimeSlotsManagementProps) {
           }
         }}
       >
-        <DialogContent size="lg" className="max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>
               {editingSlot ? "Modifier le créneau" : "Nouveau créneau"}

@@ -17,7 +17,6 @@ import {
 } from "lucide-react";
 import { Badge } from "@/components/atoms/badge";
 import { Button } from "@/components/atoms/button";
-import { Card, CardContent, CardHeader } from "@/components/molecules/card";
 import { getStudentParticipation } from "@/data/mock-student-participation";
 import type { CourseSession, Student } from "@/types/uml-entities";
 
@@ -77,66 +76,50 @@ export function StudentParticipationAccordion({
   };
 
   return (
-    <Card className="mb-4 shadow-md hover:shadow-lg transition-all duration-300 bg-card/95 backdrop-blur-sm">
-      <CardHeader className="pb-2">
-        <button
-          onClick={onToggle}
-          className="flex items-center justify-between w-full text-left hover:bg-muted/50 rounded-xl p-4 transition-all duration-300 group"
-        >
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-3">
-              <div className="p-1 rounded-full bg-primary/10 group-hover:bg-primary/20 transition-all duration-300">
-                {isOpen ? (
-                  <ChevronDown className="h-4 w-4 text-primary transition-transform duration-200" />
-                ) : (
-                  <ChevronRight className="h-4 w-4 text-primary transition-transform duration-200" />
-                )}
+    <div className="mb-2">
+      <button
+        onClick={onToggle}
+        className="flex items-center justify-between w-full text-left hover:bg-muted/20 rounded-md p-2 transition-all duration-150 group border border-border/30 hover:border-border/50"
+      >
+        <div className="flex items-center gap-2">
+          <div className="p-0.5 rounded-full bg-primary/10 group-hover:bg-primary/20 transition-all duration-150">
+            {isOpen ? (
+              <ChevronDown className="h-3 w-3 text-primary transition-transform duration-150" />
+            ) : (
+              <ChevronRight className="h-3 w-3 text-primary transition-transform duration-150" />
+            )}
+          </div>
+          <div className="flex-1 min-w-0">
+            <h3 className="font-medium text-sm text-foreground group-hover:text-foreground/90 transition-colors truncate">
+              {student.firstName} {student.lastName}
+            </h3>
+            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+              <div className="flex items-center gap-1">
+                <Star className="h-3 w-3 text-warning" />
+                <span className="font-medium">
+                  {participationData.participationLevel}/10
+                </span>
               </div>
-              <div className="p-2 rounded-xl bg-primary/10 shadow-sm">
-                <Users className="h-5 w-5 text-primary" />
-              </div>
-            </div>
-            <div className="flex-1">
-              <h3 className="font-semibold text-lg text-foreground group-hover:text-foreground/90 transition-colors">
-                {student.firstName} {student.lastName}
-              </h3>
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <TrendingUp className="h-3 w-3" />
-                <span>Participation</span>
-                <div className="h-1 w-1 rounded-full bg-muted-foreground/30" />
-                <div className="flex items-center gap-1">
-                  <Star className="h-3 w-3 text-warning" />
-                  <span className="font-medium text-muted-foreground">
-                    {participationData.participationLevel}/10
-                  </span>
-                </div>
-              </div>
+              <div className="h-1 w-1 rounded-full bg-muted-foreground/30" />
+              <span className="truncate">{participationData.behavior}</span>
             </div>
           </div>
-          <div className="flex items-center gap-4">
-            <div className="hidden sm:flex flex-col items-end gap-1">
-              <div className="text-sm font-medium text-muted-foreground">
-                {participationData.behavior}
-              </div>
-              <div className="flex items-center gap-2">
-                {participationData.cameraEnabled && (
-                  <Camera className="h-3 w-3 text-success" />
-                )}
-                {participationData.homeworkDone && (
-                  <BookOpen className="h-3 w-3 text-primary" />
-                )}
-                <Wifi className="h-3 w-3 text-muted-foreground/60" />
-              </div>
-            </div>
-            <div className="flex flex-col items-end gap-2">
-              {getParticipationStatusBadge()}
-            </div>
+        </div>
+        <div className="flex items-center gap-2 ml-2">
+          <div className="hidden md:flex items-center gap-1">
+            {participationData.cameraEnabled && (
+              <Camera className="h-3 w-3 text-success" />
+            )}
+            {participationData.homeworkDone && (
+              <BookOpen className="h-3 w-3 text-primary" />
+            )}
           </div>
-        </button>
-      </CardHeader>
+          {getParticipationStatusBadge()}
+        </div>
+      </button>
 
       {isOpen && (
-        <CardContent className="pt-0 animate-in slide-in-from-top-2 duration-300">
+        <div className="mt-2 p-4 bg-muted/20 rounded-md border border-border/30 animate-in slide-in-from-top-2 duration-200">
           <div className="border-t border-border pt-6">
             <div className="flex items-center gap-2 mb-6">
               <div className="p-1 rounded-lg bg-primary/10">
@@ -367,8 +350,8 @@ export function StudentParticipationAccordion({
               </div>
             </div>
           </div>
-        </CardContent>
+        </div>
       )}
-    </Card>
+    </div>
   );
 }

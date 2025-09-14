@@ -7,10 +7,13 @@ import { useTeachingAssignments } from "@/hooks/use-teaching-assignments";
 import { useClassColors } from "@/hooks/use-class-colors";
 import type { Student, Class } from "@/types/uml-entities";
 
-export function useStudentsManagement() {
+export function useStudentsManagement(externalSelectedClassId?: string | null) {
   const { user } = useUserSession();
-  const [selectedClassId, setSelectedClassId] = useState<string | null>(null);
+  const [internalSelectedClassId, setInternalSelectedClassId] = useState<string | null>(null);
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
+  
+  // Utiliser l'ID de classe externe ou interne
+  const selectedClassId = externalSelectedClassId !== undefined ? externalSelectedClassId : internalSelectedClassId;
 
   const currentTeacherId = user?.id || "KsmNtVf4zwqO3VV3SQJqPrRlQBA1fFyR";
   
@@ -33,7 +36,7 @@ export function useStudentsManagement() {
 
   // Gestionnaires d'événements
   const handleClassSelect = useCallback((classId: string) => {
-    setSelectedClassId(classId);
+    setInternalSelectedClassId(classId);
     setSelectedStudent(null); // Réinitialiser la sélection d'élève
   }, []);
 

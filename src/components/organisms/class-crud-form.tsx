@@ -18,14 +18,14 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/molecules/select";
+} from "@/components/atoms/select";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogDescription,
-} from "@/components/molecules/dialog";
+} from "@/components/atoms/dialog";
 import type { Class, SchoolYear } from "@/types/uml-entities";
 
 interface ClassCrudFormProps {
@@ -121,7 +121,7 @@ export function ClassCrudForm({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent size="xl" className="sm:max-w-[500px]">
+      <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Building2 className="h-5 w-5 text-primary" />

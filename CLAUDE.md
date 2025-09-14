@@ -4,7 +4,14 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is a Next.js 15 application built with TypeScript, featuring a dashboard interface with data visualization and table management. The project uses Turbopack for building and follows Atomic Design principles for component organization.
+This is a Next.js 15 application built with TypeScript, featuring a comprehensive educational management dashboard. The project implements a complete teacher interface for student management, evaluations, and calendar scheduling. Built with Turbopack and follows Atomic Design principles for component organization.
+
+### Recent Major Updates
+- **✅ Interface unifiée "Mes élèves"**: Fusion des pages élèves/résultats avec système d'onglets (Profil, Participations, Résultats)
+- **✅ Page Évaluations connectée**: Intégration complète aux données mockées avec composant ExamsList réutilisable
+- **✅ Données mockées enrichies**: 5 examens + 25+ résultats avec distribution normale et commentaires variés
+- **✅ Layout Height Management**: Pages optimisées utilisant toute la hauteur disponible
+- **✅ Navigation mise à jour**: "Gestion des participations" + suppression page "Résultats" redondante
 
 ## Development Commands
 

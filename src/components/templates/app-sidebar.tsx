@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  BarChart3,
   Building2,
   Calendar,
   Camera,
@@ -51,7 +52,7 @@ const data = {
       icon: Calendar,
     },
     {
-      title: "Gestion des séances",
+      title: "Gestion des participations",
       url: "/dashboard/sessions",
       icon: ClipboardList,
     },

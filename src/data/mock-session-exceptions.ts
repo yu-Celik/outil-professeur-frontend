@@ -26,7 +26,6 @@ export const MOCK_SESSION_EXCEPTIONS: SessionException[] = [
     templateId: "template-histoire-4c-jeudi-14h00",
     exceptionDate: new Date("2024-12-12"), // Jeudi 12 décembre - changement de salle
     type: "moved",
-    newRoom: "Salle B205",
     reason: "Travaux dans la salle habituelle",
   },
   {
@@ -42,7 +41,6 @@ export const MOCK_SESSION_EXCEPTIONS: SessionException[] = [
     exceptionDate: new Date("2024-12-16"), // Lundi 16 décembre - session déplacée
     type: "moved",
     newTimeSlotId: "slot-16h00-16h55",
-    newRoom: "Salle d'anglais 2",
     reason: "Intervention extérieure",
   },
   {

@@ -15,17 +15,22 @@ import {
   Save,
   Star,
   Target,
+  Trophy,
+  User,
   X,
 } from "lucide-react";
 import { useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/atoms/avatar";
 import { Badge } from "@/components/atoms/badge";
 import { Button } from "@/components/atoms/button";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/atoms/tabs";
 import { Card, CardContent, CardHeader } from "@/components/molecules/card";
 import { getCompletedSessionsForTeacher } from "@/data/mock-completed-sessions";
 import { getStudentParticipation } from "@/data/mock-student-participation";
 import { getSubjectById } from "@/data/mock-subjects";
 import { getTimeSlotById } from "@/data/mock-time-slots";
+import { useExamManagement } from "@/hooks/use-exam-management";
+import { getStudentExamResults, getExamById as getExamByIdMock } from "@/data/mock-exams";
 import type { Student } from "@/types/uml-entities";
 
 interface StudentProfilePanelProps {
@@ -42,6 +47,9 @@ export function StudentProfilePanel({
   onSessionClick,
 }: StudentProfilePanelProps) {
   const [isEditing, setIsEditing] = useState(false);
+  
+  // Hook pour gérer les examens
+  const { getExamById } = useExamManagement(teacherId);
 
   // Récupérer l'historique des sessions de cet élève
   const allSessions = getCompletedSessionsForTeacher(teacherId);
@@ -84,9 +92,39 @@ export function StudentProfilePanel({
   };
 
   const stats = getParticipationSummary();
+  
+  // Récupérer les résultats d'examens de cet élève
+  const studentExamResults = getStudentExamResults(student.id);
+  
+  // Calculer les statistiques d'examens
+  const getExamStatistics = () => {
+    if (studentExamResults.length === 0) {
+      return {
+        totalExams: 0,
+        completedExams: 0,
+        averageGrade: 0,
+        passRate: 0,
+      };
+    }
+    
+    const completedResults = studentExamResults.filter(result => !result.isAbsent);
+    const totalGrade = completedResults.reduce((sum, result) => sum + result.grade, 0);
+    const averageGrade = completedResults.length > 0 ? totalGrade / completedResults.length : 0;
+    
+    return {
+      totalExams: studentExamResults.length,
+      completedExams: completedResults.length,
+      averageGrade: Math.round(averageGrade * 100) / 100,
+      passRate: completedResults.length > 0 
+        ? Math.round((completedResults.filter(result => result.grade >= 10).length / completedResults.length) * 100)
+        : 0,
+    };
+  };
+  
+  const examStats = getExamStatistics();
 
   return (
-    <div className="w-96 border-l border-border bg-gradient-to-b from-background/95 to-muted/30 flex flex-col h-full overflow-hidden">
+    <div className="flex-1 border-l border-border bg-gradient-to-b from-background/95 to-muted/30 flex flex-col h-full overflow-hidden">
       {/* En-tête du profil */}
       <div className="p-6 border-b border-border/50 bg-background/80 backdrop-blur-sm flex-shrink-0">
         <div className="flex items-start justify-between">
@@ -127,33 +165,26 @@ export function StudentProfilePanel({
         </div>
       </div>
 
-      {/* Contenu scrollable */}
-      <div className="flex-1 overflow-y-auto p-6 space-y-6">
-        {/* Statistiques rapides */}
-        <Card>
-          <CardHeader className="pb-3">
-            <div className="flex items-center gap-2">
-              <Activity className="h-4 w-4 text-primary" />
-              <h4 className="font-semibold">Statistiques</h4>
-            </div>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="text-center p-3 bg-primary/5 rounded-lg">
-                <div className="text-2xl font-bold text-primary">
-                  {stats.totalSessions}
-                </div>
-                <div className="text-xs text-muted-foreground">Sessions</div>
-              </div>
-              <div className="text-center p-3 bg-success/10 rounded-lg">
-                <div className="text-2xl font-bold text-success">
-                  {stats.presentSessions}
-                </div>
-                <div className="text-xs text-muted-foreground">Présences</div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+      {/* Onglets et contenu */}
+      <div className="flex-1 overflow-hidden p-6">
+        <Tabs defaultValue="profile" className="h-full flex flex-col">
+          <TabsList className="flex-shrink-0 mb-4">
+            <TabsTrigger value="profile" className="flex items-center gap-2">
+              <User className="h-4 w-4" />
+              Profil
+            </TabsTrigger>
+            <TabsTrigger value="participations" className="flex items-center gap-2">
+              <Activity className="h-4 w-4" />
+              Participations
+            </TabsTrigger>
+            <TabsTrigger value="results" className="flex items-center gap-2">
+              <Trophy className="h-4 w-4" />
+              Résultats
+            </TabsTrigger>
+          </TabsList>
+
+          {/* Onglet Profil */}
+          <TabsContent value="profile" className="flex-1 overflow-y-auto space-y-6">
 
         {/* Profil pédagogique */}
         <Card>
@@ -268,8 +299,38 @@ export function StudentProfilePanel({
           </CardContent>
         </Card>
 
-        {/* Historique des sessions */}
-        <Card>
+          </TabsContent>
+
+          {/* Onglet Participations */}
+          <TabsContent value="participations" className="flex-1 overflow-y-auto space-y-6">
+            {/* Statistiques rapides */}
+            <Card>
+              <CardHeader className="pb-3">
+                <div className="flex items-center gap-2">
+                  <Activity className="h-4 w-4 text-primary" />
+                  <h4 className="font-semibold">Statistiques de participation</h4>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="text-center p-3 bg-primary/5 rounded-lg">
+                    <div className="text-2xl font-bold text-primary">
+                      {stats.totalSessions}
+                    </div>
+                    <div className="text-xs text-muted-foreground">Sessions</div>
+                  </div>
+                  <div className="text-center p-3 bg-success/10 rounded-lg">
+                    <div className="text-2xl font-bold text-success">
+                      {stats.presentSessions}
+                    </div>
+                    <div className="text-xs text-muted-foreground">Présences</div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Historique des sessions */}
+            <Card>
           <CardHeader className="pb-3">
             <div className="flex items-center gap-2">
               <Calendar className="h-4 w-4 text-primary" />
@@ -361,6 +422,142 @@ export function StudentProfilePanel({
             </div>
           </CardContent>
         </Card>
+          </TabsContent>
+
+          {/* Onglet Résultats */}
+          <TabsContent value="results" className="flex-1 overflow-y-auto space-y-6">
+            {/* Statistiques d'examens */}
+            <Card>
+              <CardHeader className="pb-3">
+                <div className="flex items-center gap-2">
+                  <Trophy className="h-4 w-4 text-primary" />
+                  <h4 className="font-semibold">Statistiques d'évaluations</h4>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="text-center p-3 bg-primary/5 rounded-lg">
+                    <div className="text-2xl font-bold text-primary">
+                      {examStats.totalExams}
+                    </div>
+                    <div className="text-xs text-muted-foreground">Évaluations</div>
+                  </div>
+                  <div className="text-center p-3 bg-success/10 rounded-lg">
+                    <div className="text-2xl font-bold text-success">
+                      {examStats.averageGrade}/20
+                    </div>
+                    <div className="text-xs text-muted-foreground">Moyenne</div>
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="text-center p-3 bg-warning/10 rounded-lg">
+                    <div className="text-2xl font-bold text-warning">
+                      {examStats.completedExams}
+                    </div>
+                    <div className="text-xs text-muted-foreground">Rendues</div>
+                  </div>
+                  <div className="text-center p-3 bg-success/10 rounded-lg">
+                    <div className="text-2xl font-bold text-success">
+                      {examStats.passRate}%
+                    </div>
+                    <div className="text-xs text-muted-foreground">Réussite</div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            
+            {/* Liste des résultats */}
+            <Card>
+              <CardHeader className="pb-3">
+                <div className="flex items-center gap-2">
+                  <BookOpen className="h-4 w-4 text-primary" />
+                  <h4 className="font-semibold">Historique des évaluations</h4>
+                  <Badge variant="outline" className="text-xs">
+                    {studentExamResults.length} évaluation{studentExamResults.length > 1 ? 's' : ''}
+                  </Badge>
+                </div>
+              </CardHeader>
+              <CardContent>
+                {studentExamResults.length > 0 ? (
+                  <div className="space-y-3 max-h-80 overflow-y-auto">
+                    {studentExamResults.map((result) => {
+                      const exam = getExamByIdMock(result.examId);
+                      const subject = exam ? getSubjectById(exam.subjectId) : null;
+                      
+                      return (
+                        <div
+                          key={result.id}
+                          className="p-3 bg-muted/20 hover:bg-muted/40 rounded-lg transition-all duration-200"
+                        >
+                          <div className="flex items-center justify-between">
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2 mb-1">
+                                <Trophy className="h-3 w-3 text-primary" />
+                                <span className="text-sm font-medium text-foreground truncate">
+                                  {exam?.title || 'Évaluation'}
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                                <span>{subject?.name || 'Matière'}</span>
+                                <div className="h-1 w-1 rounded-full bg-muted-foreground/30" />
+                                <span>
+                                  {exam?.examDate ? new Date(exam.examDate).toLocaleDateString('fr-FR') : 'Date inconnue'}
+                                </span>
+                                <div className="h-1 w-1 rounded-full bg-muted-foreground/30" />
+                                <span>{exam?.examType || 'Contrôle'}</span>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              {result.isAbsent ? (
+                                <Badge variant="destructive" className="text-xs">
+                                  Absent
+                                </Badge>
+                              ) : (
+                                <>
+                                  <div className="text-right">
+                                    <div className="text-sm font-bold text-foreground">
+                                      {result.gradeDisplay}
+                                    </div>
+                                    <div className="text-xs text-muted-foreground">
+                                      {result.pointsObtained}/{exam?.totalPoints}
+                                    </div>
+                                  </div>
+                                  <Badge
+                                    variant={result.grade >= 10 ? 'default' : 'destructive'}
+                                    className={`text-xs ${
+                                      result.grade >= 10 
+                                        ? 'bg-success text-success-foreground'
+                                        : ''
+                                    }`}
+                                  >
+                                    {result.grade >= 10 ? 'Réussi' : 'Échoué'}
+                                  </Badge>
+                                </>
+                              )}
+                            </div>
+                          </div>
+                          {result.comments && (
+                            <div className="mt-2 text-xs text-muted-foreground p-2 bg-muted/30 rounded">
+                              {result.comments}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div className="text-center py-8 text-muted-foreground">
+                    <Trophy className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                    <p className="text-sm font-medium mb-2">Aucune évaluation</p>
+                    <p className="text-xs">
+                      Aucun résultat d'évaluation pour cet élève
+                    </p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );

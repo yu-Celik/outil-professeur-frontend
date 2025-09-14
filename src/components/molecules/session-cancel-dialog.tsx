@@ -9,7 +9,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/molecules/dialog";
+} from "@/components/atoms/dialog";
 import type { CourseSession } from "@/types/uml-entities";
 
 interface SessionCancelDialogProps {

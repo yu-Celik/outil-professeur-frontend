@@ -15,7 +15,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/molecules/select";
+} from "@/components/atoms/select";
 
 interface UpcomingCourse {
   id: string;

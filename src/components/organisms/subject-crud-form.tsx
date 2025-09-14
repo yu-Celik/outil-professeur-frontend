@@ -17,7 +17,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogDescription,
-} from "@/components/molecules/dialog";
+} from "@/components/atoms/dialog";
 import type { Subject } from "@/types/uml-entities";
 
 interface SubjectCrudFormProps {
@@ -146,7 +146,7 @@ export function SubjectCrudForm({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent size="2xl" className="sm:max-w-[600px]">
+      <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <BookOpen className="h-5 w-5 text-primary" />

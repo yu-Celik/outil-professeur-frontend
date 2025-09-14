@@ -125,11 +125,11 @@ classDiagram
     +Uuid subjectId
     +Uuid timeSlotId
     +Date sessionDate
-    +String status  // planned|in_progress|done|canceled
+    +String status  // planned|in_progress|done|cancelled
     +String objectives  <<nullable>>
     +String content     <<nullable>>
     +String homeworkAssigned <<nullable>>
-    +Boolean isMakeup   <<nullable>>
+    +Boolean isMakeup
     +Boolean isMoved
     +String notes       <<nullable>>
     +DateTime createdAt
@@ -166,11 +166,10 @@ classDiagram
     +Uuid classId
     +Uuid subjectId
     +Uuid schoolYearId
-    +String room
     +Boolean isActive
   }
 
-  class Exam {
+ class Exam {
     +Uuid id
     +Uuid createdBy
     +String title
@@ -178,11 +177,11 @@ classDiagram
     +Uuid classId
     +Uuid subjectId
     +Uuid academicPeriodId
+    +Uuid notationSystemId   %% <--- nouveau
     +Date examDate
     +String examType
     +Integer durationMinutes
     +Decimal totalPoints
-    +String notationType
     +Decimal coefficient
     +String instructions
     +Boolean isPublished
@@ -318,56 +317,71 @@ classDiagram
     +Void importPreferences(Json data)
   }
 
-  %% Relations principales
-  Teacher "1" o-- "*" Class : owns
-  Teacher "1" o-- "*" Subject : owns
-  Teacher "1" o-- "*" Student : owns
-  Teacher "1" o-- "*" TimeSlot : owns
-  Teacher "1" o-- "*" SchoolYear : owns
-  Teacher "1" o-- "*" AcademicPeriod : owns
-  Teacher "1" o-- "*" NotationSystem : owns
-  Teacher "1" o-- "*" AcademicStructure : owns
-  Teacher "1" o-- "*" CourseSession : owns
-  Teacher "1" o-- "*" Exam : owns
-  Teacher "1" o-- "*" StudentExamResult : owns
-  Teacher "1" o-- "*" StudentParticipation : owns
-  Teacher "1" o-- "*" StudentProfile : owns
-  Teacher "1" o-- "*" StyleGuide : owns
-  Teacher "1" o-- "*" PhraseBank : owns
-  Teacher "1" o-- "*" Rubric : owns
-  Teacher "1" o-- "*" AppreciationContent : owns
-  Teacher "1" o-- "*" TeachingAssignment : owns
-  Teacher "1" o-- "*" UserPreferences : owns
-  Teacher "1" o-- "*" WeeklyTemplate : owns
+%% ==========================
+%% Relations principales
+%% ==========================
 
-  SchoolYear "1" -- "*" WeeklyTemplate : has   %% (= scopedTo)
-  SchoolYear "1" -- "*" AcademicPeriod : has
-  Class "1" -- "1" SchoolYear : belongsTo
-  Class "1" -- "*" Student : contains
-  Class "1" -- "*" CourseSession : schedules
-  Class "1" -- "*" Exam : has
+Teacher "1" o-- "*" Class : owns
+Teacher "1" o-- "*" Subject : owns
+Teacher "1" o-- "*" Student : owns
+Teacher "1" o-- "*" TimeSlot : owns
+Teacher "1" o-- "*" SchoolYear : owns
+Teacher "1" o-- "*" AcademicPeriod : owns
+Teacher "1" o-- "*" NotationSystem : owns
+Teacher "1" o-- "*" AcademicStructure : owns
+Teacher "1" o-- "*" CourseSession : owns
+Teacher "1" o-- "*" Exam : owns
+Teacher "1" o-- "*" StudentExamResult : owns
+Teacher "1" o-- "*" StudentParticipation : owns
+Teacher "1" o-- "*" StudentProfile : owns
+Teacher "1" o-- "*" StyleGuide : owns
+Teacher "1" o-- "*" PhraseBank : owns
+Teacher "1" o-- "*" Rubric : owns
+Teacher "1" o-- "*" AppreciationContent : owns
+Teacher "1" o-- "*" TeachingAssignment : owns
+Teacher "1" o-- "*" UserPreferences : owns
+Teacher "1" o-- "*" WeeklyTemplate : owns
 
-  CourseSession "1" -- "1" TimeSlot : at
-  CourseSession "1" -- "1" Subject : teaches
-  CourseSession "1" -- "*" StudentParticipation : records
+SchoolYear "1" -- "*" WeeklyTemplate : has
+SchoolYear "1" -- "*" AcademicPeriod : has
 
-  WeeklyTemplate "*" -- "1" TimeSlot : at
-  WeeklyTemplate "*" -- "1" Subject  : teaches
-  WeeklyTemplate "*" -- "1" Class    : for
+Class "1" -- "1" SchoolYear : belongsTo
+Class "1" -- "*" Student : contains
+Class "1" -- "*" CourseSession : schedules
+Class "1" -- "*" Exam : has
 
-  Student "1" -- "*" StudentParticipation : attends
-  Subject "1" -- "*" Exam : evaluatedBy
-  AcademicPeriod "1" -- "*" Exam : scheduledIn
-  Exam "1" -- "*" StudentExamResult : results
-  Student "1" -- "*" StudentExamResult : gradedIn
+CourseSession "1" -- "1" TimeSlot : at
+CourseSession "1" -- "1" Subject : teaches
+CourseSession "1" -- "*" StudentParticipation : records
+CourseSession ..> SchoolYear : occursIn (by sessionDate)
 
-  Student "1" -- "*" StudentProfile : profiledFor
-  AcademicPeriod "1" -- "*" StudentProfile : scopedIn
+WeeklyTemplate "*" -- "1" TimeSlot : at
+WeeklyTemplate "*" -- "1" Subject : teaches
+WeeklyTemplate "*" -- "1" Class : for
 
-  AppreciationContent "*" --> "0..1" Subject : about
-  AppreciationContent "*" --> "0..1" AcademicPeriod : periodOf
-  AppreciationContent "*" --> "0..1" SchoolYear : yearOf
-  AppreciationContent "*" --> "1" StyleGuide : uses
-  AppreciationContent "*" --> "0..1" PhraseBank : varies
-  AppreciationContent "*" --> "0..1" Rubric : shapes
-  NotationSystem "1" -- "*" StudentExamResult : formats
+Student "1" -- "*" StudentParticipation : attends
+Student "1" -- "*" StudentExamResult : gradedIn
+Student "1" -- "*" StudentProfile : profiledFor
+
+Subject "1" -- "*" Exam : evaluatedBy
+
+AcademicPeriod "1" -- "*" Exam : scheduledIn
+AcademicPeriod "1" -- "*" StudentProfile : scopedIn
+
+Exam "*" -- "1" NotationSystem : uses
+Exam "1" -- "*" StudentExamResult : results
+
+NotationSystem "1" -- "*" StudentExamResult : formats
+
+AppreciationContent "*" --> "0..1" Subject : about
+AppreciationContent "*" --> "0..1" AcademicPeriod : periodOf
+AppreciationContent "*" --> "0..1" SchoolYear : yearOf
+AppreciationContent "*" --> "1" StyleGuide : uses
+AppreciationContent "*" --> "0..1" PhraseBank : varies
+AppreciationContent "*" --> "0..1" Rubric : shapes
+
+%% TeachingAssignment relations
+TeachingAssignment "*" -- "1" Teacher : assignedTo
+TeachingAssignment "*" -- "1" Class : for
+TeachingAssignment "*" -- "1" Subject : teaches
+TeachingAssignment "*" -- "1" SchoolYear : scopedTo

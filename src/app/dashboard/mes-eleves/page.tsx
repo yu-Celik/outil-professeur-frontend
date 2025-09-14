@@ -1,35 +1,26 @@
 "use client";
 
-import { useEffect } from "react";
-import { ClassesSidebar } from "@/components/organisms/classes-sidebar";
+import { ClassSelectionLayout } from "@/components/templates/class-selection-layout";
 import { StudentProfilePanel } from "@/components/organisms/student-profile-panel";
 import { StudentsGrid } from "@/components/organisms/students-grid";
 import { useSetPageTitle } from "@/hooks/use-set-page-title";
 import { useStudentsManagement } from "@/hooks/use-students-management";
+import { useClassSelection } from "@/contexts/class-selection-context";
+import { Users } from "lucide-react";
 
 export default function MesElevesPage() {
   useSetPageTitle("Mes Élèves");
 
+  const { selectedClassId, assignmentsLoading } = useClassSelection();
   const {
     currentTeacherId,
-    selectedClassId,
     selectedStudent,
     selectedClass,
-    classes,
     studentsOfSelectedClass,
-    assignmentsLoading,
-    getClassColorWithText,
-    handleClassSelect,
     handleStudentClick,
     handleCloseStudentProfile,
     handleSessionClick,
-    selectFirstClassIfAvailable,
-  } = useStudentsManagement();
-
-  // Sélectionner automatiquement la première classe
-  useEffect(() => {
-    selectFirstClassIfAvailable();
-  }, [selectFirstClassIfAvailable]);
+  } = useStudentsManagement(selectedClassId);
 
   if (assignmentsLoading) {
     return (
@@ -40,35 +31,33 @@ export default function MesElevesPage() {
   }
 
   return (
-    <div className="flex h-[calc(100vh-112px)] bg-gradient-to-br from-background via-background to-muted/20">
-      {/* Sidebar des classes */}
-      <ClassesSidebar
-        classes={classes}
-        selectedClassId={selectedClassId}
-        onClassSelect={handleClassSelect}
-        getClassColorWithText={getClassColorWithText}
-      />
+    <ClassSelectionLayout
+      emptyStateIcon={<Users className="h-8 w-8" />}
+      emptyStateTitle="Sélectionnez une classe"
+      emptyStateDescription="Choisissez une classe dans la sidebar pour voir ses élèves"
+    >
+      <div className="flex flex-1 min-h-0 -m-6">
+        {/* Grille des élèves - largeur w-106 */}
+        <div className="w-106 flex flex-col min-w-0 bg-background/60 backdrop-blur-sm overflow-y-auto min-h-0 p-6">
+          <StudentsGrid
+            students={studentsOfSelectedClass}
+            selectedClassId={selectedClassId}
+            selectedStudent={selectedStudent}
+            selectedClass={selectedClass}
+            onStudentClick={handleStudentClick}
+          />
+        </div>
 
-      {/* Grille des élèves */}
-      <div className="flex-1 flex flex-col min-w-0 bg-background/60 backdrop-blur-sm overflow-y-auto min-h-0">
-        <StudentsGrid
-          students={studentsOfSelectedClass}
-          selectedClassId={selectedClassId}
-          selectedStudent={selectedStudent}
-          selectedClass={selectedClass}
-          onStudentClick={handleStudentClick}
-        />
+        {/* Panel de profil élève */}
+        {selectedStudent && (
+          <StudentProfilePanel
+            student={selectedStudent}
+            teacherId={currentTeacherId}
+            onClose={handleCloseStudentProfile}
+            onSessionClick={handleSessionClick}
+          />
+        )}
       </div>
-
-      {/* Panel de profil élève */}
-      {selectedStudent && (
-        <StudentProfilePanel
-          student={selectedStudent}
-          teacherId={currentTeacherId}
-          onClose={handleCloseStudentProfile}
-          onSessionClick={handleSessionClick}
-        />
-      )}
-    </div>
+    </ClassSelectionLayout>
   );
 }

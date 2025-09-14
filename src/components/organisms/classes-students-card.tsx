@@ -19,7 +19,7 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from "@/components/molecules/dialog";
+} from "@/components/atoms/dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -32,7 +32,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/molecules/select";
+} from "@/components/atoms/select";
 import { ClassCrudForm } from "@/components/organisms/class-crud-form";
 import { AddStudentForm } from "@/components/organisms/add-student-form";
 import { useClassManagement } from "@/hooks/use-class-management";
@@ -439,7 +439,7 @@ export function ClassesStudentsCard({
         open={isStudentModalOpen}
         onOpenChange={(open) => !open && handleCloseStudentModal()}
       >
-        <DialogContent size="4xl" className="max-h-[85vh] overflow-y-auto">
+        <DialogContent className="max-w-5xl max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Gestion des élèves</DialogTitle>
           </DialogHeader>

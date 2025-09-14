@@ -40,9 +40,9 @@ export const CalendarEventCard = memo<CalendarEventCardProps>(
     const [_showMenu, _setShowMenu] = useState(false);
 
     // Vérifier si c'est une session de rattrapage via le champ UML dédié
-    const isMakeup = event.courseSession.isMakeup === true;
+    const isMakeup = event.courseSession.isMakeup;
     // Vérifier si c'est une session déplacée via le champ UML dédié
-    const isMoved = event.courseSession.isMoved === true;
+    const isMoved = event.courseSession.isMoved;
 
     if (compact) {
       return (
@@ -157,9 +157,9 @@ export const CalendarEventCard = memo<CalendarEventCardProps>(
               originalDateTime={(event.courseSession as any).originalDateTime}
             />
           )}
-          {(event.courseSession as any).status === "canceled" && (
+          {(event.courseSession as any).status === "cancelled" && (
             <SessionStatusBadge
-              status="canceled"
+              status="cancelled"
               originalDateTime={(event.courseSession as any).originalDateTime}
             />
           )}

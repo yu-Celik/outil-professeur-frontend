@@ -84,7 +84,6 @@ export function SessionCardWithMove({
             <p className="text-xs text-muted-foreground">
               {sessionClass.classCode} • {formatSessionTime()}
             </p>
-            {/* Salle supprimée - propriété room retirée de l'entité UML CourseSession */}
           </div>
 
           <SessionContextMenu
@@ -92,7 +91,7 @@ export function SessionCardWithMove({
             onViewDetails={onViewDetails}
             onManageAttendance={onManageAttendance}
             onMove={handleOpenMoveDialog}
-            canMove={session.status !== "canceled"}
+            canMove={session.status !== "cancelled"}
           />
         </div>
 
@@ -103,9 +102,9 @@ export function SessionCardWithMove({
               status="moved"
             />
           )}
-          {session.status === "canceled" && (
+          {session.status === "cancelled" && (
             <SessionStatusBadge
-              status="canceled"
+              status="cancelled"
             />
           )}
         </div>

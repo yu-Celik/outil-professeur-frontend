@@ -12,7 +12,6 @@ interface UpcomingSession {
   time: string;
   duration: string;
   status: string;
-  // room: string; // Propriété supprimée - non disponible dans CourseSession UML
 }
 
 /**
@@ -68,7 +67,6 @@ export function useDashboardSessions(teacherId: string) {
           time: timeSlot.startTime,
           duration: `${timeSlot.durationMinutes}min`,
           status: session.status,
-          // room: session.room, // Propriété supprimée de l'entité UML CourseSession
           sessionDateTime, // Pour le tri
         };
       })
@@ -92,7 +90,7 @@ export function useDashboardSessions(teacherId: string) {
       (s) => s.status === "planned",
     ).length;
     const cancelled = todaySessions.filter(
-      (s) => s.status === "canceled",
+      (s) => s.status === "cancelled",
     ).length;
 
     return {

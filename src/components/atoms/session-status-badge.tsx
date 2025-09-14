@@ -4,7 +4,7 @@ import { ArrowLeftRight, Clock, XCircle } from "lucide-react";
 import { Badge } from "@/components/atoms/badge";
 
 interface SessionStatusBadgeProps {
-  status: "moved" | "canceled" | "rescheduled";
+  status: "moved" | "cancelled" | "rescheduled";
   originalDateTime?: string;
   className?: string;
 }
@@ -28,7 +28,7 @@ export function SessionStatusBadge({
             ? `Déplacé depuis ${originalDateTime}`
             : "Séance déplacée",
         };
-      case "canceled":
+      case "cancelled":
         return {
           icon: XCircle,
           text: "Annulé",

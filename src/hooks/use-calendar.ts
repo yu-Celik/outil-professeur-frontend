@@ -336,7 +336,7 @@ export function useCalendar(teacherId: string) {
       console.log(`Annulation de la session ${sessionId}`);
 
       // Mettre à jour les sessions générées par templates
-      weeklySessionsHook.updateSessionStatus(sessionId, "canceled");
+      weeklySessionsHook.updateSessionStatus(sessionId, "cancelled");
 
       // Mettre à jour les sessions dynamiques locales
       setDynamicSessions((prev) =>
@@ -344,7 +344,7 @@ export function useCalendar(teacherId: string) {
           session.id === sessionId
             ? {
                 ...session,
-                status: "canceled" as const,
+                status: "cancelled" as const,
                 updatedAt: new Date(),
               }
             : session,

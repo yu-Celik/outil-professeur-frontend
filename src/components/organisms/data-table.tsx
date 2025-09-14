@@ -88,7 +88,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/molecules/select";
+} from "@/components/atoms/select";
 import {
   Table,
   TableBody,
@@ -102,7 +102,7 @@ import {
   TabsContent,
   TabsList,
   TabsTrigger,
-} from "@/components/molecules/tabs";
+} from "@/components/atoms/tabs";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 export const schema = z.object({

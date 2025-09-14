@@ -2,13 +2,21 @@
 
 import { Suspense } from "react";
 
-import { SessionFilters } from "@/components/molecules/session-filters";
 import { SessionsList } from "@/components/organisms/sessions-list";
+import { ClassSelectionLayout } from "@/components/templates/class-selection-layout";
+import { SessionsTimeline } from "@/components/organisms/sessions-timeline";
 import { useSessionManagement } from "@/hooks/use-session-management";
 import { useSetPageTitle } from "@/hooks/use-set-page-title";
+import { useClassColors } from "@/hooks/use-class-colors";
+import { useUserSession } from "@/hooks/use-user-session";
+import { Calendar } from "lucide-react";
 
 function SessionsPageContent() {
-  useSetPageTitle("Gestion des séances");
+  useSetPageTitle("Gestion des participations");
+
+  const { user } = useUserSession();
+  const teacherId = user?.id || "KsmNtVf4zwqO3VV3SQJqPrRlQBA1fFyR";
+  const { getClassColorWithText } = useClassColors(teacherId);
 
   const {
     // States
@@ -31,28 +39,49 @@ function SessionsPageContent() {
   } = useSessionManagement();
 
   return (
-    <div className="space-y-6 p-1">
-      {/* Filtres */}
-      <SessionFilters
-        selectedClassId={selectedClassId}
-        selectedDate={selectedDate}
-        selectedSessionId={selectedSessionId}
-        uniqueClasses={uniqueClasses}
-        allSessions={allSessions}
-        onClassChange={setSelectedClassId}
-        onDateChange={setSelectedDate}
-        onSessionChange={setSelectedSessionId}
-      />
+    <ClassSelectionLayout
+      emptyStateIcon={<Calendar className="h-8 w-8" />}
+      emptyStateTitle="Sélectionnez une classe"
+      emptyStateDescription="Choisissez une classe dans la sidebar pour gérer les participations"
+      customClasses={uniqueClasses}
+      customSelectedClassId={selectedClassId === "all" ? null : selectedClassId}
+      customOnClassSelect={(classId) => setSelectedClassId(classId || "all")}
+      customGetClassColorWithText={getClassColorWithText}
+    >
+      {/* Zone principale avec timeline et détails */}
+      <div className="flex gap-6 -m-6 min-h-0 flex-1">
+        {/* Timeline des séances */}
+        <div className="w-1/2 min-w-0 flex flex-col p-6">
+          <SessionsTimeline
+            sessions={allSessions}
+            selectedClassId={selectedClassId === "all" ? null : selectedClassId}
+            selectedSessionId={selectedSessionId === "all" ? null : selectedSessionId}
+            onSessionSelect={setSelectedSessionId}
+            currentDate={selectedDate}
+            onNavigateDate={(direction) => {
+              const currentDate = new Date(selectedDate);
+              if (direction === "prev") {
+                currentDate.setDate(currentDate.getDate() - 1);
+              } else {
+                currentDate.setDate(currentDate.getDate() + 1);
+              }
+              setSelectedDate(currentDate.toISOString().split("T")[0]);
+            }}
+          />
+        </div>
 
-      {/* Liste des sessions */}
-      <SessionsList
-        selectedSessionId={selectedSessionId}
-        selectedSession={selectedSession || null}
-        studentsForSession={studentsForSession}
-        openAccordions={openAccordions}
-        onToggleAccordion={toggleAccordion}
-      />
-    </div>
+        {/* Détail de la séance */}
+        <div className="w-1/2 min-w-0 flex flex-col p-6">
+          <SessionsList
+            selectedSessionId={selectedSessionId}
+            selectedSession={selectedSession || null}
+            studentsForSession={studentsForSession}
+            openAccordions={openAccordions}
+            onToggleAccordion={toggleAccordion}
+          />
+        </div>
+      </div>
+    </ClassSelectionLayout>
   );
 }
 
@@ -60,10 +89,26 @@ export default function SessionsPage() {
   return (
     <Suspense
       fallback={
-        <div className="space-y-6">
-          <div className="h-8 bg-muted animate-pulse rounded"></div>
-          <div className="h-32 bg-muted animate-pulse rounded"></div>
-        </div>
+        <ClassSelectionLayout
+          emptyStateIcon={<Calendar className="h-8 w-8" />}
+          emptyStateTitle="Chargement..."
+          emptyStateDescription="Préparation de l'interface de gestion des participations"
+        >
+          <div className="flex gap-6 -m-6 min-h-0 flex-1">
+            <div className="w-1/2 space-y-4 p-6">
+              <div className="h-12 bg-muted animate-pulse rounded"></div>
+              <div className="space-y-3">
+                <div className="h-20 bg-muted animate-pulse rounded"></div>
+                <div className="h-20 bg-muted animate-pulse rounded"></div>
+                <div className="h-20 bg-muted animate-pulse rounded"></div>
+              </div>
+            </div>
+            <div className="w-1/2 space-y-4 p-6">
+              <div className="h-32 bg-muted animate-pulse rounded"></div>
+              <div className="h-24 bg-muted animate-pulse rounded"></div>
+            </div>
+          </div>
+        </ClassSelectionLayout>
       }
     >
       <SessionsPageContent />

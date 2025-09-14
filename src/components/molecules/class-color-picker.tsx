@@ -9,7 +9,7 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from "@/components/molecules/dialog";
+} from "@/components/atoms/dialog";
 import { MOCK_CLASSES } from "@/data";
 import { useClassColors } from "@/hooks/use-class-colors";
 
@@ -75,7 +75,7 @@ export function ClassColorPicker({
 
   return (
     <Dialog open={isDialogOpen} onOpenChange={handleOpenChange}>
-      <DialogContent size="2xl" className="max-h-[80vh] overflow-y-auto">
+      <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <div className="flex items-center gap-2">
             <Palette className="h-5 w-5" />

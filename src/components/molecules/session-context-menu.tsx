@@ -61,7 +61,7 @@ export function SessionContextMenu({
         </DropdownMenuItem>
 
         {/* Show move option only if session can be moved */}
-        {canMove && session.status !== "canceled" && onMove && (
+        {canMove && session.status !== "cancelled" && onMove && (
           <>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={() => onMove(session)}>
@@ -71,8 +71,8 @@ export function SessionContextMenu({
           </>
         )}
 
-        {/* Show cancel option only if session is not already canceled and can be canceled */}
-        {canCancel && session.status !== "canceled" && onCancel && (
+        {/* Show cancel option only if session is not already cancelled and can be cancelled */}
+        {canCancel && session.status !== "cancelled" && onCancel && (
           <>
             <DropdownMenuSeparator />
             <DropdownMenuItem

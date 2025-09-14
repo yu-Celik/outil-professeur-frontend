@@ -12,7 +12,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/molecules/dialog";
+} from "@/components/atoms/dialog";
 import type {
   Class,
   CourseSession,
@@ -110,7 +110,7 @@ export function SessionMoveDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent size="md">
+      <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <ArrowRightLeft className="h-5 w-5" />
@@ -132,7 +132,6 @@ export function SessionMoveDialog({
               <p className="text-sm text-muted-foreground">
                 Classe : {sessionClass.classCode}
               </p>
-              {/* Salle supprimée - propriété room retirée de l'entité UML CourseSession */}
             </div>
           </div>
 

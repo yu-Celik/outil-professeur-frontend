@@ -1,170 +1,114 @@
 "use client";
 
+import { useState } from "react";
 import { useSetPageTitle } from "@/hooks/use-set-page-title";
+import { Button } from "@/components/atoms/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/molecules/card";
+import { ClassSelectionLayout } from "@/components/templates/class-selection-layout";
+import { ExamsList } from "@/components/organisms/exams-list";
+import { ExamFormDialog } from "@/components/organisms/exam-form-dialog";
+import { ExamGradingPage } from "@/components/organisms/exam-grading-page";
+import { useExamManagement } from "@/hooks/use-exam-management";
+import { useClassSelection } from "@/contexts/class-selection-context";
+import { Plus, BookOpen } from "lucide-react";
+import type { Exam } from "@/types/uml-entities";
 
 export default function EvaluationsPage() {
   useSetPageTitle("Évaluations");
+  const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const [editingExam, setEditingExam] = useState<Exam | null>(null);
+  const [gradingExamId, setGradingExamId] = useState<string | null>(null);
+  
+  const { selectedClassId, currentTeacherId } = useClassSelection();
+  const { refresh, getExamById, getExamsByClassId } = useExamManagement(currentTeacherId);
+
+  const handleCreateExam = () => {
+    setEditingExam(null);
+    setShowCreateDialog(true);
+  };
+
+  const handleEditExam = (examId: string) => {
+    const exam = getExamById(examId);
+    if (exam) {
+      setEditingExam(exam);
+      setShowCreateDialog(true);
+    }
+  };
+
+  const handleDeleteExam = (examId: string) => {
+    console.log("Examen supprimé:", examId);
+  };
+
+  const handleGradeExam = (examId: string) => {
+    setGradingExamId(examId);
+  };
+
+  const handleFormSuccess = () => {
+    refresh();
+  };
+
+  const handleCloseDialog = () => {
+    setShowCreateDialog(false);
+    setEditingExam(null);
+  };
+
+  // Si on est en mode correction, afficher l'interface de correction
+  if (gradingExamId) {
+    return (
+      <ExamGradingPage
+        examId={gradingExamId}
+        onBack={() => setGradingExamId(null)}
+      />
+    );
+  }
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-end items-center">
-        <button
-          type="button"
-          className="bg-primary text-primary-foreground hover:bg-primary/90 px-4 py-2 rounded-md"
-        >
-          + Nouvelle évaluation
-        </button>
-      </div>
-
-      <div className="grid gap-4 md:grid-cols-4">
-        <div className="rounded-lg border bg-card text-card-foreground shadow-sm p-6">
-          <div className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <h3 className="tracking-tight text-sm font-medium">
-              Total évaluations
-            </h3>
-          </div>
-          <div className="text-2xl font-bold">0</div>
-          <p className="text-xs text-muted-foreground">créées</p>
-        </div>
-
-        <div className="rounded-lg border bg-card text-card-foreground shadow-sm p-6">
-          <div className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <h3 className="tracking-tight text-sm font-medium">En attente</h3>
-          </div>
-          <div className="text-2xl font-bold">0</div>
-          <p className="text-xs text-muted-foreground">à corriger</p>
-        </div>
-
-        <div className="rounded-lg border bg-card text-card-foreground shadow-sm p-6">
-          <div className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <h3 className="tracking-tight text-sm font-medium">Corrigées</h3>
-          </div>
-          <div className="text-2xl font-bold">0</div>
-          <p className="text-xs text-muted-foreground">terminées</p>
-        </div>
-
-        <div className="rounded-lg border bg-card text-card-foreground shadow-sm p-6">
-          <div className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <h3 className="tracking-tight text-sm font-medium">
-              Moyenne classe
-            </h3>
-          </div>
-          <div className="text-2xl font-bold">-</div>
-          <p className="text-xs text-muted-foreground">sur 20</p>
-        </div>
-      </div>
-
-      <div className="grid gap-4 md:grid-cols-3">
-        <div className="md:col-span-2">
-          <div className="rounded-lg border bg-card text-card-foreground shadow-sm">
-            <div className="p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold">Évaluations récentes</h3>
-                <div className="flex gap-2">
-                  <select className="px-3 py-1 border rounded-md text-sm">
-                    <option>Toutes les matières</option>
-                    <option>Mathématiques</option>
-                  </select>
-                  <select className="px-3 py-1 border rounded-md text-sm">
-                    <option>Tous les statuts</option>
-                    <option>En attente</option>
-                    <option>Corrigées</option>
-                  </select>
-                </div>
-              </div>
-
-              <div className="space-y-4">
-                <div className="flex items-center justify-center p-8 text-center text-muted-foreground">
-                  <div>
-                    <div className="text-4xl mb-4">📝</div>
-                    <h4 className="text-lg font-medium mb-2">
-                      Aucune évaluation
-                    </h4>
-                    <p className="text-sm">
-                      Créez votre première évaluation pour vos élèves
-                    </p>
-                  </div>
-                </div>
-              </div>
+    <>
+      <ClassSelectionLayout
+        emptyStateIcon={<BookOpen className="h-8 w-8" />}
+        emptyStateTitle="Sélectionnez une classe"
+        emptyStateDescription="Choisissez une classe dans la sidebar pour créer et gérer ses évaluations"
+      >
+        {/* Section principale de création */}
+        <Card className="border-2 border-dashed border-primary/20 bg-primary/5">
+          <CardHeader className="text-center">
+            <div className="mx-auto w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-4">
+              <BookOpen className="h-6 w-6 text-primary" />
             </div>
-          </div>
-        </div>
+            <CardTitle>Créer une nouvelle évaluation</CardTitle>
+            <p className="text-sm text-muted-foreground">
+              Ajoutez une nouvelle entité d'évaluation pour cette classe
+            </p>
+          </CardHeader>
+          <CardContent className="text-center">
+            <Button onClick={handleCreateExam} size="lg" className="gap-2">
+              <Plus className="h-5 w-5" />
+              Nouvelle évaluation
+            </Button>
+          </CardContent>
+        </Card>
 
-        <div className="space-y-4">
-          <div className="rounded-lg border bg-card text-card-foreground shadow-sm p-6">
-            <h3 className="text-lg font-semibold mb-4">Actions rapides</h3>
-            <div className="space-y-2">
-              <button
-                type="button"
-                className="w-full text-left p-2 rounded hover:bg-muted"
-              >
-                + Créer un contrôle
-              </button>
-              <button
-                type="button"
-                className="w-full text-left p-2 rounded hover:bg-muted"
-              >
-                📊 Créer un examen
-              </button>
-              <button
-                type="button"
-                className="w-full text-left p-2 rounded hover:bg-muted"
-              >
-                📋 Quiz rapide
-              </button>
-              <button
-                type="button"
-                className="w-full text-left p-2 rounded hover:bg-muted"
-              >
-                📈 Voir les statistiques
-              </button>
-            </div>
-          </div>
+        {/* Liste des évaluations */}
+        <ExamsList
+          teacherId={currentTeacherId}
+          selectedClassId={selectedClassId}
+          onCreateExam={handleCreateExam}
+          onEditExam={handleEditExam}
+          onDeleteExam={handleDeleteExam}
+          onGradeExam={handleGradeExam}
+          showFilters={false}
+          showStatistics={true}
+          className="w-full"
+        />
+      </ClassSelectionLayout>
 
-          <div className="rounded-lg border bg-card text-card-foreground shadow-sm p-6">
-            <h3 className="text-lg font-semibold mb-4">Prochaines échéances</h3>
-            <div className="space-y-3">
-              <div className="text-center text-muted-foreground py-2">
-                <p className="text-sm">Aucune échéance</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="rounded-lg border bg-card text-card-foreground shadow-sm">
-        <div className="p-6">
-          <h3 className="text-lg font-semibold mb-4">Types d'évaluations</h3>
-          <div className="grid gap-4 md:grid-cols-4">
-            <div className="p-4 rounded-lg border-2 border-dashed border-chart-1/30 text-center cursor-pointer hover:border-chart-1/50">
-              <div className="text-2xl mb-2">📝</div>
-              <h4 className="font-medium">Contrôle écrit</h4>
-              <p className="text-xs text-muted-foreground">
-                Évaluation traditionnelle
-              </p>
-            </div>
-            <div className="p-4 rounded-lg border-2 border-dashed border-chart-3/30 text-center cursor-pointer hover:border-chart-3/50">
-              <div className="text-2xl mb-2">💻</div>
-              <h4 className="font-medium">Quiz en ligne</h4>
-              <p className="text-xs text-muted-foreground">
-                Évaluation interactive
-              </p>
-            </div>
-            <div className="p-4 rounded-lg border-2 border-dashed border-chart-2/30 text-center cursor-pointer hover:border-chart-2/50">
-              <div className="text-2xl mb-2">👥</div>
-              <h4 className="font-medium">Présentation</h4>
-              <p className="text-xs text-muted-foreground">Évaluation orale</p>
-            </div>
-            <div className="p-4 rounded-lg border-2 border-dashed border-chart-4/30 text-center cursor-pointer hover:border-chart-4/50">
-              <div className="text-2xl mb-2">📁</div>
-              <h4 className="font-medium">Projet</h4>
-              <p className="text-xs text-muted-foreground">
-                Travail à long terme
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+      {/* Dialog de création/édition d'examen */}
+      <ExamFormDialog
+        isOpen={showCreateDialog}
+        onClose={handleCloseDialog}
+        exam={editingExam}
+        onSuccess={handleFormSuccess}
+      />
+    </>
   );
 }

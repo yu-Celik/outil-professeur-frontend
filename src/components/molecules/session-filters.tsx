@@ -1,25 +1,23 @@
 "use client";
 
-import { BookOpen, Calendar, Clock, Users } from "lucide-react";
+import { BookOpen, Calendar, Clock } from "lucide-react";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/molecules/select";
+} from "@/components/atoms/select";
 import { getClassById } from "@/data/mock-classes";
 import { getSubjectById } from "@/data/mock-subjects";
 import { getTimeSlotById } from "@/data/mock-time-slots";
-import type { Class, CourseSession } from "@/types/uml-entities";
+import type { CourseSession } from "@/types/uml-entities";
 
 interface SessionFiltersProps {
   selectedClassId: string;
   selectedDate: string;
   selectedSessionId: string;
-  uniqueClasses: Class[];
   allSessions: CourseSession[];
-  onClassChange: (classId: string) => void;
   onDateChange: (date: string) => void;
   onSessionChange: (sessionId: string) => void;
 }
@@ -28,34 +26,12 @@ export function SessionFilters({
   selectedClassId,
   selectedDate,
   selectedSessionId,
-  uniqueClasses,
   allSessions,
-  onClassChange,
   onDateChange,
   onSessionChange,
 }: SessionFiltersProps) {
   return (
     <div className="flex flex-wrap gap-6 items-end">
-      <div className="min-w-48 space-y-2">
-        <label className="block text-sm font-semibold text-foreground flex items-center gap-2">
-          <Users className="h-4 w-4 text-primary" />
-          Classe
-        </label>
-        <Select value={selectedClassId} onValueChange={onClassChange}>
-          <SelectTrigger className="bg-background">
-            <SelectValue placeholder="Toutes les classes" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">🏫 Toutes les classes</SelectItem>
-            {uniqueClasses.map((classData) => (
-              <SelectItem key={classData.id} value={classData.id}>
-                📚 {classData.classCode} - {classData.gradeLabel}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-
       <div className="min-w-48 space-y-2">
         <label className="block text-sm font-semibold text-foreground flex items-center gap-2">
           <Calendar className="h-4 w-4 text-primary" />

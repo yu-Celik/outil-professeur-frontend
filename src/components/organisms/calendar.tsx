@@ -22,7 +22,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from "@/components/molecules/dialog";
+} from "@/components/atoms/dialog";
 import { SessionForm } from "@/components/molecules/session-form";
 import { type CalendarEvent, useCalendar } from "@/hooks/use-calendar";
 
@@ -93,7 +93,7 @@ export function Calendar({
         return "bg-chart-1/10 text-chart-1 border-chart-1/20";
       case "planned":
         return "bg-chart-4/10 text-chart-4 border-chart-4/20";
-      case "canceled":
+      case "cancelled":
         return "bg-muted text-muted-foreground border-border";
       default:
         return "bg-muted text-muted-foreground border-border";
@@ -357,7 +357,6 @@ export function Calendar({
                               <Users className="h-3 w-3" />
                               {event.class.classCode}
                             </span>
-                            {/* Salle supprimée - propriété room retirée de l'entité UML CourseSession */}
                           </div>
                         </div>
                         <Badge className={getEventStatusColor(event)}>
@@ -439,7 +438,7 @@ export function Calendar({
           }
         }}
       >
-        <DialogContent size="xl" className="max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Nouvelle session</DialogTitle>
           </DialogHeader>

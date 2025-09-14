@@ -234,7 +234,7 @@ export function useWeeklySessions(teacherId?: string, dateParam?: string) {
         `Mise à jour du statut de la session ${sessionId} vers "${status}"`,
       );
 
-      if (status === "canceled") {
+      if (status === "cancelled") {
         // Trouver la session dans les sessions actuelles
         const session =
           weekSessions.find((s) => s.id === sessionId) ||
@@ -244,11 +244,11 @@ export function useWeeklySessions(teacherId?: string, dateParam?: string) {
           // Marquer comme annulée avec le statut UML
           setModifiedSessions((prev) => {
             const newMap = new Map(prev);
-            const canceledSession = {
+            const cancelledSession = {
               ...session,
-              status: "canceled" as const,
+              status: "cancelled" as const,
             };
-            newMap.set(session.id, canceledSession);
+            newMap.set(session.id, cancelledSession);
             return newMap;
           });
         }

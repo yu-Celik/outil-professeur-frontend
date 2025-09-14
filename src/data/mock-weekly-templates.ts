@@ -14,7 +14,6 @@ export const MOCK_WEEKLY_TEMPLATES: WeeklyTemplate[] = [
     classId: "class-2nde-jaspe",
     subjectId: "subject-anglais",
     schoolYearId: "year-2025",
-    room: "Salle A1",
     isActive: true,
   },
   {
@@ -25,7 +24,6 @@ export const MOCK_WEEKLY_TEMPLATES: WeeklyTemplate[] = [
     classId: "class-2nde-thulite",
     subjectId: "subject-anglais",
     schoolYearId: "year-2025",
-    room: "Salle A1",
     isActive: true,
   },
   {
@@ -36,7 +34,6 @@ export const MOCK_WEEKLY_TEMPLATES: WeeklyTemplate[] = [
     classId: "class-term-tanzanite",
     subjectId: "subject-anglais",
     schoolYearId: "year-2025",
-    room: "Salle A1",
     isActive: true,
   },
 
@@ -49,7 +46,6 @@ export const MOCK_WEEKLY_TEMPLATES: WeeklyTemplate[] = [
     classId: "class-2nde-jaspe",
     subjectId: "subject-anglais",
     schoolYearId: "year-2025",
-    room: "Salle A1",
     isActive: true,
   },
   {
@@ -60,7 +56,6 @@ export const MOCK_WEEKLY_TEMPLATES: WeeklyTemplate[] = [
     classId: "class-2nde-thulite",
     subjectId: "subject-anglais",
     schoolYearId: "year-2025",
-    room: "Salle A1",
     isActive: true,
   },
   {
@@ -71,7 +66,6 @@ export const MOCK_WEEKLY_TEMPLATES: WeeklyTemplate[] = [
     classId: "class-1e-onyx",
     subjectId: "subject-anglais",
     schoolYearId: "year-2025",
-    room: "Salle A1",
     isActive: true,
   },
 
@@ -84,7 +78,6 @@ export const MOCK_WEEKLY_TEMPLATES: WeeklyTemplate[] = [
     classId: "class-2nde-zircon",
     subjectId: "subject-anglais",
     schoolYearId: "year-2025",
-    room: "Salle A1",
     isActive: true,
   },
   {
@@ -95,7 +88,6 @@ export const MOCK_WEEKLY_TEMPLATES: WeeklyTemplate[] = [
     classId: "class-term-tanzanite",
     subjectId: "subject-anglais",
     schoolYearId: "year-2025",
-    room: "Salle A1",
     isActive: true,
   },
 
@@ -108,7 +100,6 @@ export const MOCK_WEEKLY_TEMPLATES: WeeklyTemplate[] = [
     classId: "class-1e-onyx",
     subjectId: "subject-etlv",
     schoolYearId: "year-2025",
-    room: "Salle A1",
     isActive: true,
   },
   {
@@ -119,7 +110,6 @@ export const MOCK_WEEKLY_TEMPLATES: WeeklyTemplate[] = [
     classId: "class-term-tanzanite",
     subjectId: "subject-etlv",
     schoolYearId: "year-2025",
-    room: "Salle A1",
     isActive: true,
   },
 
@@ -132,7 +122,6 @@ export const MOCK_WEEKLY_TEMPLATES: WeeklyTemplate[] = [
     classId: "class-1e-onyx",
     subjectId: "subject-anglais",
     schoolYearId: "year-2025",
-    room: "Salle A1",
     isActive: true,
   },
   {
@@ -143,7 +132,6 @@ export const MOCK_WEEKLY_TEMPLATES: WeeklyTemplate[] = [
     classId: "class-2nde-zircon",
     subjectId: "subject-anglais",
     schoolYearId: "year-2025",
-    room: "Salle A1",
     isActive: true,
   },
 ];

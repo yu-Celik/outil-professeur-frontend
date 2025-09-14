@@ -9,7 +9,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from "@/components/molecules/dialog";
+} from "@/components/atoms/dialog";
 import { SessionCancelDialog } from "@/components/molecules/session-cancel-dialog";
 import { SessionForm } from "@/components/molecules/session-form";
 import { SessionMoveDialog } from "@/components/molecules/session-move-dialog";
@@ -98,7 +98,7 @@ export default function CalendrierPage() {
         return "bg-chart-4/10 text-chart-4 border-chart-4/20"; // Orange/jaune du thème
       case "planned":
         return "bg-chart-1/10 text-chart-1 border-chart-1/20"; // Bleu/primaire du thème
-      case "canceled":
+      case "cancelled":
         return "bg-destructive/10 text-destructive border-destructive/20"; // Rouge pour annulé
       case "moved":
         return "bg-muted/50 text-muted-foreground/70 border-muted/30 opacity-60"; // Grisé pour déplacé
@@ -200,7 +200,7 @@ export default function CalendrierPage() {
 
       {/* Modal de création de session */}
       <Dialog {...sessionFormModal.modalProps}>
-        <DialogContent size="xl" className="max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>
               {sessionFormModal.data?.type === "makeup"

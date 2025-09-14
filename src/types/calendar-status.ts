@@ -3,7 +3,7 @@
  * Centralise les définitions pour éviter la duplication
  */
 
-export type SessionStatus = "planned" | "done" | "canceled" | "in_progress";
+export type SessionStatus = "planned" | "done" | "cancelled" | "in_progress";
 
 export const SESSION_STATUS_CONFIG = {
   planned: {
@@ -16,7 +16,7 @@ export const SESSION_STATUS_CONFIG = {
     color: "bg-chart-3/10 text-chart-3 border-chart-3/20",
     badgeColor: "bg-chart-3/20 text-chart-3",
   },
-  canceled: {
+  cancelled: {
     label: "Annulée",
     color: "bg-destructive/10 text-destructive border-destructive/20",
     badgeColor: "bg-destructive/20 text-destructive",

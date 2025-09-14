@@ -18,7 +18,6 @@ export interface SessionException {
   exceptionDate: Date; // Date spécifique de l'exception
   type: "cancelled" | "moved" | "added";
   newTimeSlotId?: string; // Pour les déplacements
-  newRoom?: string; // Pour les changements de salle
   reason?: string; // Motif de l'exception
 }
 
@@ -76,7 +75,6 @@ export class WeekSessionGenerator {
         objectives: null, // À remplir lors de l'observation
         content: null, // À remplir lors de l'observation
         homeworkAssigned: null, // À remplir lors de l'observation
-        // room: exception?.newRoom || null, // Propriété supprimée de l'entité UML CourseSession
         isMakeup: false, // Par défaut, pas un rattrapage
         isMoved: exception?.type === "moved" || false, // boolean - true si session déplacée
         notes: exception?.reason || null, // Motif d'exception si applicable
@@ -112,7 +110,6 @@ export class WeekSessionGenerator {
           objectives: null,
           content: null,
           homeworkAssigned: null,
-          // room: exception.newRoom || null, // Propriété supprimée de l'entité UML CourseSession
           isMakeup: false,
           isMoved: true,
           notes: `Session déplacée : ${exception.reason}`,
@@ -197,7 +194,6 @@ export class SessionExceptionUtils {
     templateId: string,
     date: Date,
     newTimeSlotId: string,
-    newRoom?: string,
     reason?: string,
   ): SessionException {
     return {
@@ -206,7 +202,6 @@ export class SessionExceptionUtils {
       exceptionDate: date,
       type: "moved",
       newTimeSlotId,
-      newRoom,
       reason,
     };
   }
@@ -217,7 +212,6 @@ export class SessionExceptionUtils {
   static createAddition(
     date: Date,
     timeSlotId: string,
-    room: string, // Conservé pour WeeklyTemplate, même si CourseSession n'a plus cette propriété
     reason: string,
   ): SessionException {
     return {
@@ -226,7 +220,6 @@ export class SessionExceptionUtils {
       exceptionDate: date,
       type: "added",
       newTimeSlotId: timeSlotId,
-      newRoom: room,
       reason,
     };
   }

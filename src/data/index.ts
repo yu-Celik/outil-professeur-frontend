@@ -3,6 +3,7 @@
 export * from "./mock-academic-periods";
 export * from "./mock-classes";
 export * from "./mock-completed-sessions";
+export * from "./mock-exams";
 export * from "./mock-notation-systems";
 export * from "./mock-school-years";
 export * from "./mock-student-participation";

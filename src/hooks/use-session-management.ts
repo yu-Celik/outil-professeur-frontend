@@ -78,7 +78,6 @@ export function useSessionManagement() {
           objectives: null,
           content: null,
           homeworkAssigned: null,
-          // room: template.room, // Propriété supprimée de CourseSession UML
           isMakeup: false,
           isMoved: false,
           notes: null,

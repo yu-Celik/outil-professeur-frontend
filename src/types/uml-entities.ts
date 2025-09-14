@@ -130,7 +130,6 @@ export interface WeeklyTemplate {
   classId: string; // → Class.id
   subjectId: string; // → Subject.id
   schoolYearId: string; // → SchoolYear.id
-  room: string;
   isActive: boolean;
 }
 
@@ -141,11 +140,11 @@ export interface CourseSession {
   subjectId: string;
   timeSlotId: string;
   sessionDate: Date;
-  status: "planned" | "in_progress" | "done" | "canceled";
+  status: "planned" | "in_progress" | "done" | "cancelled";
   objectives: string | null;
   content: string | null;
   homeworkAssigned: string | null;
-  isMakeup: boolean | null;
+  isMakeup: boolean;
   isMoved: boolean;
   notes: string | null;
   createdAt: Date;
@@ -182,11 +181,11 @@ export interface Exam {
   classId: string;
   subjectId: string;
   academicPeriodId: string;
+  notationSystemId: string;
   examDate: Date;
   examType: string;
   durationMinutes: number;
   totalPoints: number;
-  notationType: string;
   coefficient: number;
   instructions: string;
   isPublished: boolean;
