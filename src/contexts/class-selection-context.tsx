@@ -1,9 +1,9 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState, useCallback, ReactNode } from "react";
-import { useTeachingAssignments } from "@/hooks/use-teaching-assignments";
-import { useClassColors } from "@/hooks/use-class-colors";
-import { useUserSession } from "@/hooks/use-user-session";
+import { useTeachingAssignments } from "@/features/gestion/hooks";
+import { useClassColors } from "@/features/calendar/hooks";
+import { useUserSession } from "@/features/settings/hooks";
 import type { Class } from "@/types/uml-entities";
 
 interface ClassSelectionContextType {

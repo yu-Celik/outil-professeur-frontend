@@ -157,7 +157,7 @@ export function AcademicStructureCrudForm({
                 <SelectValue placeholder="Choisir un template..." />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Aucun template</SelectItem>
+                <SelectItem value="none">Aucun template</SelectItem>
                 {Object.entries(ACADEMIC_STRUCTURE_TEMPLATES).map(([key, template]) => (
                   <SelectItem key={key} value={key}>
                     {template.name} ({template.periodsPerYear} périodes)

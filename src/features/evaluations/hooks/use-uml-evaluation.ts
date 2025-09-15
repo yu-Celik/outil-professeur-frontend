@@ -8,15 +8,13 @@ import type {
   TeachingAssignment,
   TimeSlot,
 } from "@/types/uml-entities";
-import { 
-  MOCK_CLASSES,
-  MOCK_STUDENTS, 
-  MOCK_SUBJECTS,
-  MOCK_TIME_SLOTS,
-  MOCK_COMPLETED_SESSIONS
-} from "@/data";
+import { MOCK_CLASSES } from "@/features/gestion/mocks";
+import { MOCK_STUDENTS } from "@/features/students/mocks";
+import { MOCK_SUBJECTS } from "@/features/gestion/mocks";
+import { MOCK_TIME_SLOTS } from "@/features/calendar/mocks";
+import { MOCK_COMPLETED_SESSIONS } from "@/features/sessions/mocks";
 import { useAsyncOperation } from "@/shared/hooks";
-import { useEntityState } from "./shared/use-entity-state";
+import { useEntityState } from "@/shared/hooks";
 
 interface UseUMLEvaluationReturn {
   // Entités UML principales

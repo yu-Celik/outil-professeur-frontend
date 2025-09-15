@@ -15,7 +15,7 @@ import {
 import { Plus, Grid, List, ArrowUpDown } from "lucide-react";
 import { useExamManagement } from "@/features/evaluations";
 import { useExamFilters } from "@/features/evaluations";
-import { calculateExamStatistics } from "@/data";
+import { calculateExamStatistics } from "@/features/evaluations/mocks";
 import type { ExamSortField, SortDirection } from "@/features/evaluations";
 
 export interface ExamsListProps {

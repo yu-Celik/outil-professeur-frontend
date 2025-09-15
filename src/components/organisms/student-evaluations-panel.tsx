@@ -12,8 +12,8 @@ import { Badge } from "@/components/atoms/badge";
 import { Button } from "@/components/atoms/button";
 import { Card, CardContent, CardHeader } from "@/components/molecules/card";
 import { useExamManagement } from "@/features/evaluations";
-import { getStudentExamResults, getSubjectById } from "@/data";
-import { getClassById } from "@/features/gestion/mocks";
+import { getStudentExamResults } from "@/features/evaluations/mocks";
+import { getClassById, getSubjectById } from "@/features/gestion/mocks";
 import type { Student, Exam, StudentExamResult } from "@/types/uml-entities";
 
 interface StudentEvaluationsPanelProps {

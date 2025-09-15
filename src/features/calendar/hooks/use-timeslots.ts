@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useState } from "react";
-import { MOCK_TIME_SLOTS } from "@/data";
+import { MOCK_TIME_SLOTS } from "@/features/calendar/mocks";
 import type { TimeSlot } from "@/types/uml-entities";
 
 interface CreateTimeSlotData {

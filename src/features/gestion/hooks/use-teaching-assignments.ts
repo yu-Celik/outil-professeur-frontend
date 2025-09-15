@@ -6,7 +6,7 @@ import {
   MOCK_SCHOOL_YEARS,
   MOCK_SUBJECTS,
   MOCK_TEACHING_ASSIGNMENTS,
-} from "@/data";
+} from "@/features/gestion/mocks";
 import type {
   Class,
   SchoolYear,

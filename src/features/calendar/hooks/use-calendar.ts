@@ -1,7 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { MOCK_CLASSES, MOCK_SUBJECTS, MOCK_TIME_SLOTS } from "@/data";
+import { MOCK_CLASSES, MOCK_SUBJECTS } from "@/features/gestion/mocks";
+import { MOCK_TIME_SLOTS } from "@/features/calendar/mocks";
 import { useTeachingAssignments } from "@/features/gestion";
 import { useWeeklySessions } from "@/features/calendar";
 import {

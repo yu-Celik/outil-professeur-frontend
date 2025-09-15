@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import { useNotationSystem } from "@/hooks/use-notation-system";
+import { useNotationSystem } from "@/features/evaluations/hooks";
 import type { StudentExamResult, Exam, Student } from "@/types/uml-entities";
 
 interface GradeChangeHistory {

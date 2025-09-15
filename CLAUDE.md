@@ -28,19 +28,6 @@ npm run start
 # Run linting and formatting with Biome
 npm run lint
 npm run format
-```
-
-## Environment Configuration
-
-The project requires environment variables for authentication:
-
-```bash
-# Copy the example environment file
-cp .env.example .env.local
-
-# Edit .env.local with your actual values
-# BETTER_AUTH_SECRET is required for authentication to work
-```
 
 **Required Environment Variables:**
 - `BETTER_AUTH_SECRET`: Secret key for Better Auth (required)
@@ -74,38 +61,131 @@ The project follows **Atomic Design** methodology with components organized into
 - **Organisms** (`src/components/organisms/`): Complex sections (sidebar, data-table, charts)
 - **Templates** (`src/components/templates/`): Layout and navigation components (app-sidebar, nav-*, site-header)
 
-## Class Color System
+## Feature-Based Architecture
 
-Complete color coding system integrated with UML UserPreferences entity:
+The project implements a hybrid **Atomic Design + Feature-Based** architecture for optimal scalability and maintainability:
 
-### UML Integration
-- **UserPreferences Entity**: New UML entity added to `/src/types/uml-entities.ts` for managing user settings
-- **Teacher Relationship**: One-to-one relationship between Teacher and UserPreferences
-- **Structured Data**: Colors stored in `preferences.classColors` field with complete metadata
-- **School Year Scope**: Preferences can be scoped per school year for multi-year teaching
+### Feature Organization
 
-### Color Management
-- **UML Compliant**: All color data managed through proper UML entity relationships
-- **Hook Integration**: `useClassColors(teacherId, schoolYearId)` hook with UML entity access
-- **Default Palette**: 12 color-blind friendly colors auto-assigned to new classes
-- **Accessibility**: Automatic contrast calculation for readable text
-- **Persistence**: Full UML entity lifecycle (create, update, delete, export, import)
+Each feature follows a **self-contained architecture** with standardized internal structure:
 
-### Features
-- **Per-Class Colors**: Each class has a unique color stored in UserPreferences.preferences.classColors
-- **Auto-Assignment**: New classes automatically get next available color from user's palette
-- **Visual Integration**: Colors appear in calendar events, dashboard cards, and session lists
-- **Color Picker UI**: Complete interface for customizing class colors via toolbar "Couleurs" button
-- **Contrast-Safe**: Text colors automatically calculated for accessibility (black/white based on background)
-- **Calendar Defaults**: User's preferred calendar view (week/month) stored in UserPreferences
-- **Settings Export/Import**: Full preferences backup and restore via UML entity methods
+#### **Structure Standard**
+```
+features/[feature-name]/
+├── hooks/                          # Business logic hooks
+│   ├── use-[feature]-management.ts # Main CRUD operations
+│   ├── use-[feature]-data.ts       # Data fetching and state
+│   └── index.ts                    # Hook exports
+├── mocks/                          # Feature-specific test data
+│   ├── mock-[entities].ts          # Entity mock data
+│   └── index.ts                    # Mock exports
+├── services/                       # Business logic (when needed)
+│   └── [feature]-service.ts        # Complex business operations
+├── utils/                          # Feature utilities (when needed)
+│   └── [feature]-utils.ts          # Helper functions
+└── index.ts                        # Public API exports
+```
 
-### Implementation
-- **Calendar Events**: Border-left color coding with subtle background tints
-- **Dashboard Cards**: Class icons and backgrounds with color themes  
-- **Session Widgets**: Color-coded session cards and calendar integration
-- **Database Ready**: Complete UML entity structure ready for production database integration
-- **Multi-User Support**: Isolated preferences per teacher with proper foreign key relationships
+#### **Exemples Concrets**
+
+**Feature `evaluations/` (complète):**
+```typescript
+// hooks/use-exam-management.ts - Gestion CRUD des examens
+export const useExamManagement = (teacherId: string) => {
+  const { exams, createExam, updateExam, deleteExam } = useCRUDOperations()
+  // Logic métier spécifique aux examens
+}
+
+// services/notation-system-service.ts - Calculs de notation
+export class NotationSystemService {
+  calculateGrade(points: number, maxPoints: number, system: NotationSystem) {
+    // Logique complexe de calcul de notes
+  }
+}
+
+// mocks/mock-exams.ts - Données de test
+export const MOCK_EXAMS: Exam[] = [
+  { id: "exam-1", title: "Contrôle UML", points: 20, ... }
+]
+
+// index.ts - API publique clean
+export { useExamManagement, useGradeManagement } from './hooks'
+export { NotationSystemService } from './services'
+```
+
+**Feature `calendar/` (hooks + mocks):**
+```typescript
+// hooks/use-calendar.ts - Navigation et affichage calendrier
+// hooks/use-timeslots.ts - Gestion des créneaux horaires
+// mocks/mock-sessions.ts - Sessions de test
+```
+
+#### **Principes d'Organisation**
+
+1. **Autonomie** : Chaque feature peut fonctionner indépendamment
+2. **API Clean** : `index.ts` expose uniquement ce qui est nécessaire à l'extérieur
+3. **Responsabilité Unique** : Chaque fichier a un rôle précis et délimité
+4. **Réutilisabilité** : Hooks et services peuvent être importés par d'autres features
+
+#### **Conventions de Nommage**
+- **Hooks** : `use[Feature][Action]` (ex: `useExamManagement`, `useCalendarData`)
+- **Services** : `[Feature]Service` ou `[feature]-service.ts`
+- **Mocks** : `MOCK_[ENTITIES]` en SCREAMING_SNAKE_CASE
+- **Utils** : `[feature]Utils` ou fonctions spécifiques
+
+### Available Features
+- **accueil** - Dashboard and home functionality
+- **appreciations** - AI-powered content generation system
+- **auth** - Authentication and user management
+- **calendar** - Calendar and scheduling features
+- **evaluations** - Assessment and grading system
+- **gestion** - Administrative management
+- **sessions** - Session and course management
+- **settings** - User preferences and configuration
+- **students** - Student management and profiles
+
+### Cross-Feature Dependencies
+Shared functionality available through:
+- `@/shared/hooks` - Common hooks (useModal, useCRUDOperations, etc.)
+- `@/services` - Global business logic services
+- `@/types/uml-entities` - Shared type definitions
+
+## Shared Module Architecture
+
+The `/src/shared/` directory provides cross-feature utilities and common functionality:
+
+### Shared Hooks (`/src/shared/hooks/`)
+- **useAsyncOperation** - Async operation state management with loading, error, and success states
+- **useBaseManagement** - Entity CRUD base functionality with standardized patterns
+- **useCRUDOperations** - Generic CRUD operations for any entity type
+- **useModal** - Modal state management with open/close/toggle functionality
+- **usePageTitle** - Centralized page title management for the application
+- **useSmartFiltering** - Advanced filtering logic with multiple criteria support
+- **useValidation** - Form validation utilities with error handling
+
+### Usage Pattern
+```typescript
+// Import shared hooks in any feature
+import { useModal, useBaseManagement } from '@/shared/hooks'
+import { useAsyncOperation } from '@/shared/hooks'
+
+// Use in feature components
+const { isOpen, open, close } = useModal()
+const { data, loading, error, execute } = useAsyncOperation()
+```
+
+### Services Architecture
+
+Business logic services organized by scope:
+
+#### Global Services (`/src/services/`)
+- **session-generator.ts** - Automated session generation from weekly templates
+- **period-calculator.ts** - Academic period and timeline calculations
+- **session-makeup.ts** - Session rescheduling and makeup logic
+
+#### Feature Services (`/src/features/[feature]/services/`)
+- **notation-system-service.ts** - Grading system management (evaluations feature)
+- **appreciation-generator.ts** - AI content generation logic (appreciations feature)
 
 ## Key Technologies
 
@@ -121,17 +201,31 @@ Complete color coding system integrated with UML UserPreferences entity:
 
 ## Import Aliases
 
-The project uses path aliases defined in both `tsconfig.json` and `components.json`:
+The project uses path aliases defined in both `tsconfig.json` and `components.json` to support both atomic design and feature-based architecture:
 
 ```typescript
+// tsconfig.json path aliases
 "@/*": ["./src/*"]
+"@/features/*": ["./src/features/*"]
+"@/shared/*": ["./src/shared/*"]
 ```
 
-Component aliases in `components.json`:
+### Component Aliases (shadcn/ui compatible)
 - `@/components/atoms/*` - Basic UI elements
-- `@/components/molecules/*` - Composed components  
+- `@/components/molecules/*` - Composed components
 - `@/components/organisms/*` - Complex sections
 - `@/components/templates/*` - Layout components
+
+### Feature Imports
+```typescript
+// Feature-specific imports
+import { useDashboardData } from '@/features/accueil/hooks'
+import { useExamManagement } from '@/features/evaluations/hooks'
+import { useCalendar } from '@/features/calendar/hooks'
+
+// Shared utilities
+import { useModal, useBaseManagement } from '@/shared/hooks'
+```
 
 ## Styling System
 
@@ -155,21 +249,32 @@ This project has access to specialized MCP (Model Context Protocol) servers for 
 - **Context7 MCP** (`upstash-context-7-mcp`): Provides up-to-date documentation and code examples for any library. Use this to get current documentation for dependencies and frameworks.
 - **shadcn/ui Component Reference** (`ymadd-shadcn-ui-mcp-server`): Direct access to shadcn/ui component documentation, examples, and implementation details. Essential for understanding component APIs and usage patterns.
 
-## Component Patterns
-
 - Use `"use client"` directive for interactive components
 - Implement proper TypeScript interfaces for component props
 - Follow shadcn/ui patterns with `data-slot` attributes for styling
 - Use React.forwardRef for components that need ref forwarding
 - Prefer controlled components with proper state management
 
+
+**Workflow for components:**
+1. **Search** - Use MCP server to find appropriate existing shadcn/ui component
+2. **Research** - Get component details, props, and usage examples via MCP
+3. **Implement** - Use the existing shadcn/ui component with proper imports
+4. **Integrate** - Place in appropriate atomic design category (atoms/molecules/organisms)
+
+**DO NOT:**
+- Reinvent existing shadcn/ui functionality
+- Build UI elements that already exist in shadcn/ui
+
 ## Icon Usage
 
-- **IMPORTANT**: All icons must use Lucide React icons exclusively
+- **IMPORTANT**: All icons use Lucide React icons exclusively
 - Import icons from `lucide-react` package: `import { IconName } from "lucide-react"`
-- Never use @tabler/icons-react or other icon libraries
-- Maintain consistent icon sizing with Tailwind classes (h-4 w-4, h-5 w-5, etc.)
-- Use semantic icon names that match component functionality
+- **Guidelines**:
+  - Maintain consistent icon sizing with Tailwind classes (h-4 w-4, h-5 w-5, etc.)
+  - Use semantic icon names that match component functionality
+  - All 94+ icon instances in the codebase use Lucide React
+- **Status**: 100% Lucide React - migration complete
 
 ## UML Entity Model - SOURCE OF TRUTH
 
@@ -192,82 +297,8 @@ This project implements a complete UML-based educational system with the followi
 - **AcademicPeriod**: Time periods within school years
 - **SchoolYear**: Annual academic periods with start/end dates
 - **AppreciationContent**: AI-generated student appreciations and comments
-
-### UML Implementation Rules
-- **TypeScript Interfaces**: Complete type definitions in `/src/types/uml-entities.ts` - **DO NOT MODIFY**
-- **Custom Hooks**: UML-compliant data management hooks (use-uml-evaluation, use-teaching-assignments, use-calendar)
-- **Entity Relationships**: Proper foreign key relationships and data integrity as defined in UML
-- **Authorization Model**: TeachingAssignment-based access control throughout the application
-- **Flexible Scheduling**: CourseSession uses sessionDate + timeSlotId for maximum school schedule flexibility
-
-### Scheduling Flexibility
-The UML model supports **any school schedule** through:
-- **Dynamic TimeSlots**: Schools can define custom time slots (7h45-8h35, 1h30 periods, etc.)
-- **Calculated DateTime**: startAt/endAt computed from sessionDate + timeSlot.startTime/endTime
-- **No Hardcoded Hours**: UI components read from TimeSlot entities, not fixed arrays
-- **Multi-School Support**: Different institutions can have completely different schedules
-
-## Dashboard Implementation
-
-The project includes a comprehensive dashboard system (`/dashboard/accueil`) implementing:
-
-- **Onboarding flow**: Multi-step progression banner with skip/confirm actions
-- **Class management**: Interactive cards showing class names and student counts
-- **Student management**: Cards with sorting capabilities and add functionality
-- **AI Chat interface**: Complete chat system with message threads and conversation history
-- **Calendar integration**: Teacher-specific calendar with **dynamically generated sessions**
-- **French localization**: All UI text and messaging in French
-
-### Dashboard Architecture
-
-- Main page: `/src/app/dashboard/accueil/page.tsx` - Clean template using organisms and hooks
-- Custom hook: `/src/hooks/use-dashboard-data.ts` - Centralized data management for classes and students
-- **NEW**: `/src/hooks/use-dashboard-sessions.ts` - Sessions générées depuis templates hebdomadaires
-- Organisms: All dashboard components properly placed in `/src/components/organisms/`:
-  - `onboarding-banner.tsx` - Step progression and actions
-  - `classes-card.tsx` - Class display and management
-  - `students-card.tsx` - Student listing with sorting
-  - `chat-ai.tsx` - AI chat interface with threads
-  - `calendar-widget.tsx` - Teacher-specific upcoming sessions (**generated from weekly templates**)
-
-## Calendar System
-
-Complete calendar implementation with UML entity compliance:
-
-### Calendar Features
-- **Teacher-Specific View**: Calendar dedicated to the connected teacher only
-- **Session Management**: Create, view, and manage CourseSession entities
-- **TimeSlot Integration**: Proper time scheduling with conflict detection
-- **TeachingAssignment Authorization**: Only show authorized subjects and classes
-- **Monthly View**: Full calendar interface with event visualization
-- **Session Form**: Create new sessions with validation and authorization checks
-
-### Calendar Architecture
-- **NEW SYSTEM**: **Weekly Templates + Session Generator Architecture**
-- **Weekly Templates**: `/src/data/mock-weekly-templates.ts` - Recurring weekly schedule patterns
-- **Session Generator**: `/src/services/session-generator.ts` - Generate CourseSession from templates
-- **Session Exceptions**: `/src/data/mock-session-exceptions.ts` - Cancellations, moves, additions
-- **Hooks**: 
-  - `/src/hooks/use-weekly-sessions.ts` - Weekly session generation and exception management
-  - `/src/hooks/use-calendar.ts` - Calendar interface and navigation (uses generated sessions)
-  - `/src/hooks/use-dashboard-sessions.ts` - Dashboard integration with generated sessions
-- **Components**: Atomic Design calendar components (month/week views)
-- **Calendar Page**: `/src/app/dashboard/calendrier/page.tsx` - **Observer interface** (not schedule manager)
-
-## Student Evaluation System
-
-UML-compliant evaluation pages implementing the complete assessment model:
-
-### Evaluation Features
-- **Multi-Entity Integration**: CourseSession + StudentParticipation + StudentEvaluation
-- **Flexible Notation**: NotationSystem with configurable scales (0-20, A-F, competencies)
-- **Real-Time Updates**: Dynamic grade calculations and student progress tracking
-- **Authorization**: TeachingAssignment-based access control for evaluations
-
-### Evaluation Pages
-- **Session Evaluation**: `/src/app/dashboard/sessions/[id]/page.tsx` - Grade entire session
-- **Student Detail**: `/src/app/dashboard/students/[id]/page.tsx` - Individual student progress
-- **Student Profile**: `/src/app/dashboard/mes-eleves/[id]/page.tsx` - Comprehensive student view
+- **StyleGuide**: Content generation style and tone configuration
+- **PhraseBank**: Contextual phrase collections for content generation
 
 ## Project Structure
 
@@ -277,68 +308,100 @@ src/
 │   └── dashboard/
 │       ├── accueil/                # Main dashboard
 │       │   └── page.tsx
+│       ├── appreciations/          # AI content generation
+│       │   └── page.tsx
 │       ├── calendrier/             # Calendar view
 │       │   └── page.tsx
-│       ├── sessions/               # Session management (replaces mes-cours)
+│       ├── sessions/               # Session management
 │       │   └── page.tsx
 │       ├── mes-eleves/             # Student profiles
 │       │   └── [id]/
 │       │       └── page.tsx
-│       ├── sessions/               # Session evaluation
-│       │   └── [id]/
-│       │       └── page.tsx
+│       ├── evaluations/            # Evaluation management
+│       │   └── page.tsx
 │       └── students/               # Student details
 │           └── [id]/
 │               └── page.tsx
+├── features/                       # 🆕 Feature-based architecture
+│   ├── accueil/                   # Dashboard feature
+│   │   ├── hooks/
+│   │   │   └── use-dashboard-data.ts
+│   │   └── mocks/
+│   ├── appreciations/             # AI content generation
+│   │   ├── hooks/
+│   │   │   ├── use-style-guides.ts
+│   │   │   ├── use-phrase-bank.ts
+│   │   │   └── use-appreciation-generation.ts
+│   │   ├── mocks/
+│   │   ├── services/
+│   │   └── index.ts
+│   ├── evaluations/               # Evaluation management
+│   │   ├── hooks/
+│   │   │   ├── use-exam-management.ts
+│   │   │   ├── use-grade-management.ts
+│   │   │   ├── use-notation-system.ts
+│   │   │   └── use-rubric-management.ts
+│   │   ├── mocks/
+│   │   ├── services/
+│   │   └── utils/
+│   ├── calendar/                  # Calendar feature
+│   │   ├── hooks/
+│   │   │   ├── use-calendar.ts
+│   │   │   └── use-timeslots.ts
+│   │   └── mocks/
+│   ├── gestion/                   # Administrative management
+│   │   ├── hooks/
+│   │   │   └── use-teaching-assignments.ts
+│   │   └── mocks/
+│   ├── sessions/                  # Session management
+│   │   ├── hooks/
+│   │   │   └── use-dashboard-sessions.ts
+│   │   └── mocks/
+│   ├── students/                  # Student management
+│   │   ├── hooks/
+│   │   └── mocks/
+│   ├── settings/                  # User preferences
+│   │   ├── hooks/
+│   │   └── mocks/
+│   └── auth/                      # Authentication
+│       ├── hooks/
+│       └── mocks/
+├── shared/                        # 🆕 Shared utilities
+│   └── hooks/                     # Common hooks across features
+│       ├── use-async-operation.ts
+│       ├── use-base-management.ts
+│       ├── use-crud-operations.ts
+│       ├── use-entity-state.ts
+│       ├── use-mobile.ts
+│       ├── use-modal.ts
+│       ├── use-page-title.tsx
+│       ├── use-set-page-title.ts
+│       ├── use-smart-filtering.ts
+│       ├── use-validation.ts
+│       └── index.ts
 ├── components/
-│   ├── atoms/                      # Basic UI elements
-│   │   ├── button.tsx
-│   │   ├── badge.tsx
-│   │   ├── grade-display.tsx
-│   │   ├── slider.tsx
-│   │   └── textarea.tsx
-│   ├── molecules/                  # Composed components
-│   │   ├── card.tsx
-│   │   ├── dropdown-menu.tsx
-│   │   ├── modal.tsx
-│   │   ├── table.tsx
-│   │   ├── authorization-guard.tsx
-│   │   └── session-form.tsx
-│   ├── organisms/                  # Complex sections
-│   │   ├── sidebar.tsx
-│   │   ├── data-table.tsx
-│   │   ├── classes-students-card.tsx
-│   │   ├── onboarding-banner.tsx
-│   │   ├── classes-card.tsx
-│   │   ├── students-card.tsx
-│   │   ├── chat-ai.tsx
-│   │   ├── calendar.tsx
-│   │   └── calendar-widget.tsx
-│   └── templates/                  # Layout components
-│       ├── app-sidebar.tsx
-│       └── site-header.tsx
-├── hooks/                          # Custom React hooks
-│   ├── use-dashboard-data.ts       # Dashboard state management
-│   ├── use-calendar.ts             # Calendar functionality
-│   ├── use-notation-system.ts      # Grading system
-│   ├── use-student-evaluation.ts   # Student assessments
-│   ├── use-teaching-assignments.ts # Authorization
-│   └── use-uml-evaluation.ts       # UML entity management
+│   ├── atoms/                     # Basic UI elements (34 components)
+│   ├── molecules/                 # Composed components (42 components)
+│   ├── organisms/                 # Complex sections (46 components)
+│   └── templates/                 # Layout components (7 components)
+├── contexts/                      # React contexts
+│   └── class-selection-context.tsx
+├── docs/                          # Technical documentation
+│   ├── layout-height-management.md
+│   └── modal-patterns.md
+├── lib/                           # Core utilities and configuration
+│   ├── auth-client.ts             # Better Auth client configuration
+│   ├── auth.ts                    # Authentication setup
+│   └── utils.ts                   # Utility functions (cn, etc.)
+├── services/                      # Global business logic
+│   ├── session-generator.ts       # Session generation from templates
+│   ├── period-calculator.ts       # Academic period calculations
+│   └── session-makeup.ts          # Session rescheduling logic
 ├── types/
-│   └── uml-entities.ts             # Complete UML type definitions - SOURCE OF TRUTH (DO NOT MODIFY)
-└── data/                           # Mock data for development
-    ├── index.ts
-    ├── mock-academic-periods.ts       # Academic periods within school years
-    ├── mock-classes.ts                # Class entities with UML compliance
-    ├── mock-notation-systems.ts       # Flexible grading systems
-    ├── mock-school-years.ts           # Annual academic periods
-    ├── mock-students.ts               # Student entities with UML compliance
-    ├── mock-subjects.ts               # Academic subjects
-    ├── mock-teachers.ts               # Teacher entities
-    ├── mock-teaching-assignments.ts   # Teacher-class-subject authorization
-    ├── mock-time-slots.ts             # Flexible time slots (any school schedule)
-    ├── mock-weekly-templates.ts       # 🆕 Recurring weekly schedule patterns
-    ├── mock-session-exceptions.ts     # 🆕 Punctual adjustments (cancel/move/add)
-    ├── mock-user-preferences.ts       # 🆕 UML UserPreferences entities with class colors
-    └── user-class-colors.ts           # Legacy color utilities (being phased out)
+│   └── uml-entities.ts            # Complete UML type definitions - SOURCE OF TRUTH (DO NOT MODIFY)
+└── utils/                         # Domain-specific utilities
+    ├── date-utils.ts              # Date manipulation and formatting
+    ├── entity-lookups.ts          # Entity search and lookup functions
+    ├── session-resolver.ts        # Session resolution logic
+    └── teaching-assignment-filters.ts # Assignment filtering utilities
 ```

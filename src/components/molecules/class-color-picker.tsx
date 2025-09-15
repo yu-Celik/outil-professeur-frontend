@@ -10,7 +10,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/atoms/dialog";
-import { MOCK_CLASSES } from "@/data";
+import { MOCK_CLASSES } from "@/features/gestion/mocks";
 import { useClassColors } from "@/features/calendar";
 
 interface ClassColorPickerProps {

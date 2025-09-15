@@ -28,7 +28,7 @@ import {
 import { useExamManagement } from "@/features/evaluations";
 import { useNotationSystem } from "@/features/evaluations";
 import type { Exam, Student } from "@/types/uml-entities";
-import { MOCK_STUDENTS } from "@/data";
+import { MOCK_STUDENTS } from "@/features/students/mocks";
 
 export interface ExamExportDialogProps {
   isOpen: boolean;

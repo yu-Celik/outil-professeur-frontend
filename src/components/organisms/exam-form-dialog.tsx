@@ -11,11 +11,7 @@ import { ExamForm } from "@/components/molecules/exam-form";
 import { useExamManagement } from "@/features/evaluations";
 import { useNotationSystem } from "@/features/evaluations";
 import type { Exam } from "@/types/uml-entities";
-import {
-  MOCK_CLASSES,
-  MOCK_SUBJECTS,
-  MOCK_ACADEMIC_PERIODS,
-} from "@/data";
+import { MOCK_CLASSES, MOCK_SUBJECTS, MOCK_ACADEMIC_PERIODS } from "@/features/gestion/mocks";
 
 export interface ExamFormDialogProps {
   isOpen: boolean;

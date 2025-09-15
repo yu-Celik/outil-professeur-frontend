@@ -33,7 +33,7 @@ import { useExamManagement, type StudentExamResultFormData } from "@/features/ev
 import { useNotationSystem } from "@/features/evaluations";
 import { useRubricManagement, type RubricEvaluationData } from "@/features/evaluations";
 import { RubricGradingInterface } from "@/components/organisms/rubric-grading-interface";
-import { MOCK_STUDENTS } from "@/data";
+import { MOCK_STUDENTS } from "@/features/students/mocks";
 import type { Exam, Student, StudentExamResult } from "@/types/uml-entities";
 import { cn } from "@/lib/utils";
 

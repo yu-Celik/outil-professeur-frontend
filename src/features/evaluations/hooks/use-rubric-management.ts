@@ -12,7 +12,7 @@ import {
   type RubricCriterion,
   type RubricLevel,
   type RubricConstraints,
-} from "@/data";
+} from "@/features/evaluations/mocks";
 
 export interface RubricFormData {
   name: string;

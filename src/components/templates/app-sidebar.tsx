@@ -15,6 +15,7 @@ import {
   Home,
   Search,
   Settings,
+  Sparkles,
   Users,
 } from "lucide-react";
 import type * as React from "react";
@@ -65,6 +66,11 @@ const data = {
       title: "Évaluations",
       url: "/dashboard/evaluations",
       icon: FileBarChart,
+    },
+    {
+      title: "Appréciations IA",
+      url: "/dashboard/appreciations",
+      icon: Sparkles,
     },
   ],
   navClouds: [

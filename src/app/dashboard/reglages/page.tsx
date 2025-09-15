@@ -5,6 +5,7 @@ import { ClassColorPicker } from "@/components/molecules/class-color-picker";
 import { TimeSlotsManagement } from "@/components/organisms/timeslots-management";
 import { SubjectsManagement } from "@/components/organisms/subjects-management";
 import { AcademicStructuresManagement } from "@/components/organisms/academic-structures-management";
+import { NotationSystemConfig } from "@/components/organisms/notation-system-config";
 import { useSetPageTitle } from "@/shared/hooks";
 import { useUserSession } from "@/features/settings";
 
@@ -13,7 +14,7 @@ export default function ReglagesPage() {
 
   const { user } = useUserSession();
   const [activeTab, setActiveTab] = useState<
-    "profil" | "creneaux" | "matieres" | "structures" | "couleurs" | "preferences" | "securite"
+    "profil" | "creneaux" | "matieres" | "structures" | "couleurs" | "preferences" | "securite" | "notation"
   >("profil");
 
   const tabs = [
@@ -22,6 +23,7 @@ export default function ReglagesPage() {
     { id: "matieres" as const, label: "Matières", icon: "📚" },
     { id: "structures" as const, label: "Structures académiques", icon: "📅" },
     { id: "couleurs" as const, label: "Couleurs des classes", icon: "🎨" },
+    { id: "notation" as const, label: "Systèmes de notation", icon: "📊" },
     { id: "preferences" as const, label: "Préférences", icon: "⚙️" },
     { id: "securite" as const, label: "Sécurité", icon: "🔒" },
   ];
@@ -62,6 +64,14 @@ export default function ReglagesPage() {
         )}
         {activeTab === "couleurs" && (
           <CouleursSettings teacherId={user?.id || "KsmNtVf4zwqO3VV3SQJqPrRlQBA1fFyR"} />
+        )}
+        {activeTab === "notation" && (
+          <NotationSystemConfig
+            schoolYearId="year-2025"
+            onSystemChange={(system) => {
+              console.log('Système de notation changé:', system);
+            }}
+          />
         )}
         {activeTab === "preferences" && <PreferencesSettings />}
         {activeTab === "securite" && <SecuritySettings />}

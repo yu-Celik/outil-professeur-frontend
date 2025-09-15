@@ -12,7 +12,7 @@ import {
   calculateExamStatistics,
   MOCK_EXAMS,
   MOCK_STUDENT_EXAM_RESULTS,
-} from "@/data";
+} from "@/features/evaluations/mocks";
 import { useNotationSystem } from "./use-notation-system";
 
 export interface ExamFormData {
