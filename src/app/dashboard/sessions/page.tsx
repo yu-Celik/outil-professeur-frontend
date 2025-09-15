@@ -5,10 +5,10 @@ import { Suspense } from "react";
 import { SessionsList } from "@/components/organisms/sessions-list";
 import { ClassSelectionLayout } from "@/components/templates/class-selection-layout";
 import { SessionsTimeline } from "@/components/organisms/sessions-timeline";
-import { useSessionManagement } from "@/hooks/use-session-management";
-import { useSetPageTitle } from "@/hooks/use-set-page-title";
-import { useClassColors } from "@/hooks/use-class-colors";
-import { useUserSession } from "@/hooks/use-user-session";
+import { useSessionManagement } from "@/features/sessions";
+import { useSetPageTitle } from "@/shared/hooks";
+import { useClassColors } from "@/features/calendar";
+import { useUserSession } from "@/features/settings";
 import { Calendar } from "lucide-react";
 
 function SessionsPageContent() {

@@ -3,7 +3,7 @@
 import { Button } from "@/components/atoms/button";
 import { Separator } from "@/components/atoms/separator";
 import { SidebarTrigger } from "@/components/organisms/sidebar";
-import { usePageTitle } from "@/hooks/use-page-title";
+import { usePageTitle } from "@/shared/hooks";
 
 export function SiteHeader() {
   const { title } = usePageTitle();

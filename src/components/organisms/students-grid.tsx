@@ -6,7 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/atoms/avatar";
 import { Badge } from "@/components/atoms/badge";
 import { Button } from "@/components/atoms/button";
 import { StudentCrudForm } from "./student-crud-form";
-import { useStudentManagement } from "@/hooks/use-student-management";
+import { useStudentManagement } from "@/features/students";
 import type { Student, Class } from "@/types/uml-entities";
 
 interface StudentsGridProps {

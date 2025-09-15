@@ -24,7 +24,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/organisms/sidebar";
-import { useLogout } from "@/hooks/use-logout";
+import { useLogout } from "@/features/auth";
 import type { User } from "@/types/auth";
 
 export function NavUser({ user }: { user: User }) {

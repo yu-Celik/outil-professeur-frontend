@@ -3,8 +3,8 @@
 import { ArrowRight, Clock, Plus } from "lucide-react";
 import { memo, useState } from "react";
 import { SessionStatusBadge } from "@/components/atoms/session-status-badge";
-import type { CalendarEvent } from "@/hooks/use-calendar";
-import { useClassColors } from "@/hooks/use-class-colors";
+import type { CalendarEvent } from "@/features/calendar";
+import { useClassColors } from "@/features/calendar";
 import type { CourseSession } from "@/types/uml-entities";
 import { SessionContextMenu } from "./session-context-menu";
 

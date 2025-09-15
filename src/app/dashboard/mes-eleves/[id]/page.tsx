@@ -7,9 +7,9 @@ import { StudentDetailsGrid } from "@/components/organisms/student-details-grid"
 import { StudentHeaderCard } from "@/components/organisms/student-header-card";
 import { StudentMetricsCards } from "@/components/organisms/student-metrics-cards";
 import { StudentProfileSummary } from "@/components/organisms/student-profile-summary";
-import { useNotationSystem } from "@/hooks/use-notation-system";
-import { useStudentProfile } from "@/hooks/use-student-profile";
-import { useTeachingAssignments } from "@/hooks/use-teaching-assignments";
+import { useNotationSystem } from "@/features/evaluations";
+import { useStudentProfile } from "@/features/students";
+import { useTeachingAssignments } from "@/features/gestion";
 
 interface StudentProfilePageProps {
   params: Promise<{ id: string }>;

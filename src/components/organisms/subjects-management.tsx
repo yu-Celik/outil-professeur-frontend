@@ -17,7 +17,7 @@ import {
   DialogTitle,
 } from "@/components/atoms/dialog";
 import { SubjectCrudForm } from "@/components/organisms/subject-crud-form";
-import { useSubjectManagement } from "@/hooks/use-subject-management";
+import { useSubjectManagement } from "@/features/gestion";
 import type { Subject } from "@/types/uml-entities";
 
 interface SubjectsManagementProps {

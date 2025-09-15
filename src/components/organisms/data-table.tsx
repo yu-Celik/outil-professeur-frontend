@@ -103,7 +103,7 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/components/atoms/tabs";
-import { useIsMobile } from "@/hooks/use-mobile";
+import { useIsMobile } from "@/shared/hooks";
 
 export const schema = z.object({
   id: z.number(),

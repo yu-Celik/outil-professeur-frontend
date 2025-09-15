@@ -35,9 +35,9 @@ import {
 } from "@/components/atoms/select";
 import { ClassCrudForm } from "@/components/organisms/class-crud-form";
 import { AddStudentForm } from "@/components/organisms/add-student-form";
-import { useClassManagement } from "@/hooks/use-class-management";
-import { useClassColors } from "@/hooks/use-class-colors";
-import { MOCK_CLASSES } from "@/data/mock-classes";
+import { useClassManagement } from "@/features/gestion";
+import { useClassColors } from "@/features/calendar";
+import { MOCK_CLASSES } from "@/features/gestion/mocks";
 
 interface Class {
   id: string;

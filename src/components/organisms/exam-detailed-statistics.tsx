@@ -15,8 +15,8 @@ import {
   Calculator,
   Percent,
 } from "lucide-react";
-import { useExamManagement } from "@/hooks/use-exam-management";
-import { useNotationSystem } from "@/hooks/use-notation-system";
+import { useExamManagement } from "@/features/evaluations";
+import { useNotationSystem } from "@/features/evaluations";
 import type { Exam } from "@/types/uml-entities";
 import { MOCK_STUDENTS } from "@/data";
 

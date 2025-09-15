@@ -25,14 +25,14 @@ import { Badge } from "@/components/atoms/badge";
 import { Button } from "@/components/atoms/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/atoms/tabs";
 import { Card, CardContent, CardHeader } from "@/components/molecules/card";
-import { getCompletedSessionsForTeacher } from "@/data/mock-completed-sessions";
-import { getStudentParticipation } from "@/data/mock-student-participation";
-import { getSubjectById } from "@/data/mock-subjects";
-import { getTimeSlotById } from "@/data/mock-time-slots";
-import { useExamManagement } from "@/hooks/use-exam-management";
-import { useTeachingAssignments } from "@/hooks/use-teaching-assignments";
+import { getCompletedSessionsForTeacher } from "@/features/sessions/mocks";
+import { getStudentParticipation } from "@/features/students/mocks";
+import { getSubjectById } from "@/features/gestion/mocks";
+import { getTimeSlotById } from "@/features/calendar/mocks";
+import { useExamManagement } from "@/features/evaluations";
+import { useTeachingAssignments } from "@/features/gestion";
 import { EditableResultDisplay } from "@/components/molecules/editable-result-display";
-import { getStudentExamResults, getExamById as getExamByIdMock } from "@/data/mock-exams";
+import { getStudentExamResults, getExamById as getExamByIdMock } from "@/features/evaluations/mocks";
 import type { Student } from "@/types/uml-entities";
 
 interface StudentProfilePanelProps {

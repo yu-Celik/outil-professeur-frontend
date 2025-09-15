@@ -22,7 +22,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/atoms/select";
-import { useTeachingAssignments } from "@/hooks/use-teaching-assignments";
+import { useTeachingAssignments } from "@/features/gestion";
 import type {
   Class,
   CourseSession,

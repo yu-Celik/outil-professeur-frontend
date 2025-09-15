@@ -21,9 +21,9 @@ import {
   DialogTitle,
 } from "@/components/atoms/dialog";
 import { AcademicStructureCrudForm, type AcademicStructureFormData } from "@/components/organisms/academic-structure-crud-form";
-import { useAcademicStructures } from "@/hooks/use-academic-structures";
+import { useAcademicStructures } from "@/features/gestion";
 import { PeriodCalculator } from "@/services/period-calculator";
-import { getCurrentSchoolYear } from "@/data/mock-school-years";
+import { getCurrentSchoolYear } from "@/features/gestion/mocks";
 import type { AcademicStructure } from "@/types/uml-entities";
 
 interface AcademicStructuresManagementProps {

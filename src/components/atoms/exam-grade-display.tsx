@@ -1,7 +1,7 @@
 "use client";
 
 import { Badge } from "@/components/atoms/badge";
-import { useNotationSystem } from "@/hooks/use-notation-system";
+import { useNotationSystem } from "@/features/evaluations";
 import type { NotationSystem } from "@/types/uml-entities";
 
 export interface ExamGradeDisplayProps {

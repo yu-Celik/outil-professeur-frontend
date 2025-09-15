@@ -18,9 +18,9 @@ import {
   MessageSquare,
   BarChart3,
 } from "lucide-react";
-import { useRubricManagement } from "@/hooks/use-rubric-management";
+import { useRubricManagement } from "@/features/evaluations";
 import type { StudentExamResult, Exam, Subject } from "@/types/uml-entities";
-import type { RubricSection } from "@/data/mock-rubrics";
+import type { RubricSection } from "@/features/evaluations/mocks";
 
 export interface RubricResultDisplayProps {
   result: StudentExamResult;

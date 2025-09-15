@@ -27,7 +27,7 @@ import {
   ToggleGroup,
   ToggleGroupItem,
 } from "@/components/molecules/toggle-group";
-import { useIsMobile } from "@/hooks/use-mobile";
+import { useIsMobile } from "@/shared/hooks";
 
 export const description = "An interactive area chart";
 

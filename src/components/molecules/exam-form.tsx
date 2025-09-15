@@ -23,7 +23,7 @@ import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import { RubricSelector } from "@/components/molecules/rubric-selector";
-import type { ExamFormData } from "@/hooks/use-exam-management";
+import type { ExamFormData } from "@/features/evaluations";
 import type { Exam, Class, Subject, AcademicPeriod, NotationSystem } from "@/types/uml-entities";
 
 export interface ExamFormProps {

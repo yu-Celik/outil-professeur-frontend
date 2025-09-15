@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 import { Badge } from "@/components/atoms/badge";
 import { Button } from "@/components/atoms/button";
-import { getStudentParticipation } from "@/data/mock-student-participation";
+import { getStudentParticipation } from "@/features/students/mocks";
 import type { CourseSession, Student } from "@/types/uml-entities";
 
 interface StudentParticipationAccordionProps {

@@ -8,8 +8,8 @@ import { SessionStudentsList } from "@/components/molecules/session-students-lis
 import { SessionSummaryCard } from "@/components/molecules/session-summary-card";
 import { StudentEvaluationHeader } from "@/components/molecules/student-evaluation-header";
 import { StudentEvaluationForm } from "@/components/organisms/student-evaluation-form";
-import { useNotationSystem } from "@/hooks/use-notation-system";
-import { useStudentEvaluation } from "@/hooks/use-student-evaluation";
+import { useNotationSystem } from "@/features/evaluations";
+import { useStudentEvaluation } from "@/features/students";
 
 interface StudentEvaluationPageProps {
   params: Promise<{ id: string }>;

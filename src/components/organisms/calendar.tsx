@@ -24,7 +24,7 @@ import {
   DialogTitle,
 } from "@/components/atoms/dialog";
 import { SessionForm } from "@/components/molecules/session-form";
-import { type CalendarEvent, useCalendar } from "@/hooks/use-calendar";
+import { type CalendarEvent, useCalendar } from "@/features/calendar";
 
 interface CalendarProps {
   className?: string;

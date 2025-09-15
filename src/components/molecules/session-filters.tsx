@@ -8,9 +8,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/atoms/select";
-import { getClassById } from "@/data/mock-classes";
-import { getSubjectById } from "@/data/mock-subjects";
-import { getTimeSlotById } from "@/data/mock-time-slots";
+import { getClassById } from "@/features/gestion/mocks";
+import { getSubjectById } from "@/features/gestion/mocks";
+import { getTimeSlotById } from "@/features/calendar/mocks";
 import type { CourseSession } from "@/types/uml-entities";
 
 interface SessionFiltersProps {

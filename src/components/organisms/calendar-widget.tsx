@@ -12,8 +12,8 @@ import Link from "next/link";
 import { Badge } from "@/components/atoms/badge";
 import { Button } from "@/components/atoms/button";
 import { Card, CardContent, CardHeader } from "@/components/molecules/card";
-import { type CalendarEvent, useCalendar } from "@/hooks/use-calendar";
-import { useClassColors } from "@/hooks/use-class-colors";
+import { type CalendarEvent, useCalendar } from "@/features/calendar";
+import { useClassColors } from "@/features/calendar";
 
 interface CalendarWidgetProps {
   className?: string;

@@ -11,9 +11,9 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/atoms/avatar";
 import { Badge } from "@/components/atoms/badge";
 import { Button } from "@/components/atoms/button";
 import { Card, CardContent, CardHeader } from "@/components/molecules/card";
-import { useExamManagement } from "@/hooks/use-exam-management";
+import { useExamManagement } from "@/features/evaluations";
 import { getStudentExamResults, getSubjectById } from "@/data";
-import { getClassById } from "@/data/mock-classes";
+import { getClassById } from "@/features/gestion/mocks";
 import type { Student, Exam, StudentExamResult } from "@/types/uml-entities";
 
 interface StudentEvaluationsPanelProps {

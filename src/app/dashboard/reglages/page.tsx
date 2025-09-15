@@ -5,8 +5,8 @@ import { ClassColorPicker } from "@/components/molecules/class-color-picker";
 import { TimeSlotsManagement } from "@/components/organisms/timeslots-management";
 import { SubjectsManagement } from "@/components/organisms/subjects-management";
 import { AcademicStructuresManagement } from "@/components/organisms/academic-structures-management";
-import { useSetPageTitle } from "@/hooks/use-set-page-title";
-import { useUserSession } from "@/hooks/use-user-session";
+import { useSetPageTitle } from "@/shared/hooks";
+import { useUserSession } from "@/features/settings";
 
 export default function ReglagesPage() {
   useSetPageTitle("Réglages");

@@ -3,10 +3,10 @@
 import { BookOpen, Clock, Users, CheckCircle, XCircle, AlertCircle } from "lucide-react";
 import { Button } from "@/components/atoms/button";
 import { SessionStatusBadge } from "@/components/atoms/session-status-badge";
-import { getClassById } from "@/data/mock-classes";
-import { getSubjectById } from "@/data/mock-subjects";
-import { getTimeSlotById } from "@/data/mock-time-slots";
-import { getStudentsByClass } from "@/data/mock-students";
+import { getClassById } from "@/features/gestion/mocks";
+import { getSubjectById } from "@/features/gestion/mocks";
+import { getTimeSlotById } from "@/features/calendar/mocks";
+import { getStudentsByClass } from "@/features/students/mocks";
 import type { CourseSession } from "@/types/uml-entities";
 
 interface SessionTimelineItemProps {

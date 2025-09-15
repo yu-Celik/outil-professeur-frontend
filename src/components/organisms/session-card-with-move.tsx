@@ -5,7 +5,7 @@ import { SessionStatusBadge } from "@/components/atoms/session-status-badge";
 import { Card } from "@/components/molecules/card";
 import { SessionContextMenu } from "@/components/molecules/session-context-menu";
 import { SessionMoveDialog } from "@/components/molecules/session-move-dialog";
-import { useSessionMoves } from "@/hooks/use-session-moves";
+import { useSessionMoves } from "@/features/calendar";
 import type {
   Class,
   CourseSession,

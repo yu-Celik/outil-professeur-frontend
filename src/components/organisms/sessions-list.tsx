@@ -4,10 +4,10 @@ import { BookOpen, Calendar, ClipboardList, Clock, Users } from "lucide-react";
 import { Badge } from "@/components/atoms/badge";
 import { Card, CardContent } from "@/components/molecules/card";
 import { StudentParticipationAccordion } from "@/components/molecules/student-participation-accordion";
-import { getClassById } from "@/data/mock-classes";
-import { getStudentsByClass } from "@/data/mock-students";
-import { getSubjectById } from "@/data/mock-subjects";
-import { getTimeSlotById } from "@/data/mock-time-slots";
+import { getClassById } from "@/features/gestion/mocks";
+import { getStudentsByClass } from "@/features/students/mocks";
+import { getSubjectById } from "@/features/gestion/mocks";
+import { getTimeSlotById } from "@/features/calendar/mocks";
 import type { CourseSession, Student } from "@/types/uml-entities";
 
 interface SessionsListProps {

@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { SidebarInset, SidebarProvider } from "@/components/organisms/sidebar";
 import { AppSidebar } from "@/components/templates/app-sidebar";
 import { SiteHeader } from "@/components/templates/site-header";
-import { PageTitleProvider } from "@/hooks/use-page-title";
+import { PageTitleProvider } from "@/shared/hooks";
 import { ClassSelectionProvider } from "@/contexts/class-selection-context";
 import { auth } from "@/lib/auth";
 

@@ -5,9 +5,9 @@
  * via les affectations d'enseignement (TeachingAssignment)
  */
 
-import { MOCK_CLASSES } from "@/data/mock-classes";
-import { MOCK_SUBJECTS } from "@/data/mock-subjects";
-import { MOCK_TEACHING_ASSIGNMENTS } from "@/data/mock-teaching-assignments";
+import { MOCK_CLASSES } from "@/features/gestion/mocks";
+import { MOCK_SUBJECTS } from "@/features/gestion/mocks";
+import { MOCK_TEACHING_ASSIGNMENTS } from "@/features/gestion/mocks";
 import type { Class, Subject, TeachingAssignment } from "@/types/uml-entities";
 
 /**

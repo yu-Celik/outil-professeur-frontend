@@ -6,7 +6,7 @@ import { Button } from "@/components/atoms/button";
 import { Input } from "@/components/atoms/input";
 import { Label } from "@/components/atoms/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/atoms/select";
-import { ACADEMIC_STRUCTURE_TEMPLATES } from "@/data/mock-academic-structures";
+import { ACADEMIC_STRUCTURE_TEMPLATES } from "@/features/gestion/mocks";
 import type { AcademicStructure } from "@/types/uml-entities";
 
 interface AcademicStructureCrudFormProps {

@@ -29,9 +29,9 @@ import {
   FileText,
   BarChart3,
 } from "lucide-react";
-import { useExamManagement, type StudentExamResultFormData } from "@/hooks/use-exam-management";
-import { useNotationSystem } from "@/hooks/use-notation-system";
-import { useRubricManagement, type RubricEvaluationData } from "@/hooks/use-rubric-management";
+import { useExamManagement, type StudentExamResultFormData } from "@/features/evaluations";
+import { useNotationSystem } from "@/features/evaluations";
+import { useRubricManagement, type RubricEvaluationData } from "@/features/evaluations";
 import { RubricGradingInterface } from "@/components/organisms/rubric-grading-interface";
 import { MOCK_STUDENTS } from "@/data";
 import type { Exam, Student, StudentExamResult } from "@/types/uml-entities";

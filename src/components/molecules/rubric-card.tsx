@@ -23,7 +23,7 @@ import {
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import type { Rubric } from "@/types/uml-entities";
-import type { RubricSection, RubricConstraints } from "@/data/mock-rubrics";
+import type { RubricSection, RubricConstraints } from "@/features/evaluations/mocks";
 
 export interface RubricCardProps {
   rubric: Rubric;

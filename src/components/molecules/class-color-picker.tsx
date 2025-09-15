@@ -11,7 +11,7 @@ import {
   DialogTitle,
 } from "@/components/atoms/dialog";
 import { MOCK_CLASSES } from "@/data";
-import { useClassColors } from "@/hooks/use-class-colors";
+import { useClassColors } from "@/features/calendar";
 
 interface ClassColorPickerProps {
   // Nouveau pattern standardisé (recommandé)

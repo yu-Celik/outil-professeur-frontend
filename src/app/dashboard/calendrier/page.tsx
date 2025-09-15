@@ -15,12 +15,12 @@ import { SessionForm } from "@/components/molecules/session-form";
 import { SessionMoveDialog } from "@/components/molecules/session-move-dialog";
 import { CalendarToolbar } from "@/components/organisms/calendar-toolbar";
 import { CalendarWeekView } from "@/components/organisms/calendar-week-view";
-import { useCalendar } from "@/hooks/use-calendar";
-import { useClassColors } from "@/hooks/use-class-colors";
-import { useModal, useSimpleModal } from "@/hooks/use-modal";
-import { useSessionMoves } from "@/hooks/use-session-moves";
-import { useSetPageTitle } from "@/hooks/use-set-page-title";
-import { useUserSession } from "@/hooks/use-user-session";
+import { useCalendar } from "@/features/calendar";
+import { useClassColors } from "@/features/calendar";
+import { useModal, useSimpleModal } from "@/shared/hooks";
+import { useSessionMoves } from "@/features/calendar";
+import { useSetPageTitle } from "@/shared/hooks";
+import { useUserSession } from "@/features/settings";
 import type { CourseSession, TimeSlot } from "@/types/uml-entities";
 
 export default function CalendrierPage() {

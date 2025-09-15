@@ -1,14 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { useSetPageTitle } from "@/hooks/use-set-page-title";
+import { useSetPageTitle } from "@/shared/hooks";
 import { Button } from "@/components/atoms/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/molecules/card";
 import { ClassSelectionLayout } from "@/components/templates/class-selection-layout";
 import { ExamsList } from "@/components/organisms/exams-list";
 import { ExamFormDialog } from "@/components/organisms/exam-form-dialog";
 import { ExamGradingPage } from "@/components/organisms/exam-grading-page";
-import { useExamManagement } from "@/hooks/use-exam-management";
+import { useExamManagement } from "@/features/evaluations";
 import { useClassSelection } from "@/contexts/class-selection-context";
 import { BookOpen } from "lucide-react";
 import type { Exam } from "@/types/uml-entities";

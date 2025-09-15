@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { GraduationCap, Users, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/atoms/button";
-import { getStudentsByClass } from "@/data/mock-students";
+import { getStudentsByClass } from "@/features/students/mocks";
 import type { Class } from "@/types/uml-entities";
 
 interface ClassesSidebarProps {

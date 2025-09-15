@@ -13,7 +13,7 @@ import {
   UserX,
   Target,
 } from "lucide-react";
-import type { ExamStatistics } from "@/hooks/use-exam-management";
+import type { ExamStatistics } from "@/features/evaluations";
 
 export interface ExamStatisticsCardsProps {
   statistics: ExamStatistics;

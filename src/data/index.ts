@@ -1,18 +1,4 @@
-// Centralized mock data exports
+// Centralized mock data exports - now re-exports from feature-organized structure
 
-export * from "./mock-academic-periods";
-export * from "./mock-academic-structures";
-export * from "./mock-classes";
-export * from "./mock-completed-sessions";
-export * from "./mock-exams";
-export * from "./mock-notation-systems";
-export * from "./mock-rubrics";
-export * from "./mock-school-years";
-export * from "./mock-student-participation";
-export * from "./mock-students";
-export * from "./mock-subjects";
-export * from "./mock-teachers";
-export * from "./mock-teaching-assignments";
-export * from "./mock-time-slots";
-export * from "./mock-user-preferences";
-export * from "./mock-weekly-templates";
+// Re-export all mocks from new feature-based organization
+export * from "@/mocks";

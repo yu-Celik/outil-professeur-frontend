@@ -19,7 +19,7 @@ import {
 import { Search, Filter, X, Calendar as CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
-import type { ExamFilters, ExamStatusFilter } from "@/hooks/use-exam-filters";
+import type { ExamFilters, ExamStatusFilter } from "@/features/evaluations";
 
 export interface ExamFiltersProps {
   filters: ExamFilters;

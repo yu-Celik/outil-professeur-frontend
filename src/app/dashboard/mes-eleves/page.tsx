@@ -3,8 +3,8 @@
 import { ClassSelectionLayout } from "@/components/templates/class-selection-layout";
 import { StudentProfilePanel } from "@/components/organisms/student-profile-panel";
 import { StudentsGrid } from "@/components/organisms/students-grid";
-import { useSetPageTitle } from "@/hooks/use-set-page-title";
-import { useStudentsManagement } from "@/hooks/use-students-management";
+import { useSetPageTitle } from "@/shared/hooks";
+import { useStudentsManagement } from "@/features/students";
 import { useClassSelection } from "@/contexts/class-selection-context";
 import { Users } from "lucide-react";
 

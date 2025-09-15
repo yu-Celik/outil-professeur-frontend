@@ -4,9 +4,9 @@ import { CalendarWidget } from "@/components/organisms/calendar-widget";
 import { ChatAI } from "@/components/organisms/chat-ai";
 import { ClassesStudentsCard } from "@/components/organisms/classes-students-card";
 import { OnboardingBanner } from "@/components/organisms/onboarding-banner";
-import { useDashboardData } from "@/hooks/use-dashboard-data";
-import { useSetPageTitle } from "@/hooks/use-set-page-title";
-import { useUserSession } from "@/hooks/use-user-session";
+import { useDashboardData } from "@/features/accueil";
+import { useSetPageTitle } from "@/shared/hooks";
+import { useUserSession } from "@/features/settings";
 
 export default function AccueilPage() {
   useSetPageTitle("Tableau de bord");

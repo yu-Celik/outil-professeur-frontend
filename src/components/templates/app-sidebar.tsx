@@ -31,7 +31,7 @@ import {
 import { NavMain } from "@/components/templates/nav-main";
 import { NavSecondary } from "@/components/templates/nav-secondary";
 import { NavUser } from "@/components/templates/nav-user";
-import { useUserSession } from "@/hooks/use-user-session";
+import { useUserSession } from "@/features/settings";
 
 const data = {
   user: {

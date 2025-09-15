@@ -15,9 +15,9 @@ import {
   Calculator,
   BookOpen,
 } from "lucide-react";
-import { useRubricManagement, type RubricEvaluationData } from "@/hooks/use-rubric-management";
+import { useRubricManagement, type RubricEvaluationData } from "@/features/evaluations";
 import type { Rubric, Student } from "@/types/uml-entities";
-import type { RubricSection, RubricCriterion, RubricLevel } from "@/data/mock-rubrics";
+import type { RubricSection, RubricCriterion, RubricLevel } from "@/features/evaluations/mocks";
 
 export interface RubricGradingInterfaceProps {
   rubric: Rubric;

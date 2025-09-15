@@ -25,8 +25,8 @@ import {
   Users,
   BarChart,
 } from "lucide-react";
-import { useExamManagement } from "@/hooks/use-exam-management";
-import { useNotationSystem } from "@/hooks/use-notation-system";
+import { useExamManagement } from "@/features/evaluations";
+import { useNotationSystem } from "@/features/evaluations";
 import type { Exam, Student } from "@/types/uml-entities";
 import { MOCK_STUDENTS } from "@/data";
 

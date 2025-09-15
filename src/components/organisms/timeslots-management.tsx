@@ -21,7 +21,7 @@ import {
   DialogTitle,
 } from "@/components/atoms/dialog";
 import { TimeSlotCrudForm } from "@/components/organisms/timeslot-crud-form";
-import { useTimeSlots } from "@/hooks/use-timeslots";
+import { useTimeSlots } from "@/features/calendar";
 import type { TimeSlot } from "@/types/uml-entities";
 
 interface TimeSlotsManagementProps {

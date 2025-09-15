@@ -13,10 +13,10 @@ import {
   SelectValue,
 } from "@/components/atoms/select";
 import { Plus, Grid, List, ArrowUpDown } from "lucide-react";
-import { useExamManagement } from "@/hooks/use-exam-management";
-import { useExamFilters } from "@/hooks/use-exam-filters";
+import { useExamManagement } from "@/features/evaluations";
+import { useExamFilters } from "@/features/evaluations";
 import { calculateExamStatistics } from "@/data";
-import type { ExamSortField, SortDirection } from "@/hooks/use-exam-filters";
+import type { ExamSortField, SortDirection } from "@/features/evaluations";
 
 export interface ExamsListProps {
   teacherId?: string;

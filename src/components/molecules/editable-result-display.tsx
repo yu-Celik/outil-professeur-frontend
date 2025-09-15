@@ -20,11 +20,11 @@ import {
   Edit,
   History,
 } from "lucide-react";
-import { useRubricManagement } from "@/hooks/use-rubric-management";
-import { useNotationSystem } from "@/hooks/use-notation-system";
-import { useGradeManagement } from "@/hooks/use-grade-management";
+import { useRubricManagement } from "@/features/evaluations";
+import { useNotationSystem } from "@/features/evaluations";
+import { useGradeManagement } from "@/features/evaluations";
 import type { StudentExamResult, Exam, Subject, Student } from "@/types/uml-entities";
-import type { RubricSection } from "@/data/mock-rubrics";
+import type { RubricSection } from "@/features/evaluations/mocks";
 
 interface EditableResultDisplayProps {
   result?: StudentExamResult;
