@@ -89,3 +89,11 @@ export const getParticipationsForSession = (
     (p) => p.courseSessionId === sessionId,
   );
 };
+
+export const getParticipationsForAnalysis = (
+  studentId: string,
+): StudentParticipation[] => {
+  return MOCK_STUDENT_PARTICIPATION.filter(
+    (p) => p.studentId === studentId,
+  );
+};

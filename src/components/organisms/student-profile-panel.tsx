@@ -33,11 +33,13 @@ import { useExamManagement } from "@/features/evaluations";
 import { useTeachingAssignments } from "@/features/gestion";
 import { EditableResultDisplay } from "@/components/molecules/editable-result-display";
 import { getStudentExamResults, getExamById as getExamByIdMock } from "@/features/evaluations/mocks";
+import { StudentAnalysisPanel } from "@/components/organisms/student-analysis-panel";
 import type { Student } from "@/types/uml-entities";
 
 interface StudentProfilePanelProps {
   student: Student;
   teacherId: string;
+  academicPeriodId?: string;
   onClose: () => void;
   onSessionClick: (sessionId: string) => void;
 }
@@ -45,6 +47,7 @@ interface StudentProfilePanelProps {
 export function StudentProfilePanel({
   student,
   teacherId,
+  academicPeriodId = "period-1", // Période par défaut
   onClose,
   onSessionClick,
 }: StudentProfilePanelProps) {
@@ -310,6 +313,13 @@ export function StudentProfilePanel({
             </div>
           </CardContent>
         </Card>
+
+        {/* Section Analyse Automatique */}
+        <StudentAnalysisPanel
+          student={student}
+          academicPeriodId={academicPeriodId}
+          className="mt-6"
+        />
 
           </TabsContent>
 

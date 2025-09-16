@@ -2,7 +2,6 @@
 
 import {
   ArrowRightLeft,
-  FileText,
   MoreHorizontal,
   Users,
   XCircle,
@@ -48,12 +47,6 @@ export function SessionContextMenu({
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-48">
-        <DropdownMenuItem onClick={() => onViewDetails(session.id)}>
-          <FileText className="mr-2 h-4 w-4" />
-          Voir les détails
-        </DropdownMenuItem>
-
-        <DropdownMenuSeparator />
 
         <DropdownMenuItem onClick={() => onManageAttendance(session.id)}>
           <Users className="mr-2 h-4 w-4" />

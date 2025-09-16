@@ -7,11 +7,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 This is a Next.js 15 application built with TypeScript, featuring a comprehensive educational management dashboard. The project implements a complete teacher interface for student management, evaluations, and calendar scheduling. Built with Turbopack and follows Atomic Design principles for component organization.
 
 ### Recent Major Updates
-- **✅ Interface unifiée "Mes élèves"**: Fusion des pages élèves/résultats avec système d'onglets (Profil, Participations, Résultats)
-- **✅ Page Évaluations connectée**: Intégration complète aux données mockées avec composant ExamsList réutilisable
-- **✅ Données mockées enrichies**: 5 examens + 25+ résultats avec distribution normale et commentaires variés
-- **✅ Layout Height Management**: Pages optimisées utilisant toute la hauteur disponible
-- **✅ Navigation mise à jour**: "Gestion des participations" + suppression page "Résultats" redondante
+- **✅ Feature-based Architecture Enhancement**: Complete refactoring with self-contained feature modules for students, evaluations, sessions
+- **✅ Student Analytics Services**: Behavioral and academic analysis services with automated profile generation
+- **✅ Mock Data Architecture**: Comprehensive test data generation with 300+ participation records and realistic exam results
+- **✅ Cross-Feature Integration**: Unified data flow between students, sessions, and evaluations features
+- **✅ Service Layer Implementation**: Business logic services for complex calculations and data processing
 
 ## Development Commands
 
@@ -135,14 +135,14 @@ export { NotationSystemService } from './services'
 
 ### Available Features
 - **accueil** - Dashboard and home functionality
-- **appreciations** - AI-powered content generation system
+- **appreciations** - AI-powered content generation system with style guides and phrase banks
 - **auth** - Authentication and user management
-- **calendar** - Calendar and scheduling features
-- **evaluations** - Assessment and grading system
-- **gestion** - Administrative management
-- **sessions** - Session and course management
+- **calendar** - Calendar and scheduling features with time slot management
+- **evaluations** - Assessment and grading system with notation systems and rubrics
+- **gestion** - Administrative management with teaching assignments
+- **sessions** - Session and course management with completed session tracking
 - **settings** - User preferences and configuration
-- **students** - Student management and profiles
+- **students** - Student management with automated analytics and profile generation
 
 ### Cross-Feature Dependencies
 Shared functionality available through:
@@ -162,6 +162,8 @@ The `/src/shared/` directory provides cross-feature utilities and common functio
 - **usePageTitle** - Centralized page title management for the application
 - **useSmartFiltering** - Advanced filtering logic with multiple criteria support
 - **useValidation** - Form validation utilities with error handling
+- **useEntityState** - Generic entity state management patterns
+- **useMobile** - Responsive design and mobile detection utilities
 
 ### Usage Pattern
 ```typescript
@@ -186,6 +188,9 @@ Business logic services organized by scope:
 #### Feature Services (`/src/features/[feature]/services/`)
 - **notation-system-service.ts** - Grading system management (evaluations feature)
 - **appreciation-generator.ts** - AI content generation logic (appreciations feature)
+- **behavioral-analysis-service.ts** - Student behavioral pattern analysis (students feature)
+- **academic-analysis-service.ts** - Academic performance analysis (students feature)
+- **student-profile-service.ts** - Automated profile generation orchestration (students feature)
 
 ## Key Technologies
 
@@ -359,7 +364,17 @@ src/
 │   │   └── mocks/
 │   ├── students/                  # Student management
 │   │   ├── hooks/
-│   │   └── mocks/
+│   │   │   ├── use-student-analytics.ts
+│   │   │   └── use-student-profile-generation.ts
+│   │   ├── mocks/
+│   │   │   ├── mock-students.ts
+│   │   │   ├── mock-student-participation.ts
+│   │   │   └── mock-student-profiles.ts
+│   │   ├── services/
+│   │   │   ├── behavioral-analysis-service.ts
+│   │   │   ├── academic-analysis-service.ts
+│   │   │   └── student-profile-service.ts
+│   │   └── index.ts
 │   ├── settings/                  # User preferences
 │   │   ├── hooks/
 │   │   └── mocks/

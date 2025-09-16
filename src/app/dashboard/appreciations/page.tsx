@@ -23,6 +23,7 @@ import {
   TabsTrigger,
 } from "@/components/molecules/tabs";
 import { AppreciationGenerationInterface } from "@/components/organisms/appreciation-generation-interface";
+import { ChatAppreciationInterface } from "@/components/organisms/chat-appreciation-interface";
 import { PhraseBankManagement } from "@/components/organisms/phrase-bank-management";
 import { StyleGuideManagement } from "@/components/organisms/style-guide-management";
 import { ClassSelectionLayout } from "@/components/templates/class-selection-layout";
@@ -34,7 +35,7 @@ import { useSetPageTitle } from "@/shared/hooks";
 
 function AppreciationsContent() {
   useSetPageTitle("Appréciations IA");
-  const [activeTab, setActiveTab] = useState("generation");
+  const [activeTab, setActiveTab] = useState("chat");
   const { selectedClassId, classes } = useClassSelection();
 
   const selectedClass = classes.find((c) => c.id === selectedClassId);
@@ -68,30 +69,40 @@ function AppreciationsContent() {
 
       {/* Navigation par onglets optimisée */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid grid-cols-2 sm:grid-cols-4 w-full max-w-2xl">
-          <TabsTrigger value="generation" className="flex items-center gap-2">
+        <TabsList className="grid grid-cols-3 sm:grid-cols-5 w-full max-w-3xl">
+          <TabsTrigger value="chat" className="flex items-center gap-2">
             <MessageSquare className="h-4 w-4" />
-            <span className="hidden sm:inline">Génération</span>
-            <span className="sm:hidden">Gen</span>
+            <span className="hidden sm:inline">Chat IA</span>
+            <span className="sm:hidden">Chat</span>
+          </TabsTrigger>
+          <TabsTrigger value="generation" className="flex items-center gap-2">
+            <Settings className="h-4 w-4" />
+            <span className="hidden sm:inline">Avancé</span>
+            <span className="sm:hidden">Adv</span>
           </TabsTrigger>
           <TabsTrigger value="styles" className="flex items-center gap-2">
-            <Settings className="h-4 w-4" />
+            <Database className="h-4 w-4" />
             <span className="hidden sm:inline">Styles</span>
             <span className="sm:hidden">Sty</span>
           </TabsTrigger>
           <TabsTrigger value="phrases" className="flex items-center gap-2">
-            <Database className="h-4 w-4" />
+            <BookOpen className="h-4 w-4" />
             <span className="hidden sm:inline">Phrases</span>
             <span className="sm:hidden">Phr</span>
           </TabsTrigger>
           <TabsTrigger value="historique" className="flex items-center gap-2">
-            <BookOpen className="h-4 w-4" />
+            <Sparkles className="h-4 w-4" />
             <span className="hidden sm:inline">Historique</span>
             <span className="sm:hidden">Hist</span>
           </TabsTrigger>
         </TabsList>
 
-        {/* Onglet Génération */}
+        {/* Onglet Chat IA */}
+        <TabsContent value="chat" className="space-y-6 mt-6">
+          <ChatAppreciationInterface />
+        </TabsContent>
+
+        {/* Onglet Génération Avancée */}
         <TabsContent value="generation" className="space-y-6 mt-6">
           <AppreciationGenerationInterface />
         </TabsContent>

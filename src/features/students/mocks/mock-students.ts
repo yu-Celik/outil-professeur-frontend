@@ -226,9 +226,30 @@ const generateStudentsForClass = (
   classId: string,
   count: number,
 ): Student[] => {
-  return Array.from({ length: count }, (_, i) =>
-    generateStudentData(classId, i + 1),
-  );
+  return Array.from({ length: count }, (_, i) => {
+    // Cas spécial pour Antoine Girard dans la classe 2nde Zircon
+    if (classId === "class-2nde-zircon" && i === 0) {
+      return {
+        id: "student-2nde-zircon-1",
+        createdBy: "KsmNtVf4zwqO3VV3SQJqPrRlQBA1fFyR",
+        firstName: "Antoine",
+        lastName: "Girard",
+        currentClassId: classId,
+        needs: ["Améliorer la concentration", "Développer l'autonomie"],
+        observations: ["Élève appliqué", "Participe régulièrement"],
+        strengths: ["Excellent en vocabulaire", "Très organisé"],
+        improvementAxes: ["Expression orale", "Confiance en soi"],
+        createdAt: new Date("2025-09-01"),
+        updatedAt: new Date("2025-09-06"),
+        fullName: function () {
+          return `${this.firstName} ${this.lastName}`;
+        },
+        attendanceRate: (_start: Date, _end: Date) => 0.85,
+        participationAverage: (_start: Date, _end: Date) => 15.5,
+      };
+    }
+    return generateStudentData(classId, i + 1);
+  });
 };
 
 // Génération de tous les élèves

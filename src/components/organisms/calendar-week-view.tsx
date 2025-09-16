@@ -55,9 +55,9 @@ export function CalendarWeekView({
     <Card className="py-0">
       <CardContent className="p-0">
         {/* En-têtes simplifiés */}
-        <div className="border-b-2 border-muted/40 bg-muted/20">
+        <div className="border-b-2 border-muted/40 bg-muted/50">
           <div className="grid grid-cols-8 gap-0">
-            <div className="p-4 text-center text-sm font-bold text-foreground bg-background border-r-2 border-muted/50">
+            <div className="p-4 text-center text-sm font-bold text-foreground bg-muted/50 border-r-4 border-muted">
               Heure
             </div>
             {weekDays.map((day, index) => {
@@ -66,10 +66,10 @@ export function CalendarWeekView({
               return (
                 <div
                   key={day}
-                  className={`p-4 text-center text-sm font-bold border-r border-muted/50 ${
+                  className={`p-4 text-center text-sm font-bold border-r-2 border-muted ${
                     weekDay?.isToday
-                      ? "bg-primary/15 text-primary border-l-2 border-l-primary shadow-sm"
-                      : "text-foreground"
+                      ? "bg-primary/25 text-primary border-l-4 border-l-primary ring-1 ring-primary/20"
+                      : "text-foreground bg-muted/40"
                   }`}
                 >
                   <div>{day}</div>
@@ -98,12 +98,12 @@ export function CalendarWeekView({
                 >
                   {/* Colonne horaire */}
                   <div
-                    className={`p-4 text-center border-r-2 border-muted/50 ${
+                    className={`p-4 text-center border-r-4 border-muted ${
                       isCurrent
-                        ? "bg-orange-50"
+                        ? "bg-orange-100/80 border-r-orange-200"
                         : isPast
-                          ? "bg-muted/20"
-                          : "bg-muted/10"
+                          ? "bg-muted/50"
+                          : "bg-muted/40"
                     }`}
                   >
                     <div
@@ -153,9 +153,9 @@ export function CalendarWeekView({
                           const isEventCurrent = day.isToday && isCurrent;
                           const cellClasses = `min-h-24 p-2 border-r border-muted/50 ${
                             day.isToday && isCurrent
-                              ? "bg-orange-100 border-l-2 border-l-primary"
+                              ? "bg-orange-100 border-l-4 border-l-primary ring-1 ring-primary/20"
                               : day.isToday
-                                ? "bg-primary/10 border-l-2 border-l-primary"
+                                ? "bg-primary/20 border-l-4 border-l-primary ring-1 ring-primary/20"
                                 : isPastDay || isDayPastTime
                                   ? "bg-muted/10"
                                   : "bg-background hover:bg-muted/5"
@@ -182,9 +182,9 @@ export function CalendarWeekView({
                         key={`${timeSlot.id}-${dayIndex}`}
                         className={`min-h-24 p-2 border-r border-muted/50 group relative ${
                           day.isToday && isCurrent
-                            ? "bg-orange-100 border-l-2 border-l-primary"
+                            ? "bg-orange-100 border-l-4 border-l-primary ring-1 ring-primary/20"
                             : day.isToday
-                              ? "bg-primary/10 border-l-2 border-l-primary"
+                              ? "bg-primary/20 border-l-4 border-l-primary ring-1 ring-primary/20"
                               : isPastDay || isDayPastTime
                                 ? "bg-muted/10"
                                 : "bg-background hover:bg-muted/5 cursor-pointer"
