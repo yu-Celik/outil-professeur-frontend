@@ -32,6 +32,7 @@ import {
 import { NavMain } from "@/components/templates/nav-main";
 import { NavSecondary } from "@/components/templates/nav-secondary";
 import { NavUser } from "@/components/templates/nav-user";
+import { ClassSelectorDropdown } from "@/components/templates/class-selector-dropdown";
 import { useUserSession } from "@/features/settings";
 
 const data = {
@@ -160,19 +161,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible="offcanvas" {...props}>
       <SidebarHeader>
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton
-              asChild
-              className="data-[slot=sidebar-menu-button]:!p-1.5"
-            >
-              <a href="/dashboard/accueil">
-                <Building2 className="!size-5" />
-                <span className="text-base font-semibold">Acme Inc.</span>
-              </a>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
+        <ClassSelectorDropdown />
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />
