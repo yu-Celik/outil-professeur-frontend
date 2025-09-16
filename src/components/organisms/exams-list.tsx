@@ -201,7 +201,7 @@ export function ExamsList({
           {/* Bouton de création */}
           <Button onClick={onCreateExam}>
             <Plus className="w-4 h-4 mr-2" />
-            Nouveau
+            Nouvelle évaluation
           </Button>
         </div>
       </div>

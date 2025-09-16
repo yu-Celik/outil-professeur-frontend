@@ -139,9 +139,6 @@ export function StudentsGrid({
                     <div className="font-semibold text-foreground">
                       {student.firstName} {student.lastName}
                     </div>
-                    <div className="text-sm text-muted-foreground">
-                      ID: {student.id}
-                    </div>
                   </div>
                 </div>
                 <ChevronRight

@@ -9,7 +9,6 @@ import {
   Clock,
   Edit,
   Eye,
-  GraduationCap,
   Lightbulb,
   MessageSquare,
   Save,
@@ -142,8 +141,8 @@ export function StudentProfilePanel({
     <div className="flex-1 border-l border-border bg-gradient-to-b from-background/95 to-muted/30 flex flex-col min-h-0">
       {/* En-tête du profil */}
       <div className="p-6 border-b border-border/50 bg-background/80 backdrop-blur-sm flex-shrink-0">
-        <div className="flex items-start justify-between">
-          <div className="flex items-start gap-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
             <Avatar className="h-16 w-16 ring-4 ring-primary/20">
               <AvatarImage src="" />
               <AvatarFallback className="bg-primary/10 text-primary text-lg font-bold">
@@ -155,18 +154,6 @@ export function StudentProfilePanel({
               <h3 className="text-xl font-bold text-foreground">
                 {student.firstName} {student.lastName}
               </h3>
-              <div className="flex items-center gap-2 text-sm text-muted-foreground mt-1">
-                <GraduationCap className="h-4 w-4" />
-                <span>Classe actuelle</span>
-              </div>
-              <div className="flex items-center gap-2 mt-2">
-                <Badge variant="outline" className="text-xs">
-                  {stats.attendanceRate}% présence
-                </Badge>
-                <Badge variant="secondary" className="text-xs">
-                  {stats.averageParticipation}/10 participation
-                </Badge>
-              </div>
             </div>
           </div>
           <Button
@@ -325,41 +312,15 @@ export function StudentProfilePanel({
 
           {/* Onglet Participations */}
           <TabsContent value="participations" className="flex-1 min-h-0 overflow-y-auto space-y-6">
-            {/* Statistiques rapides */}
+            {/* Historique des sessions */}
             <Card>
               <CardHeader className="pb-3">
                 <div className="flex items-center gap-2">
-                  <Activity className="h-4 w-4 text-primary" />
-                  <h4 className="font-semibold">Statistiques de participation</h4>
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="text-center p-3 bg-primary/5 rounded-lg">
-                    <div className="text-2xl font-bold text-primary">
-                      {stats.totalSessions}
-                    </div>
-                    <div className="text-xs text-muted-foreground">Sessions</div>
-                  </div>
-                  <div className="text-center p-3 bg-success/10 rounded-lg">
-                    <div className="text-2xl font-bold text-success">
-                      {stats.presentSessions}
-                    </div>
-                    <div className="text-xs text-muted-foreground">Présences</div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Historique des sessions */}
-            <Card>
-          <CardHeader className="pb-3">
-            <div className="flex items-center gap-2">
-              <Calendar className="h-4 w-4 text-primary" />
-              <h4 className="font-semibold">Historique des sessions</h4>
-              <Badge variant="outline" className="text-xs">
-                {studentSessions.length} session
-                {studentSessions.length > 1 ? "s" : ""}
+                  <Calendar className="h-4 w-4 text-primary" />
+                  <h4 className="font-semibold">Historique des sessions</h4>
+                  <Badge variant="outline" className="text-xs">
+                    {studentSessions.length} session
+                    {studentSessions.length > 1 ? "s" : ""}
               </Badge>
             </div>
           </CardHeader>
@@ -483,6 +444,32 @@ export function StudentProfilePanel({
                       {examStats.passRate}%
                     </div>
                     <div className="text-xs text-muted-foreground">Réussite</div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Statistiques rapides */}
+            <Card>
+              <CardHeader className="pb-3">
+                <div className="flex items-center gap-2">
+                  <Activity className="h-4 w-4 text-primary" />
+                  <h4 className="font-semibold">Statistiques de participation</h4>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="text-center p-3 bg-primary/5 rounded-lg">
+                    <div className="text-2xl font-bold text-primary">
+                      {stats.totalSessions}
+                    </div>
+                    <div className="text-xs text-muted-foreground">Sessions</div>
+                  </div>
+                  <div className="text-center p-3 bg-success/10 rounded-lg">
+                    <div className="text-2xl font-bold text-success">
+                      {stats.presentSessions}
+                    </div>
+                    <div className="text-xs text-muted-foreground">Présences</div>
                   </div>
                 </div>
               </CardContent>

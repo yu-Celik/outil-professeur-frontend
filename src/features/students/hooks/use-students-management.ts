@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo, useEffect } from "react";
 import { getStudentsByClass } from "@/features/students/mocks";
 import { useUserSession } from "@/features/settings";
 import { useTeachingAssignments } from "@/features/gestion";
@@ -52,6 +52,26 @@ export function useStudentsManagement(externalSelectedClassId?: string | null) {
     console.log("Ouvrir la session:", sessionId);
     // TODO: Navigation vers les détails de la session
   }, []);
+
+  useEffect(() => {
+    if (!selectedClassId) {
+      setSelectedStudent(null);
+      return;
+    }
+
+    if (studentsOfSelectedClass.length === 0) {
+      setSelectedStudent(null);
+      return;
+    }
+
+    const isCurrentSelectionValid =
+      selectedStudent?.currentClassId === selectedClassId &&
+      studentsOfSelectedClass.some((student) => student.id === selectedStudent.id);
+
+    if (!isCurrentSelectionValid) {
+      setSelectedStudent(studentsOfSelectedClass[0]);
+    }
+  }, [selectedClassId, selectedStudent, studentsOfSelectedClass]);
 
   // Sélectionner automatiquement la première classe s'il y en a une
   const selectFirstClassIfAvailable = useCallback(() => {
