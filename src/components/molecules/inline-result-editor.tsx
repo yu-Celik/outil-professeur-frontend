@@ -1,25 +1,37 @@
 "use client";
 
+import { Edit, MoreHorizontal, Save, X } from "lucide-react";
 import { useState } from "react";
-import { Edit, Save, X, MoreHorizontal } from "lucide-react";
+import { AbsenceToggle } from "@/components/atoms/absence-toggle";
 import { Button } from "@/components/atoms/button";
 import { GradeInput } from "@/components/atoms/grade-input";
-import { AbsenceToggle } from "@/components/atoms/absence-toggle";
-import { GradeEntryModal } from "@/components/molecules/grade-entry-modal";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/molecules/dropdown-menu";
-import type { StudentExamResult, Exam, Student, NotationSystem } from "@/types/uml-entities";
+import { GradeEntryModal } from "@/components/molecules/grade-entry-modal";
+import {
+  calculatePointsFromGrade,
+  formatGradeDisplay,
+} from "@/features/evaluations/utils/notation-utils";
+import type {
+  Exam,
+  NotationSystem,
+  Student,
+  StudentExamResult,
+} from "@/types/uml-entities";
 
 interface InlineResultEditorProps {
   result?: StudentExamResult;
   exam: Exam;
   student: Student;
   notationSystem: NotationSystem;
-  onSave: (data: Partial<StudentExamResult>) => void;
+  onSave: (
+    resultId: string | undefined,
+    data: Partial<StudentExamResult>,
+  ) => void;
   canEdit?: boolean;
   compact?: boolean;
 }
@@ -31,7 +43,7 @@ export function InlineResultEditor({
   notationSystem,
   onSave,
   canEdit = true,
-  compact = false,
+  compact: _compact = false,
 }: InlineResultEditorProps) {
   const [isInlineEditing, setIsInlineEditing] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -48,24 +60,34 @@ export function InlineResultEditor({
     });
   };
 
+  const gradeIsValid = editData.isAbsent
+    ? true
+    : editData.grade !== null && notationSystem.validateGrade(editData.grade);
+
   const handleInlineSave = () => {
+    if (!gradeIsValid) return;
+
+    const effectiveGrade = editData.isAbsent
+      ? notationSystem.minValue
+      : (editData.grade ?? notationSystem.minValue);
+
+    const computedPoints = editData.isAbsent
+      ? 0
+      : calculatePointsFromGrade(effectiveGrade, exam, notationSystem);
+
     const dataToSave: Partial<StudentExamResult> = {
-      grade: editData.isAbsent ? 0 : editData.grade || 0,
-      pointsObtained: editData.isAbsent
-        ? 0
-        : editData.grade && exam.totalPoints
-          ? (editData.grade / notationSystem.maxValue) * exam.totalPoints
-          : result?.pointsObtained || 0,
+      grade: effectiveGrade,
+      pointsObtained: computedPoints,
       isAbsent: editData.isAbsent,
       gradeDisplay: editData.isAbsent
         ? "ABS"
-        : notationSystem.formatDisplay(editData.grade || 0, "fr-FR"),
+        : formatGradeDisplay(effectiveGrade, notationSystem, "fr-FR"),
       markedAt: new Date(),
       // Keep existing comments if any
       comments: result?.comments || "",
     };
 
-    onSave(dataToSave);
+    onSave(result?.id, dataToSave);
     setIsInlineEditing(false);
   };
 
@@ -84,9 +106,7 @@ export function InlineResultEditor({
         {result?.isAbsent ? (
           <span className="text-destructive font-medium">ABS</span>
         ) : (
-          <span className="font-medium">
-            {result?.gradeDisplay || "—"}
-          </span>
+          <span className="font-medium">{result?.gradeDisplay || "—"}</span>
         )}
       </div>
     );
@@ -99,15 +119,23 @@ export function InlineResultEditor({
         <div className="flex items-center gap-1">
           <AbsenceToggle
             isAbsent={editData.isAbsent}
-            onChange={(isAbsent) => setEditData(prev => ({ ...prev, isAbsent }))}
+            onChange={(isAbsent) =>
+              setEditData((prev) => ({ ...prev, isAbsent }))
+            }
             size="sm"
           />
           {!editData.isAbsent && (
             <GradeInput
               value={editData.grade}
-              onChange={(grade) => setEditData(prev => ({ ...prev, grade }))}
+              onChange={(grade) => setEditData((prev) => ({ ...prev, grade }))}
               notationSystem={notationSystem}
               className="w-16 h-7 text-xs"
+              error={
+                editData.grade !== null &&
+                !notationSystem.validateGrade(editData.grade)
+                  ? `Note invalide (${notationSystem.minValue}-${notationSystem.maxValue})`
+                  : undefined
+              }
             />
           )}
         </div>
@@ -116,6 +144,7 @@ export function InlineResultEditor({
             size="sm"
             onClick={handleInlineSave}
             className="h-6 w-6 p-0"
+            disabled={!gradeIsValid}
           >
             <Save className="h-3 w-3" />
           </Button>
@@ -177,7 +206,7 @@ export function InlineResultEditor({
       <GradeEntryModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        onSave={onSave}
+        onSave={(data) => onSave(result?.id, data)}
         student={student}
         exam={exam}
         result={result}

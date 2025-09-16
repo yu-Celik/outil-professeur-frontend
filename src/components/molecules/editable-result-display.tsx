@@ -1,30 +1,47 @@
 "use client";
 
+import {
+  BarChart3,
+  ChevronDown,
+  ChevronRight,
+  History,
+  MessageSquare,
+  Scale,
+  Trophy,
+} from "lucide-react";
 import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/molecules/card";
 import { Badge } from "@/components/atoms/badge";
 import { Button } from "@/components/atoms/button";
-import { InlineResultEditor } from "@/components/molecules/inline-result-editor";
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/atoms/collapsible";
 import {
-  ChevronDown,
-  ChevronRight,
-  Scale,
-  Trophy,
-  MessageSquare,
-  BarChart3,
-  Edit,
-  History,
-} from "lucide-react";
-import { useRubricManagement } from "@/features/evaluations";
-import { useNotationSystem } from "@/features/evaluations";
-import { useGradeManagement } from "@/features/evaluations";
-import type { StudentExamResult, Exam, Subject, Student } from "@/types/uml-entities";
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/molecules/card";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/molecules/dropdown-menu";
+import { InlineResultEditor } from "@/components/molecules/inline-result-editor";
+import {
+  useGradeManagement,
+  useNotationSystem,
+  useRubricManagement,
+} from "@/features/evaluations";
 import type { RubricSection } from "@/features/evaluations/mocks";
+import type {
+  Exam,
+  Student,
+  StudentExamResult,
+  Subject,
+} from "@/types/uml-entities";
 
 interface EditableResultDisplayProps {
   result?: StudentExamResult;
@@ -34,7 +51,20 @@ interface EditableResultDisplayProps {
   rubricEvaluations?: Record<string, Record<string, number>>;
   className?: string;
   canEdit?: boolean;
-  onSave?: (data: Partial<StudentExamResult>) => void;
+  onSave?: (
+    resultId: string | undefined,
+    data: Partial<StudentExamResult>,
+  ) => void;
+  history?: ResultHistoryEntry[];
+}
+
+interface ResultHistoryEntry {
+  id: string;
+  timestamp: Date;
+  pointsObtained: number;
+  gradeDisplay: string;
+  comments: string;
+  action: string;
 }
 
 export function EditableResultDisplay({
@@ -46,11 +76,12 @@ export function EditableResultDisplay({
   className = "",
   canEdit = false,
   onSave,
+  history = [],
 }: EditableResultDisplayProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const { getRubric } = useRubricManagement();
   const { defaultSystem, loading } = useNotationSystem();
-  const { saveGrade, calculateStatistics } = useGradeManagement("current-teacher");
+  const { saveGrade } = useGradeManagement("current-teacher");
 
   const rubric = exam.rubricId ? getRubric(exam.rubricId) : null;
 
@@ -78,13 +109,16 @@ export function EditableResultDisplay({
 
   const notationSystem = defaultSystem;
 
-  const handleSave = async (data: Partial<StudentExamResult>) => {
+  const handleSave = async (
+    resultId: string | undefined,
+    data: Partial<StudentExamResult>,
+  ) => {
     if (onSave) {
-      onSave(data);
-    } else {
-      // Default save behavior
-      await saveGrade(student.id, exam.id, data);
+      onSave(resultId, data);
+      return;
     }
+
+    await saveGrade(student.id, exam.id, data);
   };
 
   const getGradeColorClass = (grade: number | undefined) => {
@@ -99,7 +133,9 @@ export function EditableResultDisplay({
   if (!rubric) {
     // Simple result display without rubric
     return (
-      <div className={`group p-3 bg-muted/20 hover:bg-muted/30 rounded-lg transition-all duration-200 ${className}`}>
+      <div
+        className={`group p-3 bg-muted/20 hover:bg-muted/30 rounded-lg transition-all duration-200 ${className}`}
+      >
         <div className="flex items-center justify-between">
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-1">
@@ -136,7 +172,9 @@ export function EditableResultDisplay({
                   </Badge>
                 ) : (
                   <>
-                    <div className={`text-sm font-bold ${getGradeColorClass(result?.grade)}`}>
+                    <div
+                      className={`text-sm font-bold ${getGradeColorClass(result?.grade)}`}
+                    >
                       {result?.gradeDisplay || "—"}
                     </div>
                     <div className="text-xs text-muted-foreground">
@@ -152,9 +190,7 @@ export function EditableResultDisplay({
               <Badge
                 variant={result.grade >= 10 ? "default" : "destructive"}
                 className={`text-xs ${
-                  result.grade >= 10
-                    ? "bg-success text-success-foreground"
-                    : ""
+                  result.grade >= 10 ? "bg-success text-success-foreground" : ""
                 }`}
               >
                 {result.grade >= 10 ? "Réussi" : "Échoué"}
@@ -174,11 +210,48 @@ export function EditableResultDisplay({
         {canEdit && result && (
           <div className="mt-2 flex items-center justify-between text-xs text-muted-foreground">
             <span>
-              Modifié le {new Date(result.markedAt).toLocaleDateString("fr-FR")}
+              Dernière mise à jour le{" "}
+              {new Date(result.markedAt).toLocaleDateString("fr-FR")}
             </span>
-            <Button variant="ghost" size="sm" className="h-5 px-1 opacity-0 group-hover:opacity-100">
-              <History className="h-3 w-3" />
-            </Button>
+            {history.length > 0 && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-5 px-1 opacity-0 group-hover:opacity-100"
+                  >
+                    <History className="h-3 w-3" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent
+                  align="end"
+                  className="w-64 text-xs space-y-2"
+                >
+                  {history.map((entry) => (
+                    <DropdownMenuItem
+                      key={entry.id}
+                      className="block whitespace-normal space-y-1"
+                    >
+                      <div className="font-medium text-foreground">
+                        {entry.action}
+                      </div>
+                      <div className="text-muted-foreground">
+                        {entry.gradeDisplay} • {entry.pointsObtained} pts
+                      </div>
+                      <div className="text-muted-foreground">
+                        {entry.timestamp.toLocaleString("fr-FR")}
+                      </div>
+                      {entry.comments && (
+                        <div className="italic text-muted-foreground">
+                          {entry.comments}
+                        </div>
+                      )}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
           </div>
         )}
       </div>
@@ -213,7 +286,9 @@ export function EditableResultDisplay({
                     <div className="h-1 w-1 rounded-full bg-muted-foreground/30" />
                     <span>{subject?.name}</span>
                     <div className="h-1 w-1 rounded-full bg-muted-foreground/30" />
-                    <span>{new Date(exam.examDate).toLocaleDateString("fr-FR")}</span>
+                    <span>
+                      {new Date(exam.examDate).toLocaleDateString("fr-FR")}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -237,7 +312,9 @@ export function EditableResultDisplay({
                       </Badge>
                     ) : (
                       <>
-                        <div className={`text-sm font-bold ${getGradeColorClass(result?.grade)}`}>
+                        <div
+                          className={`text-sm font-bold ${getGradeColorClass(result?.grade)}`}
+                        >
                           {result?.gradeDisplay || "—"}
                         </div>
                         <div className="text-xs text-muted-foreground">
@@ -282,21 +359,32 @@ export function EditableResultDisplay({
               <div className="space-y-4">
                 {/* Detailed rubric sections */}
                 {Object.values(sections).map((section) => {
-                  const sectionEvaluations = rubricEvaluations[section.id] || {};
+                  const sectionEvaluations =
+                    rubricEvaluations[section.id] || {};
                   const sectionScore = Object.values(sectionEvaluations).reduce(
                     (sum, points) => sum + points,
-                    0
+                    0,
                   );
-                  const sectionMaxScore = section.criteria.reduce((sum, criterion) => {
-                    return sum + Math.max(...criterion.levels.map((level) => level.points));
-                  }, 0);
+                  const sectionMaxScore = section.criteria.reduce(
+                    (sum, criterion) => {
+                      return (
+                        sum +
+                        Math.max(
+                          ...criterion.levels.map((level) => level.points),
+                        )
+                      );
+                    },
+                    0,
+                  );
 
                   return (
                     <div key={section.id} className="border rounded-lg p-3">
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center gap-2">
                           <BarChart3 className="h-4 w-4 text-primary" />
-                          <span className="font-medium text-sm">{section.name}</span>
+                          <span className="font-medium text-sm">
+                            {section.name}
+                          </span>
                           <Badge variant="outline" className="text-xs">
                             {section.weight}%
                           </Badge>
@@ -310,15 +398,22 @@ export function EditableResultDisplay({
                         {section.criteria.map((criterion) => {
                           const points = sectionEvaluations[criterion.id] || 0;
                           const maxPoints = Math.max(
-                            ...criterion.levels.map((level) => level.points)
+                            ...criterion.levels.map((level) => level.points),
                           );
-                          const level = criterion.levels.find((l) => l.points === points);
+                          const level = criterion.levels.find(
+                            (l) => l.points === points,
+                          );
 
                           return (
-                            <div key={criterion.id} className="bg-muted/30 rounded p-2">
+                            <div
+                              key={criterion.id}
+                              className="bg-muted/30 rounded p-2"
+                            >
                               <div className="flex items-center justify-between">
                                 <div className="flex-1">
-                                  <div className="font-medium text-xs">{criterion.name}</div>
+                                  <div className="font-medium text-xs">
+                                    {criterion.name}
+                                  </div>
                                   {level && (
                                     <div className="text-xs text-muted-foreground mt-1">
                                       {level.name} - {level.description}
@@ -353,8 +448,12 @@ export function EditableResultDisplay({
             ) : (
               <div className="text-center py-4 text-muted-foreground">
                 <BarChart3 className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                <p className="text-sm">Évaluation par grille - Détails non disponibles</p>
-                <p className="text-xs mt-1">Les critères détaillés n'ont pas été sauvegardés</p>
+                <p className="text-sm">
+                  Évaluation par grille - Détails non disponibles
+                </p>
+                <p className="text-xs mt-1">
+                  Les critères détaillés n'ont pas été sauvegardés
+                </p>
                 {result?.comments && (
                   <div className="mt-3 text-xs p-2 bg-muted/30 rounded">
                     {result.comments}
@@ -367,12 +466,45 @@ export function EditableResultDisplay({
             {canEdit && result && (
               <div className="mt-4 pt-3 border-t flex items-center justify-between text-xs text-muted-foreground">
                 <span>
-                  Modifié le {new Date(result.markedAt).toLocaleDateString("fr-FR")}
+                  Dernière mise à jour le{" "}
+                  {new Date(result.markedAt).toLocaleDateString("fr-FR")}
                 </span>
-                <Button variant="ghost" size="sm" className="h-5 px-1">
-                  <History className="h-3 w-3 mr-1" />
-                  Historique
-                </Button>
+                {history.length > 0 && (
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="sm" className="h-5 px-1">
+                        <History className="h-3 w-3 mr-1" />
+                        Historique
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent
+                      align="end"
+                      className="w-64 text-xs space-y-2"
+                    >
+                      {history.map((entry) => (
+                        <DropdownMenuItem
+                          key={entry.id}
+                          className="block whitespace-normal space-y-1"
+                        >
+                          <div className="font-medium text-foreground">
+                            {entry.action}
+                          </div>
+                          <div className="text-muted-foreground">
+                            {entry.gradeDisplay} • {entry.pointsObtained} pts
+                          </div>
+                          <div className="text-muted-foreground">
+                            {entry.timestamp.toLocaleString("fr-FR")}
+                          </div>
+                          {entry.comments && (
+                            <div className="italic text-muted-foreground">
+                              {entry.comments}
+                            </div>
+                          )}
+                        </DropdownMenuItem>
+                      ))}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                )}
               </div>
             )}
           </CardContent>

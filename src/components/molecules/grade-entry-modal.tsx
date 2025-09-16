@@ -1,20 +1,30 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { Save, X, Calculator, MessageSquare, Clock } from "lucide-react";
-import { Button } from "@/components/atoms/button";
-import { GradeInput } from "@/components/atoms/grade-input";
+import { Calculator, Clock, MessageSquare, Save, X } from "lucide-react";
+import { useEffect, useState } from "react";
 import { AbsenceToggle } from "@/components/atoms/absence-toggle";
 import { Badge } from "@/components/atoms/badge";
-import { Textarea } from "@/components/atoms/textarea";
+import { Button } from "@/components/atoms/button";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogDescription,
 } from "@/components/atoms/dialog";
-import type { StudentExamResult, Exam, Student, NotationSystem } from "@/types/uml-entities";
+import { GradeInput } from "@/components/atoms/grade-input";
+import { Textarea } from "@/components/atoms/textarea";
+import {
+  calculateGradeFromPoints,
+  calculatePointsFromGrade,
+  formatGradeDisplay,
+} from "@/features/evaluations/utils/notation-utils";
+import type {
+  Exam,
+  NotationSystem,
+  Student,
+  StudentExamResult,
+} from "@/types/uml-entities";
 
 interface GradeEntryModalProps {
   isOpen: boolean;
@@ -59,14 +69,46 @@ export function GradeEntryModal({
 
   // Auto-calculate grade from points
   useEffect(() => {
-    if (formData.pointsObtained !== null && !formData.isAbsent && exam.totalPoints) {
-      const calculatedGrade = (formData.pointsObtained / exam.totalPoints) * notationSystem.maxValue;
-      setFormData(prev => ({
+    if (formData.pointsObtained !== null && !formData.isAbsent) {
+      const grade = calculateGradeFromPoints(
+        formData.pointsObtained,
+        exam,
+        notationSystem,
+      );
+      setFormData((prev) => ({
         ...prev,
-        grade: Math.round(calculatedGrade * 100) / 100
+        grade,
       }));
     }
-  }, [formData.pointsObtained, formData.isAbsent, exam.totalPoints, notationSystem.maxValue]);
+  }, [formData.pointsObtained, formData.isAbsent, exam, notationSystem]);
+
+  const handleGradeChange = (value: number | null) => {
+    if (value === null) {
+      setFormData((prev) => ({ ...prev, grade: null }));
+      return;
+    }
+
+    if (!notationSystem.validateGrade(value)) {
+      setErrors((prev) => ({
+        ...prev,
+        grade: `Note invalide (${notationSystem.minValue}-${notationSystem.maxValue})`,
+      }));
+      setFormData((prev) => ({ ...prev, grade: value }));
+      return;
+    }
+
+    const computedPoints = calculatePointsFromGrade(
+      value,
+      exam,
+      notationSystem,
+    );
+    setFormData((prev) => ({
+      ...prev,
+      grade: value,
+      pointsObtained: computedPoints,
+    }));
+    setErrors(({ grade, ...rest }) => rest);
+  };
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
@@ -78,9 +120,15 @@ export function GradeEntryModal({
         newErrors.grade = `Note invalide (${notationSystem.minValue}-${notationSystem.maxValue})`;
       }
 
-      if (formData.pointsObtained === null || formData.pointsObtained === undefined) {
+      if (
+        formData.pointsObtained === null ||
+        formData.pointsObtained === undefined
+      ) {
         newErrors.pointsObtained = "Points obligatoires si non absent";
-      } else if (formData.pointsObtained < 0 || formData.pointsObtained > exam.totalPoints) {
+      } else if (
+        formData.pointsObtained < 0 ||
+        formData.pointsObtained > exam.totalPoints
+      ) {
         newErrors.pointsObtained = `Points invalides (0-${exam.totalPoints})`;
       }
     }
@@ -99,7 +147,7 @@ export function GradeEntryModal({
       comments: formData.comments,
       gradeDisplay: formData.isAbsent
         ? "ABS"
-        : notationSystem.formatDisplay(formData.grade || 0, "fr-FR"),
+        : formatGradeDisplay(formData.grade || 0, notationSystem, "fr-FR"),
       markedAt: new Date(),
     };
 
@@ -108,7 +156,7 @@ export function GradeEntryModal({
   };
 
   const handleAbsenceChange = (isAbsent: boolean) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       isAbsent,
       grade: isAbsent ? null : prev.grade,
@@ -144,7 +192,7 @@ export function GradeEntryModal({
         <div className="space-y-4">
           {/* Statut de présence */}
           <div className="space-y-2">
-            <label className="text-sm font-medium">Présence</label>
+            <div className="text-sm font-medium">Présence</div>
             <AbsenceToggle
               isAbsent={formData.isAbsent}
               onChange={handleAbsenceChange}
@@ -153,15 +201,17 @@ export function GradeEntryModal({
 
           {/* Saisie des points */}
           <div className="space-y-2">
-            <label className="text-sm font-medium">
+            <div className="text-sm font-medium">
               Points obtenus
               <span className="text-xs text-muted-foreground ml-1">
                 (sur {exam.totalPoints})
               </span>
-            </label>
+            </div>
             <GradeInput
               value={formData.pointsObtained}
-              onChange={(value) => setFormData(prev => ({ ...prev, pointsObtained: value }))}
+              onChange={(value) =>
+                setFormData((prev) => ({ ...prev, pointsObtained: value }))
+              }
               isAbsent={formData.isAbsent}
               error={errors.pointsObtained}
               placeholder={`0-${exam.totalPoints}`}
@@ -172,16 +222,16 @@ export function GradeEntryModal({
 
           {/* Note calculée */}
           <div className="space-y-2">
-            <label className="text-sm font-medium">
+            <div className="text-sm font-medium">
               Note finale
               <span className="text-xs text-muted-foreground ml-1">
                 (sur {notationSystem.maxValue})
               </span>
-            </label>
+            </div>
             <div className="flex items-center gap-2">
               <GradeInput
                 value={formData.grade}
-                onChange={(value) => setFormData(prev => ({ ...prev, grade: value }))}
+                onChange={handleGradeChange}
                 notationSystem={notationSystem}
                 isAbsent={formData.isAbsent}
                 error={errors.grade}
@@ -196,14 +246,18 @@ export function GradeEntryModal({
 
           {/* Commentaires */}
           <div className="space-y-2">
-            <label className="text-sm font-medium flex items-center gap-1">
+            <div className="text-sm font-medium flex items-center gap-1">
               <MessageSquare className="h-3 w-3" />
               Commentaires
-              <span className="text-xs text-muted-foreground">(facultatif)</span>
-            </label>
+              <span className="text-xs text-muted-foreground">
+                (facultatif)
+              </span>
+            </div>
             <Textarea
               value={formData.comments}
-              onChange={(e) => setFormData(prev => ({ ...prev, comments: e.target.value }))}
+              onChange={(e) =>
+                setFormData((prev) => ({ ...prev, comments: e.target.value }))
+              }
               placeholder="Commentaires sur la copie, points à améliorer..."
               rows={3}
               disabled={formData.isAbsent}
@@ -215,7 +269,8 @@ export function GradeEntryModal({
             <div className="flex items-center gap-1">
               <Clock className="h-3 w-3" />
               <span>
-                {result ? "Modifié" : "Créé"} le {new Date().toLocaleDateString("fr-FR")}
+                {result ? "Modifié" : "Créé"} le{" "}
+                {new Date().toLocaleDateString("fr-FR")}
               </span>
             </div>
           </div>

@@ -1,24 +1,23 @@
 "use client";
 
-import Link from "next/link";
-import { Card } from "@/components/atoms/card";
-import { Button } from "@/components/atoms/button";
-import { Badge } from "@/components/atoms/badge";
-import { ExamStatusBadge } from "@/components/atoms/exam-status-badge";
-import { ExamTypeIcon } from "@/components/atoms/exam-type-icon";
-import { ExamProgressRing } from "@/components/atoms/exam-progress-ring";
-import { 
-  CalendarDays, 
-  Clock, 
-  Users, 
-  BookOpen, 
-  MoreVertical,
+import {
+  BookOpen,
+  CalendarDays,
+  Clock,
   Edit,
   Eye,
-  Trash2,
-  Share2,
   GraduationCap,
+  MoreVertical,
+  Share2,
+  Trash2,
 } from "lucide-react";
+import Link from "next/link";
+import { Badge } from "@/components/atoms/badge";
+import { Button } from "@/components/atoms/button";
+import { Card } from "@/components/atoms/card";
+import { ExamProgressRing } from "@/components/atoms/exam-progress-ring";
+import { ExamStatusBadge } from "@/components/atoms/exam-status-badge";
+import { ExamTypeIcon } from "@/components/atoms/exam-type-icon";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -66,12 +65,15 @@ export function ExamCard({
       <div className="flex items-start justify-between mb-4">
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-2">
-            <ExamTypeIcon examType={exam.examType} className="w-5 h-5 text-muted-foreground" />
+            <ExamTypeIcon
+              examType={exam.examType}
+              className="w-5 h-5 text-muted-foreground"
+            />
             <h3 className="text-lg font-semibold truncate">{exam.title}</h3>
           </div>
-          
+
           <div className="flex items-center gap-2 mb-2">
-            <ExamStatusBadge 
+            <ExamStatusBadge
               isPublished={exam.isPublished}
               examDate={exam.examDate}
             />
@@ -82,39 +84,58 @@ export function ExamCard({
         </div>
 
         {showActions && (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                <MoreVertical className="w-4 h-4" />
-                <span className="sr-only">Actions</span>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem asChild>
-                <Link href={`/dashboard/evaluations/${exam.id}`} className="flex items-center">
-                  <Eye className="w-4 h-4 mr-2" />
-                  Voir les détails
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={handleEdit}>
-                <Edit className="w-4 h-4 mr-2" />
-                Modifier
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={handleGrade}>
+          <div className="flex items-center gap-2">
+            {onGrade && (
+              <Button
+                size="sm"
+                variant="secondary"
+                onClick={handleGrade}
+                className="hidden sm:inline-flex"
+              >
                 <GraduationCap className="w-4 h-4 mr-2" />
-                Corriger
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={handleTogglePublication}>
-                <Share2 className="w-4 h-4 mr-2" />
-                {exam.isPublished ? "Dépublier" : "Publier"}
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={handleDelete} className="text-destructive">
-                <Trash2 className="w-4 h-4 mr-2" />
-                Supprimer
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+                Saisir les notes
+              </Button>
+            )}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                  <MoreVertical className="w-4 h-4" />
+                  <span className="sr-only">Actions</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem asChild>
+                  <Link
+                    href={`/dashboard/evaluations/${exam.id}`}
+                    className="flex items-center"
+                  >
+                    <Eye className="w-4 h-4 mr-2" />
+                    Voir les détails
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleEdit}>
+                  <Edit className="w-4 h-4 mr-2" />
+                  Modifier
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleGrade}>
+                  <GraduationCap className="w-4 h-4 mr-2" />
+                  Saisir les notes
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleTogglePublication}>
+                  <Share2 className="w-4 h-4 mr-2" />
+                  {exam.isPublished ? "Dépublier" : "Publier"}
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  onClick={handleDelete}
+                  className="text-destructive"
+                >
+                  <Trash2 className="w-4 h-4 mr-2" />
+                  Supprimer
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         )}
       </div>
 
@@ -131,17 +152,17 @@ export function ExamCard({
           <CalendarDays className="w-4 h-4 text-muted-foreground" />
           <span>{formatDate(exam.examDate, "fr-FR")}</span>
         </div>
-        
+
         <div className="flex items-center gap-2">
           <Clock className="w-4 h-4 text-muted-foreground" />
           <span>{formatDuration(exam.durationMinutes)}</span>
         </div>
-        
+
         <div className="flex items-center gap-2">
           <BookOpen className="w-4 h-4 text-muted-foreground" />
           <span>{exam.totalPoints} points</span>
         </div>
-        
+
         <div className="flex items-center gap-2">
           <span className="w-4 h-4 flex items-center justify-center text-xs font-bold rounded bg-muted text-muted-foreground">
             ×
@@ -158,22 +179,37 @@ export function ExamCard({
               <div className="text-lg font-semibold">{resultsCount}</div>
               <div className="text-xs text-muted-foreground">Rendus</div>
             </div>
-            
+
             {averageGrade > 0 && (
               <div className="text-center">
-                <div className="text-lg font-semibold">{averageGrade.toFixed(1)}</div>
+                <div className="text-lg font-semibold">
+                  {averageGrade.toFixed(1)}
+                </div>
                 <div className="text-xs text-muted-foreground">Moyenne</div>
               </div>
             )}
           </div>
-          
+
           {resultsCount > 0 && (
             <ExamProgressRing
               percentage={completionPercentage}
               size="sm"
-              color={completionPercentage >= 80 ? "green" : completionPercentage >= 50 ? "orange" : "red"}
+              color={
+                completionPercentage >= 80
+                  ? "green"
+                  : completionPercentage >= 50
+                    ? "orange"
+                    : "red"
+              }
             />
           )}
+        </div>
+      )}
+
+      {resultsCount === 0 && showActions && (
+        <div className="mt-4 rounded-lg bg-muted/30 p-3 text-xs text-muted-foreground">
+          Aucune note saisie pour le moment. Utilisez le bouton «&nbsp;Saisir
+          les notes&nbsp;» pour attribuer rapidement les résultats aux élèves.
         </div>
       )}
     </Card>
@@ -189,7 +225,7 @@ function formatDate(date: Date, locale: string): string {
   });
 }
 
-function formatTime(date: Date, locale: string): string {
+function _formatTime(date: Date, locale: string): string {
   return date.toLocaleTimeString(locale, {
     hour: "2-digit",
     minute: "2-digit",
