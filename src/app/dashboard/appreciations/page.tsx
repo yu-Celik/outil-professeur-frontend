@@ -26,22 +26,43 @@ import { AppreciationGenerationInterface } from "@/components/organisms/apprecia
 import { ChatAppreciationInterface } from "@/components/organisms/chat-appreciation-interface";
 import { PhraseBankManagement } from "@/components/organisms/phrase-bank-management";
 import { StyleGuideManagement } from "@/components/organisms/style-guide-management";
-import { ClassSelectionLayout } from "@/components/templates/class-selection-layout";
-import {
-  ClassSelectionProvider,
-  useClassSelection,
-} from "@/contexts/class-selection-context";
+import { useClassSelection } from "@/contexts/class-selection-context";
 import { useSetPageTitle } from "@/shared/hooks";
 
-function AppreciationsContent() {
+export default function AppreciationsPage() {
   useSetPageTitle("Appréciations IA");
   const [activeTab, setActiveTab] = useState("chat");
-  const { selectedClassId, classes } = useClassSelection();
+  const { selectedClassId, classes, assignmentsLoading } = useClassSelection();
 
   const selectedClass = classes.find((c) => c.id === selectedClassId);
 
+  if (assignmentsLoading) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <div className="text-muted-foreground">Chargement...</div>
+      </div>
+    );
+  }
+
+  // Si aucune classe n'est sélectionnée
+  if (!selectedClassId) {
+    return (
+      <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
+        <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-muted/50 to-muted/30 flex items-center justify-center mb-6">
+          <Sparkles className="h-8 w-8" />
+        </div>
+        <div className="text-xl font-semibold mb-3 text-foreground">
+          Sélectionnez une classe
+        </div>
+        <div className="text-sm text-center max-w-sm leading-relaxed">
+          Choisissez une classe dans la barre latérale pour commencer la génération d'appréciations
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 p-6">
       {/* En-tête de la page avec contexte de classe */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="space-y-1">
@@ -209,19 +230,5 @@ function AppreciationsContent() {
         </TabsContent>
       </Tabs>
     </div>
-  );
-}
-
-export default function AppreciationsPage() {
-  return (
-    <ClassSelectionProvider>
-      <ClassSelectionLayout
-        emptyStateIcon={<Sparkles className="h-8 w-8 text-muted-foreground" />}
-        emptyStateTitle="Sélectionnez une classe"
-        emptyStateDescription="Choisissez une classe dans la barre latérale pour commencer la génération d'appréciations"
-      >
-        <AppreciationsContent />
-      </ClassSelectionLayout>
-    </ClassSelectionProvider>
   );
 }
