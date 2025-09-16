@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect, useState } from "react";
+
 import {
   AlertTriangle,
   BookOpen,
@@ -17,8 +19,43 @@ import {
 } from "lucide-react";
 import { Badge } from "@/components/atoms/badge";
 import { Button } from "@/components/atoms/button";
+import { Input } from "@/components/atoms/input";
+import { Slider } from "@/components/atoms/slider";
+import { Switch } from "@/components/atoms/switch";
+import { Textarea } from "@/components/atoms/textarea";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/molecules/tooltip";
 import { getStudentParticipation } from "@/features/students/mocks";
-import type { CourseSession, Student } from "@/types/uml-entities";
+import type {
+  CourseSession,
+  Student,
+  StudentParticipation,
+} from "@/types/uml-entities";
+
+type ParticipationFormState = {
+  isPresent: boolean;
+  behavior: string;
+  participationLevel: number;
+  homeworkDone: boolean;
+  specificRemarks: string;
+  technicalIssues: string;
+  cameraEnabled: boolean;
+};
+
+const createFormState = (
+  data?: StudentParticipation,
+): ParticipationFormState => ({
+  isPresent: data?.isPresent ?? false,
+  behavior: data?.behavior ?? "",
+  participationLevel: data?.participationLevel ?? 0,
+  homeworkDone: data?.homeworkDone ?? false,
+  specificRemarks: data?.specificRemarks ?? "",
+  technicalIssues: data?.technicalIssues ?? "",
+  cameraEnabled: data?.cameraEnabled ?? false,
+});
 
 interface StudentParticipationAccordionProps {
   student: Student;
@@ -36,19 +73,44 @@ export function StudentParticipationAccordion({
   // Récupérer la vraie participation de l'élève pour cette session
   const participation = getStudentParticipation(student.id, session.id);
 
-  // Données par défaut si pas de participation enregistrée
-  const participationData = participation || {
-    isPresent: false,
-    behavior: "Non évalué",
-    participationLevel: 0,
-    homeworkDone: false,
-    specificRemarks: "",
-    technicalIssues: "",
-    cameraEnabled: false,
+  const [formState, setFormState] = useState<ParticipationFormState>(() =>
+    createFormState(participation),
+  );
+
+  useEffect(() => {
+    setFormState(createFormState(participation));
+  }, [participation?.id, session.id, student.id]);
+
+  const handleFieldChange = <K extends keyof ParticipationFormState>(
+    key: K,
+    value: ParticipationFormState[K],
+  ) => {
+    setFormState((previous) => ({ ...previous, [key]: value }));
+  };
+
+  const handleSave = () => {
+    if (participation) {
+      participation.isPresent = formState.isPresent;
+      participation.behavior = formState.behavior;
+      participation.participationLevel = formState.participationLevel;
+      participation.homeworkDone = formState.homeworkDone;
+      participation.specificRemarks = formState.specificRemarks;
+      participation.technicalIssues = formState.technicalIssues;
+      participation.cameraEnabled = formState.cameraEnabled;
+    }
+
+    console.log(
+      `[sessions] Participation enregistrée pour ${student.id} - ${session.id}`,
+      formState,
+    );
+  };
+
+  const handleClear = () => {
+    setFormState(createFormState());
   };
 
   const getParticipationStatusBadge = () => {
-    if (!participationData.isPresent) {
+    if (!formState.isPresent) {
       return (
         <Badge variant="destructive" className="shadow-sm">
           <XCircle className="h-3 w-3 mr-1" />
@@ -58,9 +120,9 @@ export function StudentParticipationAccordion({
     }
 
     const isComplete =
-      participationData.isPresent &&
-      participationData.behavior &&
-      participationData.participationLevel > 0;
+      formState.isPresent &&
+      formState.behavior.trim().length > 0 &&
+      formState.participationLevel > 0;
 
     return isComplete ? (
       <Badge className="bg-success text-success-foreground shadow-sm">
@@ -97,21 +159,45 @@ export function StudentParticipationAccordion({
               <div className="flex items-center gap-1">
                 <Star className="h-3 w-3 text-warning" />
                 <span className="font-medium">
-                  {participationData.participationLevel}/10
+                  {formState.participationLevel}/10
                 </span>
               </div>
               <div className="h-1 w-1 rounded-full bg-muted-foreground/30" />
-              <span className="truncate">{participationData.behavior}</span>
+              <span className="truncate">
+                {formState.behavior.trim() || "Non évalué"}
+              </span>
             </div>
           </div>
         </div>
         <div className="flex items-center gap-2 ml-2">
           <div className="hidden md:flex items-center gap-1">
-            {participationData.cameraEnabled && (
-              <Camera className="h-3 w-3 text-success" />
+            {formState.cameraEnabled && (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <span
+                    className="inline-flex"
+                    tabIndex={0}
+                    aria-label="Caméra activée"
+                  >
+                    <Camera className="h-3 w-3 text-success" />
+                  </span>
+                </TooltipTrigger>
+                <TooltipContent side="bottom">Caméra activée</TooltipContent>
+              </Tooltip>
             )}
-            {participationData.homeworkDone && (
-              <BookOpen className="h-3 w-3 text-primary" />
+            {formState.homeworkDone && (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <span
+                    className="inline-flex"
+                    tabIndex={0}
+                    aria-label="Devoirs faits"
+                  >
+                    <BookOpen className="h-3 w-3 text-primary" />
+                  </span>
+                </TooltipTrigger>
+                <TooltipContent side="bottom">Devoirs faits</TooltipContent>
+              </Tooltip>
             )}
           </div>
           {getParticipationStatusBadge()}
@@ -141,20 +227,24 @@ export function StudentParticipationAccordion({
                   <div className="flex gap-3">
                     <button
                       className={`px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 flex-1 ${
-                        participationData.isPresent
+                        formState.isPresent
                           ? "bg-success text-success-foreground shadow-lg transform scale-105"
                           : "bg-muted text-muted-foreground border border-border hover:bg-muted/80"
                       }`}
+                      onClick={() => handleFieldChange("isPresent", true)}
+                      type="button"
                     >
                       <CheckCircle2 className="h-4 w-4 mr-1 inline" />
                       Présent
                     </button>
                     <button
                       className={`px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 flex-1 ${
-                        !participationData.isPresent
+                        !formState.isPresent
                           ? "bg-destructive text-destructive-foreground shadow-lg transform scale-105"
                           : "bg-muted text-muted-foreground border border-border hover:bg-muted/80"
                       }`}
+                      onClick={() => handleFieldChange("isPresent", false)}
+                      type="button"
                     >
                       <XCircle className="h-4 w-4 mr-1 inline" />
                       Absent
@@ -172,23 +262,23 @@ export function StudentParticipationAccordion({
                       <span className="text-sm text-muted-foreground">
                         Score
                       </span>
-                      <div className="flex items-center gap-1">
-                        <Star className="h-4 w-4 text-warning" />
-                        <span className="text-lg font-bold text-foreground">
-                          {participationData.participationLevel}/10
+                    <div className="flex items-center gap-1">
+                      <Star className="h-4 w-4 text-warning" />
+                      <span className="text-lg font-bold text-foreground">
+                          {formState.participationLevel}/10
                         </span>
                       </div>
                     </div>
-                    <div className="relative">
-                      <div className="h-3 bg-muted rounded-full overflow-hidden shadow-inner">
-                        <div
-                          className="h-full bg-gradient-to-r from-warning via-warning/80 to-destructive rounded-full transition-all duration-500 shadow-sm"
-                          style={{
-                            width: `${participationData.participationLevel * 10}%`,
-                          }}
-                        />
-                      </div>
-                    </div>
+                    <Slider
+                      value={[formState.participationLevel]}
+                      max={10}
+                      min={0}
+                      step={1}
+                      onValueChange={(value) =>
+                        handleFieldChange("participationLevel", value[0] ?? 0)
+                      }
+                      disabled={!formState.isPresent}
+                    />
                   </div>
                 </div>
 
@@ -197,11 +287,11 @@ export function StudentParticipationAccordion({
                     <BookOpen className="h-4 w-4 text-primary" />
                     Devoirs
                   </label>
-                  <div className="p-3 rounded-lg bg-muted border border-border">
+                  <div className="p-3 rounded-lg bg-muted border border-border flex items-center justify-between gap-3">
                     <div className="flex items-center gap-3">
                       <div
                         className={`p-1.5 rounded-full ${
-                          participationData.homeworkDone
+                          formState.homeworkDone
                             ? "bg-success"
                             : "bg-muted-foreground/30"
                         } transition-all duration-200`}
@@ -210,16 +300,23 @@ export function StudentParticipationAccordion({
                       </div>
                       <span
                         className={`text-sm font-medium ${
-                          participationData.homeworkDone
+                          formState.homeworkDone
                             ? "text-success-foreground"
                             : "text-muted-foreground"
                         }`}
                       >
-                        {participationData.homeworkDone
+                        {formState.homeworkDone
                           ? "Devoirs faits"
                           : "Devoirs non faits"}
                       </span>
                     </div>
+                    <Switch
+                      checked={formState.homeworkDone}
+                      onCheckedChange={(value) =>
+                        handleFieldChange("homeworkDone", value)
+                      }
+                      aria-label="Basculer le statut des devoirs"
+                    />
                   </div>
                 </div>
               </div>
@@ -230,16 +327,13 @@ export function StudentParticipationAccordion({
                     <Star className="h-4 w-4 text-primary" />
                     Comportement
                   </label>
-                  <div className="p-4 bg-primary/5 rounded-xl border border-primary/10 shadow-sm">
-                    <div className="flex items-center gap-2">
-                      <div className="p-1 rounded-full bg-primary">
-                        <div className="h-2 w-2 bg-primary-foreground rounded-full" />
-                      </div>
-                      <span className="text-primary font-medium">
-                        {participationData.behavior}
-                      </span>
-                    </div>
-                  </div>
+                  <Input
+                    placeholder="Décrire le comportement observé"
+                    value={formState.behavior}
+                    onChange={(event) =>
+                      handleFieldChange("behavior", event.target.value)
+                    }
+                  />
                 </div>
 
                 <div className="space-y-3">
@@ -248,36 +342,39 @@ export function StudentParticipationAccordion({
                     Statut technique
                   </label>
                   <div className="space-y-2">
-                    <div className="p-3 rounded-lg bg-muted border border-border">
-                      <div className="flex items-center gap-3">
-                        <Camera
-                          className={`h-4 w-4 ${
-                            participationData.cameraEnabled
-                              ? "text-success"
-                              : "text-muted-foreground/60"
-                          }`}
-                        />
-                        <span
-                          className={`text-sm font-medium ${
-                            participationData.cameraEnabled
-                              ? "text-success-foreground"
-                              : "text-muted-foreground"
-                          }`}
-                        >
-                          Caméra{" "}
-                          {participationData.cameraEnabled
-                            ? "activée"
-                            : "désactivée"}
-                        </span>
-                        <div
-                          className={`ml-auto h-2 w-2 rounded-full ${
-                            participationData.cameraEnabled
-                              ? "bg-success"
-                              : "bg-muted-foreground/30"
-                          } animate-pulse`}
-                        />
-                      </div>
+                    <div className="p-3 rounded-lg bg-muted border border-border flex items-center gap-3">
+                      <Camera
+                        className={`h-4 w-4 ${
+                          formState.cameraEnabled
+                            ? "text-success"
+                            : "text-muted-foreground/60"
+                        }`}
+                      />
+                      <span
+                        className={`text-sm font-medium ${
+                          formState.cameraEnabled
+                            ? "text-success-foreground"
+                            : "text-muted-foreground"
+                        }`}
+                      >
+                        Caméra {formState.cameraEnabled ? "activée" : "désactivée"}
+                      </span>
+                      <Switch
+                        checked={formState.cameraEnabled}
+                        onCheckedChange={(value) =>
+                          handleFieldChange("cameraEnabled", value)
+                        }
+                        aria-label="Basculer l'état de la caméra"
+                        className="ml-auto"
+                      />
                     </div>
+                    <Input
+                      placeholder="Décrire un incident technique (laisser vide si aucun)"
+                      value={formState.technicalIssues}
+                      onChange={(event) =>
+                        handleFieldChange("technicalIssues", event.target.value)
+                      }
+                    />
                   </div>
                 </div>
               </div>
@@ -287,26 +384,18 @@ export function StudentParticipationAccordion({
                   <ClipboardList className="h-4 w-4 text-muted-foreground" />
                   Remarques spécifiques
                 </label>
-                <div className="relative">
-                  <textarea
-                    value={
-                      participationData.specificRemarks ||
-                      "Aucune remarque particulière pour cette séance"
-                    }
-                    className="w-full p-4 border-2 border-border rounded-xl text-sm bg-background focus:border-primary focus:ring-4 focus:ring-primary/20 transition-all duration-200 resize-none"
-                    rows={3}
-                    placeholder="Ajoutez des observations spécifiques..."
-                    readOnly
-                  />
-                  <div className="absolute top-2 right-2">
-                    <div className="p-1 rounded bg-muted">
-                      <Eye className="h-3 w-3 text-muted-foreground" />
-                    </div>
-                  </div>
-                </div>
+                <Textarea
+                  value={formState.specificRemarks}
+                  onChange={(event) =>
+                    handleFieldChange("specificRemarks", event.target.value)
+                  }
+                  className="w-full"
+                  rows={3}
+                  placeholder="Ajoutez des observations spécifiques..."
+                />
               </div>
 
-              {participationData.technicalIssues && (
+              {formState.technicalIssues && (
                 <div className="space-y-3">
                   <label className="block text-sm font-semibold text-foreground flex items-center gap-2">
                     <AlertTriangle className="h-4 w-4 text-warning" />
@@ -319,7 +408,7 @@ export function StudentParticipationAccordion({
                       </div>
                       <div>
                         <div className="text-warning-foreground font-medium text-sm">
-                          {participationData.technicalIssues}
+                          {formState.technicalIssues}
                         </div>
                         <div className="text-warning-foreground/80 text-xs mt-1">
                           Signalé automatiquement
@@ -331,19 +420,17 @@ export function StudentParticipationAccordion({
               )}
 
               <div className="flex gap-3 justify-end pt-6 border-t border-border">
-                <Button size="sm" variant="outline">
-                  <Eye className="h-4 w-4 mr-1" />
-                  Modifier
-                </Button>
                 <Button
                   size="sm"
                   variant="ghost"
                   className="text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                  type="button"
+                  onClick={handleClear}
                 >
                   <XCircle className="h-4 w-4 mr-1" />
                   Effacer
                 </Button>
-                <Button size="sm">
+                <Button size="sm" type="button" onClick={handleSave}>
                   <CheckCircle2 className="h-4 w-4 mr-1" />
                   Sauvegarder
                 </Button>
