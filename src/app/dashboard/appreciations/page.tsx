@@ -1,38 +1,35 @@
 "use client";
 
-import {
-  BookOpen,
-  Database,
-  MessageSquare,
-  Settings,
-  Sparkles,
-  Users,
-} from "lucide-react";
 import { useState } from "react";
 import { Badge } from "@/components/atoms/badge";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/molecules/card";
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/components/molecules/tabs";
-import { AppreciationGenerationInterface } from "@/components/organisms/appreciation-generation-interface";
-import { ChatAppreciationInterface } from "@/components/organisms/chat-appreciation-interface";
-import { PhraseBankManagement } from "@/components/organisms/phrase-bank-management";
-import { StyleGuideManagement } from "@/components/organisms/style-guide-management";
+import { Sparkles, Users } from "lucide-react";
 import { useClassSelection } from "@/contexts/class-selection-context";
 import { useSetPageTitle } from "@/shared/hooks";
+import { AppreciationGenerationBar } from "@/components/organisms/appreciation-generation-bar";
+import { AppreciationContextPanel } from "@/components/organisms/appreciation-context-panel";
+import { AppreciationPreviewZone } from "@/components/organisms/appreciation-preview-zone";
+import { AppreciationHistorySection } from "@/components/organisms/appreciation-history-section";
 
 export default function AppreciationsPage() {
   useSetPageTitle("Appréciations IA");
-  const [activeTab, setActiveTab] = useState("chat");
   const { selectedClassId, classes, assignmentsLoading } = useClassSelection();
+
+  // State for generation parameters
+  const [selectedStudentId, setSelectedStudentId] = useState<string>("");
+  const [selectedSubjectId, setSelectedSubjectId] = useState<string>("");
+  const [selectedPeriodId, setSelectedPeriodId] = useState<string>("");
+  const [selectedStyleId, setSelectedStyleId] = useState<string>("standard");
+  const [selectedPhraseBankId, setSelectedPhraseBankId] = useState<string>("none");
+  const [customInstructions, setCustomInstructions] = useState<string>("");
+  const [batchMode, setBatchMode] = useState<boolean>(false);
+  const [selectedStudentIds, setSelectedStudentIds] = useState<string[]>([]);
+
+  // State for generated appreciations
+  const [generatedAppreciations, setGeneratedAppreciations] = useState<any[]>([]);
+  const [isGenerating, setIsGenerating] = useState<boolean>(false);
+
+  // State for view mode
+  const [viewMode, setViewMode] = useState<"generation" | "history">("generation");
 
   const selectedClass = classes.find((c) => c.id === selectedClassId);
 
@@ -44,7 +41,6 @@ export default function AppreciationsPage() {
     );
   }
 
-  // Si aucune classe n'est sélectionnée
   if (!selectedClassId) {
     return (
       <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
@@ -62,173 +58,132 @@ export default function AppreciationsPage() {
   }
 
   return (
-    <div className="space-y-6 p-6">
-      {/* En-tête de la page avec contexte de classe */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div className="space-y-1">
-          <h1 className="text-3xl font-bold tracking-tight flex items-center gap-3">
-            <Sparkles className="h-8 w-8 text-primary" />
-            Appréciations IA
-          </h1>
-          <div className="flex flex-col sm:flex-row sm:items-center gap-2">
-            <p className="text-muted-foreground">
-              Génération automatisée d'appréciations personnalisées
-            </p>
-            {selectedClass && (
-              <Badge variant="secondary" className="w-fit">
-                <Users className="h-3 w-3 mr-1" />
-                {selectedClass.classCode} - {selectedClass.gradeLabel}
-              </Badge>
-            )}
-          </div>
+    <div className="flex flex-col min-h-0 h-[calc(100vh-var(--header-height)-1rem)] overflow-hidden">
+
+      {/* View Mode Toggle */}
+      <div className="flex-shrink-0 p-4 border-b bg-muted/20">
+        <div className="flex items-center gap-2">
+          <Badge
+            variant={viewMode === "generation" ? "default" : "outline"}
+            className="cursor-pointer"
+            onClick={() => setViewMode("generation")}
+          >
+            Génération
+          </Badge>
+          <Badge
+            variant={viewMode === "history" ? "default" : "outline"}
+            className="cursor-pointer"
+            onClick={() => setViewMode("history")}
+          >
+            Historique
+          </Badge>
         </div>
-        <Badge variant="outline" className="w-fit">
-          <Sparkles className="h-3 w-3 mr-1" />
-          IA Activée
-        </Badge>
       </div>
 
-      {/* Navigation par onglets optimisée */}
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid grid-cols-3 sm:grid-cols-5 w-full max-w-3xl">
-          <TabsTrigger value="chat" className="flex items-center gap-2">
-            <MessageSquare className="h-4 w-4" />
-            <span className="hidden sm:inline">Chat IA</span>
-            <span className="sm:hidden">Chat</span>
-          </TabsTrigger>
-          <TabsTrigger value="generation" className="flex items-center gap-2">
-            <Settings className="h-4 w-4" />
-            <span className="hidden sm:inline">Avancé</span>
-            <span className="sm:hidden">Adv</span>
-          </TabsTrigger>
-          <TabsTrigger value="styles" className="flex items-center gap-2">
-            <Database className="h-4 w-4" />
-            <span className="hidden sm:inline">Styles</span>
-            <span className="sm:hidden">Sty</span>
-          </TabsTrigger>
-          <TabsTrigger value="phrases" className="flex items-center gap-2">
-            <BookOpen className="h-4 w-4" />
-            <span className="hidden sm:inline">Phrases</span>
-            <span className="sm:hidden">Phr</span>
-          </TabsTrigger>
-          <TabsTrigger value="historique" className="flex items-center gap-2">
-            <Sparkles className="h-4 w-4" />
-            <span className="hidden sm:inline">Historique</span>
-            <span className="sm:hidden">Hist</span>
-          </TabsTrigger>
-        </TabsList>
+      {/* Main Content Area */}
+      <div className="flex-1 flex overflow-hidden min-h-0">
+        {viewMode === "generation" ? (
+          <>
+            {/* Context Panel */}
+            <div className="w-80 flex-shrink-0 border-r bg-muted/20">
+              <AppreciationContextPanel
+                selectedStudentId={selectedStudentId}
+                selectedSubjectId={selectedSubjectId}
+                selectedPeriodId={selectedPeriodId}
+                batchMode={batchMode}
+                selectedStudentIds={selectedStudentIds}
+              />
+            </div>
 
-        {/* Onglet Chat IA */}
-        <TabsContent value="chat" className="space-y-6 mt-6">
-          <ChatAppreciationInterface />
-        </TabsContent>
-
-        {/* Onglet Génération Avancée */}
-        <TabsContent value="generation" className="space-y-6 mt-6">
-          <AppreciationGenerationInterface />
-        </TabsContent>
-
-        {/* Onglet Gestion des styles */}
-        <TabsContent value="styles" className="space-y-6 mt-6">
-          <StyleGuideManagement />
-        </TabsContent>
-
-        {/* Onglet Gestion des phrases */}
-        <TabsContent value="phrases" className="space-y-6 mt-6">
-          <PhraseBankManagement />
-        </TabsContent>
-
-        {/* Onglet Historique */}
-        <TabsContent value="historique" className="space-y-6 mt-6">
-          <div className="grid gap-6">
-            {/* Statistiques rapides */}
-            {selectedClass && (
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <Card>
-                  <CardContent className="pt-6">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm font-medium text-muted-foreground">
-                          Appréciations générées
-                        </p>
-                        <p className="text-2xl font-bold">0</p>
-                      </div>
-                      <MessageSquare className="h-4 w-4 text-muted-foreground" />
-                    </div>
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardContent className="pt-6">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm font-medium text-muted-foreground">
-                          Élèves traités
-                        </p>
-                        <p className="text-2xl font-bold">0</p>
-                      </div>
-                      <Users className="h-4 w-4 text-muted-foreground" />
-                    </div>
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardContent className="pt-6">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm font-medium text-muted-foreground">
-                          Dernière génération
-                        </p>
-                        <p className="text-sm text-muted-foreground">Jamais</p>
-                      </div>
-                      <BookOpen className="h-4 w-4 text-muted-foreground" />
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-            )}
-
-            {/* Liste de l'historique */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <BookOpen className="h-5 w-5" />
-                    Historique des appréciations
-                    {selectedClass && (
-                      <Badge variant="outline" className="ml-2">
-                        {selectedClass.classCode}
-                      </Badge>
-                    )}
-                  </div>
-                </CardTitle>
-                <p className="text-sm text-muted-foreground">
-                  {selectedClass
-                    ? `Appréciations générées pour la classe ${selectedClass.classCode} - ${selectedClass.gradeLabel}`
-                    : "Sélectionnez une classe pour voir l'historique des appréciations"}
-                </p>
-              </CardHeader>
-              <CardContent>
-                <div className="text-center py-12 text-muted-foreground">
-                  <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-muted/50 to-muted/30 flex items-center justify-center mx-auto mb-6">
-                    <BookOpen className="h-8 w-8" />
-                  </div>
-                  <div className="space-y-2">
-                    <p className="text-lg font-semibold text-foreground">
-                      {selectedClass
-                        ? "Aucune appréciation générée"
-                        : "Sélectionnez une classe"}
-                    </p>
-                    <p className="text-sm max-w-sm mx-auto leading-relaxed">
-                      {selectedClass
-                        ? "Commencez par générer des appréciations dans l'onglet Génération pour voir l'historique apparaître ici."
-                        : "Choisissez une classe dans la barre latérale pour consulter l'historique des appréciations générées."}
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+            {/* Preview Zone */}
+            <div className="flex-1 flex flex-col min-w-0">
+              <AppreciationPreviewZone
+                appreciations={generatedAppreciations}
+                isGenerating={isGenerating}
+                onAppreciationUpdate={(id: string, content: string) => {
+                  setGeneratedAppreciations(prev =>
+                    prev.map(app => app.id === id ? { ...app, content } : app)
+                  );
+                }}
+                onAppreciationValidate={(id: string) => {
+                  // Handle validation logic
+                  console.log("Validating appreciation:", id);
+                }}
+                onRegenerateAppreciation={(id: string) => {
+                  // Handle regeneration logic
+                  console.log("Regenerating appreciation:", id);
+                }}
+              />
+            </div>
+          </>
+        ) : (
+          /* History Section */
+          <div className="flex-1 min-h-0">
+            <AppreciationHistorySection
+              selectedClassId={selectedClassId}
+              onRestoreAppreciation={(appreciation: any) => {
+                setViewMode("generation");
+                setSelectedStudentId(appreciation.studentId);
+                setSelectedSubjectId(appreciation.subjectId || "");
+                setSelectedPeriodId(appreciation.academicPeriodId || "");
+                setSelectedStyleId(appreciation.styleGuideId);
+              }}
+            />
           </div>
-        </TabsContent>
-      </Tabs>
+        )}
+      </div>
+
+      {/* Bottom Generation Bar */}
+      {viewMode === "generation" && (
+        <div className="flex-shrink-0 border-t bg-background">
+          <AppreciationGenerationBar
+            selectedStudentId={selectedStudentId}
+            setSelectedStudentId={setSelectedStudentId}
+            selectedSubjectId={selectedSubjectId}
+            setSelectedSubjectId={setSelectedSubjectId}
+            selectedPeriodId={selectedPeriodId}
+            setSelectedPeriodId={setSelectedPeriodId}
+            selectedStyleId={selectedStyleId}
+            setSelectedStyleId={setSelectedStyleId}
+            selectedPhraseBankId={selectedPhraseBankId}
+            setSelectedPhraseBankId={setSelectedPhraseBankId}
+            customInstructions={customInstructions}
+            setCustomInstructions={setCustomInstructions}
+            batchMode={batchMode}
+            setBatchMode={setBatchMode}
+            selectedStudentIds={selectedStudentIds}
+            setSelectedStudentIds={setSelectedStudentIds}
+            isGenerating={isGenerating}
+            onGenerate={async (params) => {
+              setIsGenerating(true);
+              try {
+                // Simulate generation process
+                await new Promise(resolve => setTimeout(resolve, 2000));
+
+                // Clean params
+                const cleanParams = {
+                  ...params,
+                  subjectId: params.subjectId === "general" ? undefined : params.subjectId,
+                  phraseBankId: params.phraseBankId === "none" ? undefined : params.phraseBankId,
+                };
+
+                // Mock generated appreciation
+                const newAppreciation = {
+                  id: `app-${Date.now()}`,
+                  studentId: cleanParams.studentId || cleanParams.studentIds?.[0],
+                  content: "Appréciation générée automatiquement...",
+                  generatedAt: new Date(),
+                  ...cleanParams
+                };
+
+                setGeneratedAppreciations(prev => [...prev, newAppreciation]);
+              } finally {
+                setIsGenerating(false);
+              }
+            }}
+          />
+        </div>
+      )}
     </div>
   );
 }
