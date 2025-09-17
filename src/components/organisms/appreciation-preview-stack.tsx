@@ -67,8 +67,8 @@ export function AppreciationPreviewStack({
   return (
     <>
       {items.map((item, index) => (
-        <div key={item.data.id} className={index > 0 ? "mt-4" : ""}>
-          {index > 0 && <Separator className="mb-4" />}
+        <div key={item.data.id} className={index > 0 ? "mt-1" : ""}>
+          {index > 0 && <Separator className="mb-1" />}
           <EditableAppreciationCard
             item={item}
             isProcessing={isProcessing}
@@ -147,7 +147,7 @@ function EditableAppreciationCard({
   };
 
   return (
-    <Card className="shadow-sm">
+    <Card className="shadow-sm border-t-none">
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">

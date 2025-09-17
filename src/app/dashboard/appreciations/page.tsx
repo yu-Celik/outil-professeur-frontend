@@ -634,7 +634,7 @@ export default function AppreciationsPage() {
         </div>
 
         {/* Contenu principal avec sections à hauteur fixe */}
-        <div className="flex-1 flex flex-col min-h-0 gap-4">
+        <div className="flex-1 flex flex-col min-h-0 gap-1">
           {/* Progress bar si génération en cours */}
           {bulkProgress && (
             <Card className="border-primary/20 bg-primary/5 flex-shrink-0">
@@ -648,8 +648,8 @@ export default function AppreciationsPage() {
             </Card>
           )}
 
-          {/* Zone de prévisualisation - prend la moitié de l'espace disponible */}
-          <div className="flex-1 min-h-0">
+          {/* Zone de prévisualisation */}
+          <div className={previewItems.length > 0 ? "flex-1 min-h-0" : "flex-shrink-0"}>
             <AppreciationPreviewStack
               items={previewItems}
               isProcessing={generationDisabled}
@@ -675,8 +675,8 @@ export default function AppreciationsPage() {
             />
           </div>
 
-          {/* Zone d'historique - prend l'autre moitié de l'espace disponible */}
-          <div className="flex-1 min-h-0">
+          {/* Zone d'historique - prend plus d'espace */}
+          <div className="flex-2 min-h-0">
             <AppreciationHistoryPanel
               items={appreciations}
               students={studentsOptions}
