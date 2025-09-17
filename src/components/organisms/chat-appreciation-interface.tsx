@@ -60,6 +60,8 @@ export interface ChatAppreciationInterfaceProps {
   onAppreciationGenerated?: (appreciation: string) => void;
 }
 
+const SUBJECT_GENERAL_VALUE = "__subject-general" as const;
+
 export function ChatAppreciationInterface({
   teacherId = "KsmNtVf4zwqO3VV3SQJqPrRlQBA1fFyR",
   className = "",
@@ -346,12 +348,21 @@ export function ChatAppreciationInterface({
 
               <div>
                 <label className="text-sm font-medium">Matière (optionnel)</label>
-                <Select value={selectedSubjectId} onValueChange={setSelectedSubjectId}>
+                <Select
+                  value={selectedSubjectId || SUBJECT_GENERAL_VALUE}
+                  onValueChange={(value) => {
+                    if (value === SUBJECT_GENERAL_VALUE) {
+                      setSelectedSubjectId("");
+                    } else {
+                      setSelectedSubjectId(value);
+                    }
+                  }}
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Général ou par matière" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Appréciation générale</SelectItem>
+                    <SelectItem value={SUBJECT_GENERAL_VALUE}>Appréciation générale</SelectItem>
                     {MOCK_SUBJECTS.map(subject => (
                       <SelectItem key={subject.id} value={subject.id}>
                         {subject.name}
