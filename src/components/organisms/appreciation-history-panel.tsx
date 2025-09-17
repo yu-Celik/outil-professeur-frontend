@@ -96,8 +96,8 @@ export function AppreciationHistoryPanel({
   }, [items]);
 
   return (
-    <Card className="border-primary/10 rounded-b-none">
-      <CardHeader>
+    <Card className="border-primary/10 rounded-b-none h-full flex flex-col">
+      <CardHeader className="flex-shrink-0">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
             <CardTitle className="flex items-center gap-2">
@@ -114,7 +114,7 @@ export function AppreciationHistoryPanel({
           </Badge>
         </div>
       </CardHeader>
-      <CardContent className="space-y-6">
+      <CardContent className="flex-1 flex flex-col space-y-4 min-h-0">
         <div className="space-y-4">
           <Input
             placeholder="Rechercher dans les appréciations"
@@ -213,14 +213,15 @@ export function AppreciationHistoryPanel({
           </div>
         </div>
 
-        <div className="grid gap-4">
-          {filteredItems.length === 0 ? (
-            <div className="rounded-lg border border-dashed p-6 text-center text-sm text-muted-foreground">
-              <MessageSquare className="mx-auto mb-3 h-8 w-8 opacity-60" />
-              Aucun résultat pour ces filtres. Ajustez vos critères ou générez une nouvelle appréciation.
-            </div>
-          ) : (
-            filteredItems.map((item) => {
+        <div className="flex-1 overflow-y-auto min-h-0">
+          <div className="grid gap-4">
+            {filteredItems.length === 0 ? (
+              <div className="rounded-lg border border-dashed p-6 text-center text-sm text-muted-foreground">
+                <MessageSquare className="mx-auto mb-3 h-8 w-8 opacity-60" />
+                Aucun résultat pour ces filtres. Ajustez vos critères ou générez une nouvelle appréciation.
+              </div>
+            ) : (
+              filteredItems.map((item) => {
               const generatedAt = item.generatedAt
                 ? format(new Date(item.generatedAt), "d MMM yyyy 'à' HH:mm", { locale: fr })
                 : "Date inconnue";
@@ -270,8 +271,9 @@ export function AppreciationHistoryPanel({
                   </p>
                 </div>
               );
-            })
-          )}
+              })
+            )}
+          </div>
         </div>
       </CardContent>
     </Card>

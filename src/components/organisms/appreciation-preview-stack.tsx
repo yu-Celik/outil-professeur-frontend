@@ -65,24 +65,22 @@ export function AppreciationPreviewStack({
   }
 
   return (
-    <div className="max-h-[540px] overflow-y-auto rounded-t-none rounded-b-xl border border-t-0 bg-card/60 p-1">
-      <div className="space-y-4 p-3">
-        {items.map((item, index) => (
-          <div key={item.data.id} className="relative">
-            {index > 0 && <Separator className="mb-3" />}
-            <EditableAppreciationCard
-              item={item}
-              isProcessing={isProcessing}
-              onContentChange={onContentChange}
-              onValidate={onValidate}
-              onRegenerate={onRegenerate}
-              onFavoriteToggle={onFavoriteToggle}
-              onRemove={onRemove}
-            />
-          </div>
-        ))}
-      </div>
-    </div>
+    <>
+      {items.map((item, index) => (
+        <div key={item.data.id} className={index > 0 ? "mt-4" : ""}>
+          {index > 0 && <Separator className="mb-4" />}
+          <EditableAppreciationCard
+            item={item}
+            isProcessing={isProcessing}
+            onContentChange={onContentChange}
+            onValidate={onValidate}
+            onRegenerate={onRegenerate}
+            onFavoriteToggle={onFavoriteToggle}
+            onRemove={onRemove}
+          />
+        </div>
+      ))}
+    </>
   );
 }
 
@@ -149,34 +147,25 @@ function EditableAppreciationCard({
   };
 
   return (
-    <Card className="shadow-sm border-0">
-      <CardHeader className="space-y-2">
-        <div className="flex flex-wrap items-center gap-2">
-          <Badge variant="outline" className="capitalize">
-            {appreciation.scope === "subject" ? "Discipline" : "Général"}
-          </Badge>
-          {item.styleLabel && (
-            <Badge variant="outline">{item.styleLabel}</Badge>
-          )}
-          {appreciation.status === "validated" && (
-            <Badge variant="secondary" className="flex items-center gap-1">
-              <CheckCircle className="h-3.5 w-3.5" />
-              Validée
-            </Badge>
-          )}
-          {appreciation.isFavorite && (
-            <Badge variant="outline" className="flex items-center gap-1">
-              <Star className="h-3.5 w-3.5 fill-primary text-primary" />
-              Favori
-            </Badge>
-          )}
+    <Card className="shadow-sm">
+      <CardHeader className="pb-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <CardTitle className="text-sm">Prévisualisation IA</CardTitle>
+            {item.studentLabel && <Badge variant="secondary" className="text-xs">{item.studentLabel}</Badge>}
+          </div>
+          <div className="flex items-center gap-2">
+            {appreciation.status === "validated" && (
+              <CheckCircle className="h-4 w-4 text-emerald-500" />
+            )}
+            {appreciation.isFavorite && (
+              <Star className="h-4 w-4 fill-amber-500 text-amber-500" />
+            )}
+          </div>
         </div>
-        <CardTitle className="text-lg">Prévisualisation IA</CardTitle>
-        <CardDescription>
-          Ajustez le texte généré avant validation finale. Toutes les modifications sont enregistrées automatiquement.
-        </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-4">
+
+      <CardContent className="space-y-3">
         <Textarea
           value={value}
           onChange={(event) => {
@@ -184,43 +173,38 @@ function EditableAppreciationCard({
             setIsSaved(false);
           }}
           onBlur={handleBlur}
-          rows={8}
-          className="min-h-[200px]"
+          rows={6}
+          className="min-h-[150px] text-sm"
           disabled={isProcessing}
         />
 
-        <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-muted-foreground">
-          <div className="flex flex-wrap items-center gap-2">
-            {item.studentLabel && <Badge variant="secondary">{item.studentLabel}</Badge>}
-            {item.subjectLabel && <Badge variant="outline">{item.subjectLabel}</Badge>}
-            {item.periodLabel && <Badge variant="outline">{item.periodLabel}</Badge>}
+        <div className="flex items-center justify-between text-xs text-muted-foreground">
+          <div className="flex items-center gap-2">
+            {item.styleLabel && <span>{item.styleLabel}</span>}
+            {item.subjectLabel && <span>• {item.subjectLabel}</span>}
           </div>
-          <div className="flex items-center gap-1">
-            {isSaved ? "Sauvegardé" : "Modifications non sauvegardées"}
-          </div>
+          <span>{isSaved ? "Sauvegardé" : "Non sauvegardé"}</span>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2">
-          <Button variant="default" onClick={handleValidate} disabled={isProcessing}>
-            <CheckCircle className="mr-2 h-4 w-4" />
+        <div className="flex items-center gap-2">
+          <Button size="sm" onClick={handleValidate} disabled={isProcessing}>
+            <CheckCircle className="mr-1.5 h-3.5 w-3.5" />
             Valider
           </Button>
-          <Button variant="outline" onClick={handleRegenerate} disabled={isProcessing}>
-            <RefreshCw className="mr-2 h-4 w-4" />
+          <Button size="sm" variant="outline" onClick={handleRegenerate} disabled={isProcessing}>
+            <RefreshCw className="mr-1.5 h-3.5 w-3.5" />
             Régénérer
           </Button>
-          <Button variant="outline" onClick={handleCopy} disabled={copyState === "copied"}>
-            <Copy className="mr-2 h-4 w-4" />
+          <Button size="sm" variant="outline" onClick={handleCopy} disabled={copyState === "copied"}>
+            <Copy className="mr-1.5 h-3.5 w-3.5" />
             {copyState === "copied" ? "Copié" : "Copier"}
           </Button>
-          <Button variant={appreciation.isFavorite ? "default" : "outline"} onClick={handleToggleFavorite}>
-            <Star className={cn("mr-2 h-4 w-4", appreciation.isFavorite && "fill-current")}
-            />
-            {appreciation.isFavorite ? "Retirer des favoris" : "Ajouter aux favoris"}
+          <Button size="sm" variant="outline" onClick={handleToggleFavorite}>
+            <Star className={cn("mr-1.5 h-3.5 w-3.5", appreciation.isFavorite && "fill-current")} />
+            Favori
           </Button>
-          <Button variant="ghost" onClick={handleRemove} className="ml-auto text-destructive">
-            <Trash2 className="mr-2 h-4 w-4" />
-            Supprimer
+          <Button size="sm" variant="ghost" onClick={handleRemove} className="ml-auto text-destructive">
+            <Trash2 className="h-3.5 w-3.5" />
           </Button>
         </div>
       </CardContent>

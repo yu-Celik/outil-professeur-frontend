@@ -1,7 +1,6 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import type { ReactNode } from "react";
 import {
   BookOpen,
   ListChecks,
@@ -634,58 +633,61 @@ export default function AppreciationsPage() {
           />
         </div>
 
-        {/* Contenu principal scrollable */}
-        <div className="flex-1 flex flex-col min-h-0">
-          <div className="flex-1 overflow-y-auto">
-            <div className="space-y-6">
-              {bulkProgress && (
-                <Card className="border-primary/20 bg-primary/5">
-                  <CardContent className="flex items-center justify-between py-4 text-sm">
-                    <div className="flex items-center gap-3 text-primary">
-                      <Target className="h-4 w-4" />
-                      Génération en lot – {bulkProgress.current + 1}/{bulkProgress.total} : {bulkProgress.studentName}
-                    </div>
-                    <div className="text-muted-foreground">Veuillez patienter…</div>
-                  </CardContent>
-                </Card>
-              )}
+        {/* Contenu principal avec sections à hauteur fixe */}
+        <div className="flex-1 flex flex-col min-h-0 gap-4">
+          {/* Progress bar si génération en cours */}
+          {bulkProgress && (
+            <Card className="border-primary/20 bg-primary/5 flex-shrink-0">
+              <CardContent className="flex items-center justify-between py-4 text-sm">
+                <div className="flex items-center gap-3 text-primary">
+                  <Target className="h-4 w-4" />
+                  Génération en lot – {bulkProgress.current + 1}/{bulkProgress.total} : {bulkProgress.studentName}
+                </div>
+                <div className="text-muted-foreground">Veuillez patienter…</div>
+              </CardContent>
+            </Card>
+          )}
 
-              <AppreciationPreviewStack
-                items={previewItems}
-                isProcessing={generationDisabled}
-                onContentChange={async (id, content) => {
-                  await updateAppreciationContent(id, content);
-                }}
-                onValidate={async (id) => {
-                  await validateAppreciation(id);
-                }}
-                onRegenerate={async (id) => {
-                  const regenerated = await regenerateAppreciation(id);
-                  if (regenerated) {
-                    setPreviewIds((prev) => [regenerated.id, ...prev.filter((value) => value !== id)]);
-                  }
-                }}
-                onFavoriteToggle={async (id) => {
-                  await toggleFavorite(id);
-                }}
-                onRemove={async (id) => {
-                  await deleteAppreciation(id);
-                  setPreviewIds((prev) => prev.filter((value) => value !== id));
-                }}
-              />
+          {/* Zone de prévisualisation - prend la moitié de l'espace disponible */}
+          <div className="flex-1 min-h-0">
+            <AppreciationPreviewStack
+              items={previewItems}
+              isProcessing={generationDisabled}
+              onContentChange={async (id, content) => {
+                await updateAppreciationContent(id, content);
+              }}
+              onValidate={async (id) => {
+                await validateAppreciation(id);
+              }}
+              onRegenerate={async (id) => {
+                const regenerated = await regenerateAppreciation(id);
+                if (regenerated) {
+                  setPreviewIds((prev) => [regenerated.id, ...prev.filter((value) => value !== id)]);
+                }
+              }}
+              onFavoriteToggle={async (id) => {
+                await toggleFavorite(id);
+              }}
+              onRemove={async (id) => {
+                await deleteAppreciation(id);
+                setPreviewIds((prev) => prev.filter((value) => value !== id));
+              }}
+            />
+          </div>
 
-              <AppreciationHistoryPanel
-                items={appreciations}
-                students={studentsOptions}
-                subjects={subjectOptions}
-                periods={periodOptions}
-                styles={styleOptions}
-                filters={filters}
-                onFiltersChange={handleHistoryFiltersChange}
-                onResetFilters={handleHistoryReset}
-                onReuse={handleReuseAppreciation}
-              />
-            </div>
+          {/* Zone d'historique - prend l'autre moitié de l'espace disponible */}
+          <div className="flex-1 min-h-0">
+            <AppreciationHistoryPanel
+              items={appreciations}
+              students={studentsOptions}
+              subjects={subjectOptions}
+              periods={periodOptions}
+              styles={styleOptions}
+              filters={filters}
+              onFiltersChange={handleHistoryFiltersChange}
+              onResetFilters={handleHistoryReset}
+              onReuse={handleReuseAppreciation}
+            />
           </div>
         </div>
       </div>
@@ -743,27 +745,5 @@ export default function AppreciationsPage() {
         </DialogContent>
       </Dialog>
     </div>
-  );
-}
-
-function HeaderStat({
-  icon,
-  label,
-  value,
-}: {
-  icon: ReactNode;
-  label: string;
-  value: string;
-}) {
-  return (
-    <Card className="bg-card/80">
-      <CardContent className="flex flex-col gap-1 py-4">
-        <div className="flex items-center gap-2 text-xs text-muted-foreground">
-          {icon}
-          {label}
-        </div>
-        <div className="text-xl font-semibold text-foreground">{value}</div>
-      </CardContent>
-    </Card>
   );
 }
