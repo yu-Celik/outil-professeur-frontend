@@ -1,1 +1,1 @@
-export { useDashboardData } from './use-dashboard-data'
+export { useDashboardData } from "./use-dashboard-data";

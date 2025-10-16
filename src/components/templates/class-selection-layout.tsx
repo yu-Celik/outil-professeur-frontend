@@ -14,7 +14,11 @@ interface ClassSelectionLayoutProps {
   customClasses?: Class[];
   customSelectedClassId?: string | null;
   customOnClassSelect?: (classId: string | null) => void;
-  customGetClassColorWithText?: (classId: string) => { backgroundColor: string; color: string; borderColor: string };
+  customGetClassColorWithText?: (classId: string) => {
+    backgroundColor: string;
+    color: string;
+    borderColor: string;
+  };
 }
 
 export function ClassSelectionLayout({
@@ -36,9 +40,13 @@ export function ClassSelectionLayout({
   } = useClassSelection();
 
   // Utiliser les props custom ou les valeurs du context global
-  const selectedClassId = customSelectedClassId !== undefined ? customSelectedClassId : contextSelectedClassId;
+  const selectedClassId =
+    customSelectedClassId !== undefined
+      ? customSelectedClassId
+      : contextSelectedClassId;
   const classes = customClasses || contextClasses;
-  const getClassColorWithText = customGetClassColorWithText || contextGetClassColorWithText;
+  const getClassColorWithText =
+    customGetClassColorWithText || contextGetClassColorWithText;
   const handleClassSelect = customOnClassSelect || contextHandleClassSelect;
 
   // Sélectionner automatiquement la première classe seulement si pas de props custom

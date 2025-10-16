@@ -2,25 +2,26 @@
 
 import { useEffect, useState } from "react";
 import { Toaster } from "sonner";
-import { LoadingSpinner } from "@/components/atoms/loading-spinner";
-import { ClassColorPicker } from "@/components/molecules/class-color-picker";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
 } from "@/components/atoms/dialog";
+import { LoadingSpinner } from "@/components/atoms/loading-spinner";
+import { ClassColorPicker } from "@/components/molecules/class-color-picker";
 import { SessionCancelDialog } from "@/components/molecules/session-cancel-dialog";
 import { SessionForm } from "@/components/molecules/session-form";
 import { SessionMoveDialog } from "@/components/molecules/session-move-dialog";
 import { CalendarToolbar } from "@/components/organisms/calendar-toolbar";
 import { CalendarWeekView } from "@/components/organisms/calendar-week-view";
-import { useCalendar } from "@/features/calendar";
-import { useClassColors } from "@/features/calendar";
-import { useModal, useSimpleModal } from "@/shared/hooks";
-import { useSessionMoves } from "@/features/calendar";
-import { useSetPageTitle } from "@/shared/hooks";
+import {
+  useCalendar,
+  useClassColors,
+  useSessionMoves,
+} from "@/features/calendar";
 import { useUserSession } from "@/features/settings";
+import { useModal, useSetPageTitle, useSimpleModal } from "@/shared/hooks";
 import type { CourseSession, TimeSlot } from "@/types/uml-entities";
 
 export default function CalendrierPage() {
@@ -51,7 +52,6 @@ export default function CalendrierPage() {
 
   const {
     currentDate,
-    calendarWeeks,
     calendarEvents,
     loading,
     navigateWeek,
@@ -70,7 +70,7 @@ export default function CalendrierPage() {
   // Synchroniser avec les préférences UML
   useEffect(() => {
     if (!userLoading) {
-      const preferences = getPreferences();
+      getPreferences();
       // Vue hebdomadaire uniquement - plus de préférence de vue
     }
   }, [userLoading, getPreferences]);

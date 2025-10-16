@@ -1,6 +1,6 @@
 "use client";
 
-import { UserX, UserCheck } from "lucide-react";
+import { UserCheck, UserX } from "lucide-react";
 import { Button } from "@/components/atoms/button";
 import { cn } from "@/lib/utils";
 
@@ -28,7 +28,7 @@ export function AbsenceToggle({
       className={cn(
         "flex items-center gap-1.5",
         isAbsent && "bg-destructive/90 hover:bg-destructive",
-        className
+        className,
       )}
     >
       {isAbsent ? (

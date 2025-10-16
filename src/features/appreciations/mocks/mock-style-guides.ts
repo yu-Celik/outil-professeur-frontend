@@ -15,7 +15,7 @@ export const MOCK_STYLE_GUIDES: StyleGuide[] = [
       "pas terrible",
       "décevant",
       "catastrophique",
-      "lamentable"
+      "lamentable",
     ],
     preferredPhrases: [
       "montre des progrès",
@@ -23,7 +23,7 @@ export const MOCK_STYLE_GUIDES: StyleGuide[] = [
       "s'investit dans",
       "développe ses compétences",
       "manifeste un intérêt",
-      "progresse significativement"
+      "progresse significativement",
     ],
     createdAt: new Date("2025-08-15"),
     updatedAt: new Date("2025-09-06"),
@@ -42,7 +42,7 @@ export const MOCK_STYLE_GUIDES: StyleGuide[] = [
       "insuffisant",
       "mauvais",
       "problématique",
-      "difficultés importantes"
+      "difficultés importantes",
     ],
     preferredPhrases: [
       "vous progressez",
@@ -50,7 +50,7 @@ export const MOCK_STYLE_GUIDES: StyleGuide[] = [
       "vous montrez de belles capacités",
       "continuez sur cette voie",
       "vos progrès sont encourageants",
-      "vous développez vos talents"
+      "vous développez vos talents",
     ],
     createdAt: new Date("2025-08-15"),
     updatedAt: new Date("2025-09-06"),
@@ -69,7 +69,7 @@ export const MOCK_STYLE_GUIDES: StyleGuide[] = [
       "jamais",
       "aucun effort",
       "ne fait rien",
-      "pas du tout"
+      "pas du tout",
     ],
     preferredPhrases: [
       "peut améliorer",
@@ -77,7 +77,7 @@ export const MOCK_STYLE_GUIDES: StyleGuide[] = [
       "pourrait développer",
       "il serait bénéfique de",
       "les prochains objectifs",
-      "axes d'amélioration"
+      "axes d'amélioration",
     ],
     createdAt: new Date("2025-08-15"),
     updatedAt: new Date("2025-09-06"),
@@ -91,20 +91,14 @@ export const MOCK_STYLE_GUIDES: StyleGuide[] = [
     length: "long",
     person: "deuxieme",
     variability: "elevee",
-    bannedPhrases: [
-      "manque",
-      "déficit",
-      "lacune",
-      "faiblesse",
-      "point faible"
-    ],
+    bannedPhrases: ["manque", "déficit", "lacune", "faiblesse", "point faible"],
     preferredPhrases: [
       "excellente progression",
       "remarquable investissement",
       "qualités indéniables",
       "potentiel certain",
       "très bonne maîtrise",
-      "capacités prometteuses"
+      "capacités prometteuses",
     ],
     createdAt: new Date("2025-08-15"),
     updatedAt: new Date("2025-09-06"),
@@ -123,7 +117,7 @@ export const MOCK_STYLE_GUIDES: StyleGuide[] = [
       "très très",
       "extrêmement",
       "énormément",
-      "beaucoup trop"
+      "beaucoup trop",
     ],
     preferredPhrases: [
       "progresse",
@@ -131,7 +125,7 @@ export const MOCK_STYLE_GUIDES: StyleGuide[] = [
       "développe",
       "acquiert",
       "améliore",
-      "consolide"
+      "consolide",
     ],
     createdAt: new Date("2025-08-15"),
     updatedAt: new Date("2025-09-06"),
@@ -145,24 +139,18 @@ export const MOCK_STYLE_GUIDES: StyleGuide[] = [
     length: "long",
     person: "troisieme",
     variability: "elevee",
-    bannedPhrases: [
-      "ok",
-      "pas mal",
-      "ça va",
-      "moyen",
-      "correct"
-    ],
+    bannedPhrases: ["ok", "pas mal", "ça va", "moyen", "correct"],
     preferredPhrases: [
       "démontre une compréhension approfondie",
       "analyse avec pertinence",
       "structure sa réflexion",
       "argumente de manière cohérente",
       "fait preuve de rigueur",
-      "développe une approche méthodique"
+      "développe une approche méthodique",
     ],
     createdAt: new Date("2025-08-15"),
     updatedAt: new Date("2025-09-06"),
-  }
+  },
 ];
 
 // Helper functions
@@ -183,13 +171,13 @@ export const getDefaultStyleGuide = (): StyleGuide => {
 };
 
 export const getAllStyleGuideTones = (): string[] => {
-  return [...new Set(MOCK_STYLE_GUIDES.map(guide => guide.tone))];
+  return [...new Set(MOCK_STYLE_GUIDES.map((guide) => guide.tone))];
 };
 
 export const getAllStyleGuideRegisters = (): string[] => {
-  return [...new Set(MOCK_STYLE_GUIDES.map(guide => guide.register))];
+  return [...new Set(MOCK_STYLE_GUIDES.map((guide) => guide.register))];
 };
 
 export const getAllStyleGuideLengths = (): string[] => {
-  return [...new Set(MOCK_STYLE_GUIDES.map(guide => guide.length))];
+  return [...new Set(MOCK_STYLE_GUIDES.map((guide) => guide.length))];
 };

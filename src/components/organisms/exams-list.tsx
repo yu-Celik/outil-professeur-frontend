@@ -5,7 +5,7 @@ import { Button } from "@/components/atoms/button";
 import { ExamCard } from "@/components/molecules/exam-card";
 import { ExamFilters } from "@/components/molecules/exam-filters";
 import { ExamStatisticsCards } from "@/components/molecules/exam-statistics-cards";
-import { 
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -51,14 +51,9 @@ export function ExamsList({
   selectedClassId = null,
 }: ExamsListProps) {
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
-  
-  const {
-    exams,
-    loading,
-    error,
-    deleteExam,
-    toggleExamPublication,
-  } = useExamManagement(teacherId);
+
+  const { exams, loading, error, deleteExam, toggleExamPublication } =
+    useExamManagement(teacherId);
 
   const {
     filteredExams,
@@ -78,8 +73,8 @@ export function ExamsList({
   } = useExamFilters(exams, teacherId);
 
   // Filtrer par classe sélectionnée si fournie
-  const finalFilteredExams = selectedClassId 
-    ? filteredExams.filter(exam => exam.classId === selectedClassId)
+  const finalFilteredExams = selectedClassId
+    ? filteredExams.filter((exam) => exam.classId === selectedClassId)
     : filteredExams;
 
   const handleDeleteExam = async (examId: string) => {
@@ -156,7 +151,10 @@ export function ExamsList({
           <Select
             value={`${sort.field}-${sort.direction}`}
             onValueChange={(value) => {
-              const [field, direction] = value.split("-") as [ExamSortField, SortDirection];
+              const [field, direction] = value.split("-") as [
+                ExamSortField,
+                SortDirection,
+              ];
               updateSort(field, direction);
             }}
           >
@@ -166,12 +164,18 @@ export function ExamsList({
             </SelectTrigger>
             <SelectContent>
               {sortOptions.map((option) => (
-                <SelectItem key={`${option.value}-asc`} value={`${option.value}-asc`}>
+                <SelectItem
+                  key={`${option.value}-asc`}
+                  value={`${option.value}-asc`}
+                >
                   {option.label} (A-Z)
                 </SelectItem>
               ))}
               {sortOptions.map((option) => (
-                <SelectItem key={`${option.value}-desc`} value={`${option.value}-desc`}>
+                <SelectItem
+                  key={`${option.value}-desc`}
+                  value={`${option.value}-desc`}
+                >
                   {option.label} (Z-A)
                 </SelectItem>
               ))}
@@ -221,7 +225,6 @@ export function ExamsList({
         />
       )}
 
-
       {/* Liste des examens */}
       {isEmpty ? (
         <div className="text-center py-12">
@@ -230,10 +233,9 @@ export function ExamsList({
             {hasActiveFilters ? "Aucun examen trouvé" : "Aucune évaluation"}
           </h3>
           <p className="text-muted-foreground mb-4">
-            {hasActiveFilters 
+            {hasActiveFilters
               ? "Essayez de modifier vos filtres pour voir plus de résultats"
-              : "Créez votre première évaluation pour vos élèves"
-            }
+              : "Créez votre première évaluation pour vos élèves"}
           </p>
           {hasActiveFilters ? (
             <Button variant="outline" onClick={resetFilters}>
@@ -247,14 +249,16 @@ export function ExamsList({
           )}
         </div>
       ) : (
-        <div className={
-          viewMode === "grid"
-            ? "grid gap-6 md:grid-cols-2 lg:grid-cols-3"
-            : "space-y-4"
-        }>
+        <div
+          className={
+            viewMode === "grid"
+              ? "grid gap-6 md:grid-cols-2 lg:grid-cols-3"
+              : "space-y-4"
+          }
+        >
           {finalFilteredExams.map((exam) => {
             const stats = getExamStatistics(exam.id);
-            
+
             return (
               <ExamCard
                 key={exam.id}

@@ -1,9 +1,9 @@
 import { type NextRequest, NextResponse } from "next/server";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
 
 export async function middleware(request: NextRequest) {
-  const authToken = request.cookies.get('auth_token')
+  const authToken = request.cookies.get("auth_token");
 
   // Protect dashboard routes
   if (request.nextUrl.pathname.startsWith("/dashboard")) {
@@ -17,14 +17,14 @@ export async function middleware(request: NextRequest) {
         headers: {
           cookie: `auth_token=${authToken.value}`,
         },
-      })
+      });
 
       if (!response.ok) {
         // Token invalid or expired, redirect to login
         return NextResponse.redirect(new URL("/login", request.url));
       }
     } catch (error) {
-      console.error('Middleware auth check failed:', error)
+      console.error("Middleware auth check failed:", error);
       return NextResponse.redirect(new URL("/login", request.url));
     }
   }
@@ -37,7 +37,7 @@ export async function middleware(request: NextRequest) {
         headers: {
           cookie: `auth_token=${authToken.value}`,
         },
-      })
+      });
 
       if (response.ok) {
         // Token is valid, redirect to dashboard
@@ -45,7 +45,7 @@ export async function middleware(request: NextRequest) {
       }
       // Token invalid, let them access login page
     } catch (error) {
-      console.error('Middleware auth check for login page failed:', error)
+      console.error("Middleware auth check for login page failed:", error);
       // On error, let them access login page
     }
   }

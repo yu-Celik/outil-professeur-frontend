@@ -2,7 +2,12 @@
 
 import { useState } from "react";
 import { Button } from "@/components/atoms/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/molecules/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/molecules/card";
 import { Badge } from "@/components/atoms/badge";
 import { Input } from "@/components/atoms/input";
 import { Label } from "@/components/atoms/label";
@@ -46,11 +51,14 @@ import {
   ChevronDown,
   ChevronRight,
   MessageSquare,
-  BookOpen
+  BookOpen,
 } from "lucide-react";
 import { usePhraseBank } from "@/features/appreciations";
 import { MOCK_SUBJECTS } from "@/features/gestion/mocks";
-import type { CreatePhraseBankData, UpdatePhraseBankData } from "@/features/appreciations/hooks/use-phrase-bank";
+import type {
+  CreatePhraseBankData,
+  UpdatePhraseBankData,
+} from "@/features/appreciations/hooks/use-phrase-bank";
 import type { PhraseBank } from "@/types/uml-entities";
 
 export interface PhraseBankManagementProps {
@@ -66,13 +74,15 @@ export function PhraseBankManagement({
   className = "",
   onPhraseBankSelect,
   showActions = true,
-  selectedSubjectId
+  selectedSubjectId,
 }: PhraseBankManagementProps) {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [editingBank, setEditingBank] = useState<PhraseBank | null>(null);
   const [deletingBankId, setDeletingBankId] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
-  const [filterSubject, setFilterSubject] = useState<string>(selectedSubjectId || "");
+  const [filterSubject, setFilterSubject] = useState<string>(
+    selectedSubjectId || "",
+  );
   const [expandedBanks, setExpandedBanks] = useState<Set<string>>(new Set());
 
   const {
@@ -86,7 +96,7 @@ export function PhraseBankManagement({
     removePhraseFromBank,
     searchBanks,
     applyFilters,
-    getStats
+    getStats,
   } = usePhraseBank(teacherId);
 
   const stats = getStats();
@@ -101,13 +111,13 @@ export function PhraseBankManagement({
     setFilterSubject(subjectId);
     applyFilters({
       subjectId: subjectId || undefined,
-      search: searchTerm || undefined
+      search: searchTerm || undefined,
     });
   };
 
   // Gestion de l'expansion/réduction
   const toggleBankExpansion = (bankId: string) => {
-    setExpandedBanks(prev => {
+    setExpandedBanks((prev) => {
       const newSet = new Set(prev);
       if (newSet.has(bankId)) {
         newSet.delete(bankId);
@@ -146,7 +156,7 @@ export function PhraseBankManagement({
     const duplicateData: CreatePhraseBankData = {
       scope: bank.scope,
       subjectId: `${bank.subjectId}-copy`,
-      entries: JSON.parse(JSON.stringify(bank.entries)) // Deep copy
+      entries: JSON.parse(JSON.stringify(bank.entries)), // Deep copy
     };
     await createPhraseBank(duplicateData);
   };
@@ -157,7 +167,9 @@ export function PhraseBankManagement({
         <CardContent className="p-6">
           <div className="text-center py-8">
             <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full mx-auto mb-4"></div>
-            <p className="text-sm text-muted-foreground">Chargement des banques de phrases...</p>
+            <p className="text-sm text-muted-foreground">
+              Chargement des banques de phrases...
+            </p>
           </div>
         </CardContent>
       </Card>
@@ -192,7 +204,10 @@ export function PhraseBankManagement({
           </p>
         </div>
         {showActions && (
-          <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+          <Dialog
+            open={isCreateDialogOpen}
+            onOpenChange={setIsCreateDialogOpen}
+          >
             <DialogTrigger asChild>
               <Button>
                 <Plus className="h-4 w-4 mr-2" />
@@ -215,7 +230,9 @@ export function PhraseBankManagement({
           <Card key={scope}>
             <CardContent className="p-4 text-center">
               <div className="text-2xl font-bold">{count}</div>
-              <p className="text-xs text-muted-foreground capitalize">{scope}</p>
+              <p className="text-xs text-muted-foreground capitalize">
+                {scope}
+              </p>
             </CardContent>
           </Card>
         ))}
@@ -241,7 +258,7 @@ export function PhraseBankManagement({
           <SelectContent>
             <SelectItem value="all">Toutes les matières</SelectItem>
             <SelectItem value="general">Général</SelectItem>
-            {MOCK_SUBJECTS.map(subject => (
+            {MOCK_SUBJECTS.map((subject) => (
               <SelectItem key={subject.id} value={subject.id}>
                 {subject.name}
               </SelectItem>
@@ -252,11 +269,11 @@ export function PhraseBankManagement({
 
       {/* Liste des banques */}
       <div className="space-y-4">
-        {phraseBanks.map(bank => (
+        {phraseBanks.map((bank) => (
           <Card
             key={bank.id}
             className={`transition-all ${
-              onPhraseBankSelect ? 'hover:shadow-md cursor-pointer' : ''
+              onPhraseBankSelect ? "hover:shadow-md cursor-pointer" : ""
             }`}
           >
             <CardHeader>
@@ -277,11 +294,17 @@ export function PhraseBankManagement({
                   <div>
                     <CardTitle className="flex items-center gap-3">
                       <Database className="h-5 w-5" />
-                      {bank.scope === 'general' ? 'Banque générale' :
-                       MOCK_SUBJECTS.find(s => s.id === bank.subjectId)?.name || bank.subjectId}
+                      {bank.scope === "general"
+                        ? "Banque générale"
+                        : MOCK_SUBJECTS.find((s) => s.id === bank.subjectId)
+                            ?.name || bank.subjectId}
                     </CardTitle>
                     <div className="flex items-center gap-2 mt-2">
-                      <Badge variant={bank.scope === 'general' ? 'default' : 'secondary'}>
+                      <Badge
+                        variant={
+                          bank.scope === "general" ? "default" : "secondary"
+                        }
+                      >
                         {bank.scope}
                       </Badge>
                       <Badge variant="outline" className="text-xs">
@@ -322,45 +345,62 @@ export function PhraseBankManagement({
               <CollapsibleContent>
                 <CardContent className="pt-0">
                   <div className="space-y-4">
-                    {Object.entries(bank.entries as Record<string, any>).map(([category, content]) => (
-                      <div key={category} className="border rounded-lg p-4">
-                        <h4 className="font-medium text-sm mb-3 flex items-center gap-2">
-                          <MessageSquare className="h-4 w-4" />
-                          {category}
-                        </h4>
+                    {Object.entries(bank.entries as Record<string, any>).map(
+                      ([category, content]) => (
+                        <div key={category} className="border rounded-lg p-4">
+                          <h4 className="font-medium text-sm mb-3 flex items-center gap-2">
+                            <MessageSquare className="h-4 w-4" />
+                            {category}
+                          </h4>
 
-                        {Array.isArray(content) ? (
-                          <div className="space-y-2">
-                            {content.map((phrase: string, index: number) => (
-                              <div key={index} className="text-sm p-2 bg-muted rounded border-l-4 border-l-primary/50">
-                                "{phrase}"
-                              </div>
-                            ))}
-                          </div>
-                        ) : typeof content === 'object' && content !== null ? (
-                          <div className="space-y-3">
-                            {Object.entries(content).map(([subCategory, phrases]) => (
-                              <div key={subCategory} className="pl-4 border-l-2 border-muted">
-                                <h5 className="font-medium text-xs mb-2 text-muted-foreground uppercase">
-                                  {subCategory}
-                                </h5>
-                                <div className="space-y-1">
-                                  {Array.isArray(phrases) && phrases.map((phrase: string, index: number) => (
-                                    <div key={index} className="text-sm p-2 bg-muted rounded">
-                                      "{phrase}"
-                                    </div>
-                                  ))}
+                          {Array.isArray(content) ? (
+                            <div className="space-y-2">
+                              {content.map((phrase: string, index: number) => (
+                                <div
+                                  key={index}
+                                  className="text-sm p-2 bg-muted rounded border-l-4 border-l-primary/50"
+                                >
+                                  "{phrase}"
                                 </div>
-                              </div>
-                            ))}
-                          </div>
-                        ) : (
-                          <div className="text-sm text-muted-foreground">
-                            Contenu personnalisé
-                          </div>
-                        )}
-                      </div>
-                    ))}
+                              ))}
+                            </div>
+                          ) : typeof content === "object" &&
+                            content !== null ? (
+                            <div className="space-y-3">
+                              {Object.entries(content).map(
+                                ([subCategory, phrases]) => (
+                                  <div
+                                    key={subCategory}
+                                    className="pl-4 border-l-2 border-muted"
+                                  >
+                                    <h5 className="font-medium text-xs mb-2 text-muted-foreground uppercase">
+                                      {subCategory}
+                                    </h5>
+                                    <div className="space-y-1">
+                                      {Array.isArray(phrases) &&
+                                        phrases.map(
+                                          (phrase: string, index: number) => (
+                                            <div
+                                              key={index}
+                                              className="text-sm p-2 bg-muted rounded"
+                                            >
+                                              "{phrase}"
+                                            </div>
+                                          ),
+                                        )}
+                                    </div>
+                                  </div>
+                                ),
+                              )}
+                            </div>
+                          ) : (
+                            <div className="text-sm text-muted-foreground">
+                              Contenu personnalisé
+                            </div>
+                          )}
+                        </div>
+                      ),
+                    )}
                   </div>
                 </CardContent>
               </CollapsibleContent>
@@ -373,7 +413,9 @@ export function PhraseBankManagement({
         <Card>
           <CardContent className="p-12 text-center">
             <Database className="h-16 w-16 mx-auto mb-4 opacity-50" />
-            <h3 className="text-lg font-medium mb-2">Aucune banque de phrases</h3>
+            <h3 className="text-lg font-medium mb-2">
+              Aucune banque de phrases
+            </h3>
             <p className="text-sm text-muted-foreground mb-4">
               {searchTerm || filterSubject
                 ? "Aucune banque ne correspond à vos critères de recherche."
@@ -398,19 +440,25 @@ export function PhraseBankManagement({
             </DialogHeader>
             <PhraseBankForm
               initialData={editingBank}
-              onSubmit={(data) => handleUpdateBank({ id: editingBank.id, ...data })}
+              onSubmit={(data) =>
+                handleUpdateBank({ id: editingBank.id, ...data })
+              }
             />
           </DialogContent>
         </Dialog>
       )}
 
       {/* Dialog de confirmation de suppression */}
-      <AlertDialog open={!!deletingBankId} onOpenChange={() => setDeletingBankId(null)}>
+      <AlertDialog
+        open={!!deletingBankId}
+        onOpenChange={() => setDeletingBankId(null)}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertTitle>Supprimer la banque de phrases</AlertTitle>
             <AlertDialogDescription>
-              Cette action est irréversible. Toutes les phrases de cette banque seront définitivement supprimées.
+              Cette action est irréversible. Toutes les phrases de cette banque
+              seront définitivement supprimées.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -442,11 +490,11 @@ function PhraseBankForm({ initialData, onSubmit }: PhraseBankFormProps) {
       positiveElements: {
         participation: [],
         comprehension: [],
-        expression: []
+        expression: [],
       },
       improvementAreas: [],
-      encouragements: []
-    }
+      encouragements: [],
+    },
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -469,7 +517,9 @@ function PhraseBankForm({ initialData, onSubmit }: PhraseBankFormProps) {
           <Label htmlFor="scope">Portée</Label>
           <Select
             value={formData.scope}
-            onValueChange={(value) => setFormData(prev => ({ ...prev, scope: value }))}
+            onValueChange={(value) =>
+              setFormData((prev) => ({ ...prev, scope: value }))
+            }
           >
             <SelectTrigger>
               <SelectValue placeholder="Choisir la portée" />
@@ -484,14 +534,16 @@ function PhraseBankForm({ initialData, onSubmit }: PhraseBankFormProps) {
           <Label htmlFor="subjectId">Matière</Label>
           <Select
             value={formData.subjectId}
-            onValueChange={(value) => setFormData(prev => ({ ...prev, subjectId: value }))}
+            onValueChange={(value) =>
+              setFormData((prev) => ({ ...prev, subjectId: value }))
+            }
             disabled={formData.scope === "general"}
           >
             <SelectTrigger>
               <SelectValue placeholder="Choisir la matière" />
             </SelectTrigger>
             <SelectContent>
-              {MOCK_SUBJECTS.map(subject => (
+              {MOCK_SUBJECTS.map((subject) => (
                 <SelectItem key={subject.id} value={subject.id}>
                   {subject.name}
                 </SelectItem>
@@ -504,7 +556,8 @@ function PhraseBankForm({ initialData, onSubmit }: PhraseBankFormProps) {
       <div>
         <Label>Structure des phrases</Label>
         <div className="text-sm text-muted-foreground mt-1 mb-3">
-          Les phrases seront organisées automatiquement par catégories (éléments positifs, axes d'amélioration, encouragements)
+          Les phrases seront organisées automatiquement par catégories (éléments
+          positifs, axes d'amélioration, encouragements)
         </div>
         <Textarea
           placeholder="Configuration JSON des phrases (format avancé)..."
@@ -512,7 +565,7 @@ function PhraseBankForm({ initialData, onSubmit }: PhraseBankFormProps) {
           onChange={(e) => {
             try {
               const parsed = JSON.parse(e.target.value);
-              setFormData(prev => ({ ...prev, entries: parsed }));
+              setFormData((prev) => ({ ...prev, entries: parsed }));
             } catch (error) {
               // Ignore invalid JSON during typing
             }
@@ -527,7 +580,11 @@ function PhraseBankForm({ initialData, onSubmit }: PhraseBankFormProps) {
           Annuler
         </Button>
         <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? "Enregistrement..." : (initialData ? "Modifier" : "Créer")}
+          {isSubmitting
+            ? "Enregistrement..."
+            : initialData
+              ? "Modifier"
+              : "Créer"}
         </Button>
       </div>
     </form>

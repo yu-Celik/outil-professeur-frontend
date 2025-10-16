@@ -24,7 +24,13 @@ import { fr } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import { RubricSelector } from "@/components/molecules/rubric-selector";
 import type { ExamFormData } from "@/features/evaluations";
-import type { Exam, Class, Subject, AcademicPeriod, NotationSystem } from "@/types/uml-entities";
+import type {
+  Exam,
+  Class,
+  Subject,
+  AcademicPeriod,
+  NotationSystem,
+} from "@/types/uml-entities";
 
 export interface ExamFormProps {
   exam?: Exam | null;
@@ -39,7 +45,7 @@ export interface ExamFormProps {
 
 const examTypes = [
   "Contrôle écrit",
-  "Quiz en ligne", 
+  "Quiz en ligne",
   "Présentation orale",
   "Projet créatif",
   "Dissertation",
@@ -74,7 +80,9 @@ export function ExamForm({
     rubricId: exam?.rubricId || undefined,
   });
 
-  const [errors, setErrors] = useState<Partial<Record<keyof ExamFormData, string>>>({});
+  const [errors, setErrors] = useState<
+    Partial<Record<keyof ExamFormData, string>>
+  >({});
 
   const validateForm = (): boolean => {
     const newErrors: Partial<Record<keyof ExamFormData, string>> = {};
@@ -121,7 +129,7 @@ export function ExamForm({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       return;
     }
@@ -135,12 +143,12 @@ export function ExamForm({
 
   const updateField = <K extends keyof ExamFormData>(
     key: K,
-    value: ExamFormData[K]
+    value: ExamFormData[K],
   ) => {
-    setFormData(prev => ({ ...prev, [key]: value }));
+    setFormData((prev) => ({ ...prev, [key]: value }));
     // Effacer l'erreur pour ce champ
     if (errors[key]) {
-      setErrors(prev => ({ ...prev, [key]: undefined }));
+      setErrors((prev) => ({ ...prev, [key]: undefined }));
     }
   };
 
@@ -168,7 +176,9 @@ export function ExamForm({
             value={formData.examType}
             onValueChange={(value) => updateField("examType", value)}
           >
-            <SelectTrigger className={errors.examType ? "border-destructive" : ""}>
+            <SelectTrigger
+              className={errors.examType ? "border-destructive" : ""}
+            >
               <SelectValue placeholder="Sélectionnez un type" />
             </SelectTrigger>
             <SelectContent>
@@ -205,7 +215,9 @@ export function ExamForm({
             value={formData.classId}
             onValueChange={(value) => updateField("classId", value)}
           >
-            <SelectTrigger className={errors.classId ? "border-destructive" : ""}>
+            <SelectTrigger
+              className={errors.classId ? "border-destructive" : ""}
+            >
               <SelectValue placeholder="Sélectionnez une classe" />
             </SelectTrigger>
             <SelectContent>
@@ -227,7 +239,9 @@ export function ExamForm({
             value={formData.subjectId}
             onValueChange={(value) => updateField("subjectId", value)}
           >
-            <SelectTrigger className={errors.subjectId ? "border-destructive" : ""}>
+            <SelectTrigger
+              className={errors.subjectId ? "border-destructive" : ""}
+            >
               <SelectValue placeholder="Sélectionnez une matière" />
             </SelectTrigger>
             <SelectContent>
@@ -249,7 +263,9 @@ export function ExamForm({
             value={formData.academicPeriodId}
             onValueChange={(value) => updateField("academicPeriodId", value)}
           >
-            <SelectTrigger className={errors.academicPeriodId ? "border-destructive" : ""}>
+            <SelectTrigger
+              className={errors.academicPeriodId ? "border-destructive" : ""}
+            >
               <SelectValue placeholder="Sélectionnez une période" />
             </SelectTrigger>
             <SelectContent>
@@ -261,7 +277,9 @@ export function ExamForm({
             </SelectContent>
           </Select>
           {errors.academicPeriodId && (
-            <p className="text-sm text-destructive">{errors.academicPeriodId}</p>
+            <p className="text-sm text-destructive">
+              {errors.academicPeriodId}
+            </p>
           )}
         </div>
       </div>
@@ -276,15 +294,13 @@ export function ExamForm({
                 variant="outline"
                 className={cn(
                   "w-full justify-start text-left font-normal",
-                  !formData.examDate && "text-muted-foreground"
+                  !formData.examDate && "text-muted-foreground",
                 )}
               >
                 <CalendarIcon className="mr-2 h-4 w-4" />
-                {formData.examDate ? (
-                  format(formData.examDate, "dd MMM yyyy", { locale: fr })
-                ) : (
-                  "Sélectionner une date"
-                )}
+                {formData.examDate
+                  ? format(formData.examDate, "dd MMM yyyy", { locale: fr })
+                  : "Sélectionner une date"}
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-auto p-0" align="start">
@@ -306,7 +322,9 @@ export function ExamForm({
             min="1"
             max="600"
             value={formData.durationMinutes}
-            onChange={(e) => updateField("durationMinutes", parseInt(e.target.value) || 0)}
+            onChange={(e) =>
+              updateField("durationMinutes", parseInt(e.target.value) || 0)
+            }
             className={errors.durationMinutes ? "border-destructive" : ""}
           />
           {errors.durationMinutes && (
@@ -323,7 +341,9 @@ export function ExamForm({
             value={formData.notationSystemId}
             onValueChange={(value) => updateField("notationSystemId", value)}
           >
-            <SelectTrigger className={errors.notationSystemId ? "border-destructive" : ""}>
+            <SelectTrigger
+              className={errors.notationSystemId ? "border-destructive" : ""}
+            >
               <SelectValue placeholder="Sélectionnez un système" />
             </SelectTrigger>
             <SelectContent>
@@ -335,7 +355,9 @@ export function ExamForm({
             </SelectContent>
           </Select>
           {errors.notationSystemId && (
-            <p className="text-sm text-destructive">{errors.notationSystemId}</p>
+            <p className="text-sm text-destructive">
+              {errors.notationSystemId}
+            </p>
           )}
         </div>
 
@@ -348,7 +370,9 @@ export function ExamForm({
             max="200"
             step="0.5"
             value={formData.totalPoints}
-            onChange={(e) => updateField("totalPoints", parseFloat(e.target.value) || 0)}
+            onChange={(e) =>
+              updateField("totalPoints", parseFloat(e.target.value) || 0)
+            }
             className={errors.totalPoints ? "border-destructive" : ""}
           />
           {errors.totalPoints && (
@@ -365,7 +389,9 @@ export function ExamForm({
             max="10"
             step="0.1"
             value={formData.coefficient}
-            onChange={(e) => updateField("coefficient", parseFloat(e.target.value) || 0)}
+            onChange={(e) =>
+              updateField("coefficient", parseFloat(e.target.value) || 0)
+            }
             className={errors.coefficient ? "border-destructive" : ""}
           />
           {errors.coefficient && (
@@ -377,7 +403,9 @@ export function ExamForm({
       {/* Grille d'évaluation */}
       <RubricSelector
         value={formData.rubricId}
-        onValueChange={(rubricId) => updateField("rubricId", rubricId || undefined)}
+        onValueChange={(rubricId) =>
+          updateField("rubricId", rubricId || undefined)
+        }
         teacherId={exam?.createdBy}
         className="w-full"
       />

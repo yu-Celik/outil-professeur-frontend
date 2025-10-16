@@ -25,8 +25,13 @@ export interface UseClassManagementReturn {
   updateClass: (id: string, data: ClassFormData) => Promise<Class>;
   deleteClass: (id: string) => Promise<void>;
   getClassById: (id: string) => Class | undefined;
-  validateForm: (data: ClassFormData, excludeId?: string) => Record<keyof ClassFormData, string | null>;
-  hasValidationErrors: (errors: Record<keyof ClassFormData, string | null>) => boolean;
+  validateForm: (
+    data: ClassFormData,
+    excludeId?: string,
+  ) => Record<keyof ClassFormData, string | null>;
+  hasValidationErrors: (
+    errors: Record<keyof ClassFormData, string | null>,
+  ) => boolean;
 
   // Données et méthodes spécifiques aux classes
   schoolYears: SchoolYear[];
@@ -42,30 +47,24 @@ export function useClassManagement(): UseClassManagementReturn {
     entityName: "classe",
     mockData: MOCK_CLASSES,
     generateId: () => `class-${generateUniqueId()}`,
-    
+
     // Règles de validation
     validationRules: {
       classCode: [
         requiredRule("classCode", "Code de classe"),
-        customRule(
-          (value: string, items: Class[], excludeId?: string) => {
-            // Vérifier l'unicité du code dans l'année scolaire
-            const formData = arguments[3] as ClassFormData;
-            return !items.some((cls) => 
-              cls.id !== excludeId && 
-              cls.classCode === value && 
-              cls.schoolYearId === (formData as any).schoolYearId
-            );
-          },
-          "Une classe avec ce code existe déjà pour cette année scolaire"
-        ),
+        customRule((value: string, items: Class[], excludeId?: string) => {
+          // Vérifier l'unicité du code dans l'année scolaire
+          const formData = arguments[3] as ClassFormData;
+          return !items.some(
+            (cls) =>
+              cls.id !== excludeId &&
+              cls.classCode === value &&
+              cls.schoolYearId === (formData as any).schoolYearId,
+          );
+        }, "Une classe avec ce code existe déjà pour cette année scolaire"),
       ],
-      gradeLabel: [
-        requiredRule("gradeLabel", "Niveau de classe"),
-      ],
-      schoolYearId: [
-        requiredRule("schoolYearId", "Année scolaire"),
-      ],
+      gradeLabel: [requiredRule("gradeLabel", "Niveau de classe")],
+      schoolYearId: [requiredRule("schoolYearId", "Année scolaire")],
     },
 
     // Création d'entité
@@ -94,9 +93,14 @@ export function useClassManagement(): UseClassManagementReturn {
   });
 
   // Méthodes spécifiques aux classes
-  const getClassesBySchoolYear = useCallback((schoolYearId: string) => {
-    return baseManagement.items.filter((cls) => cls.schoolYearId === schoolYearId);
-  }, [baseManagement.items]);
+  const getClassesBySchoolYear = useCallback(
+    (schoolYearId: string) => {
+      return baseManagement.items.filter(
+        (cls) => cls.schoolYearId === schoolYearId,
+      );
+    },
+    [baseManagement.items],
+  );
 
   return {
     // Propriétés héritées du hook de base

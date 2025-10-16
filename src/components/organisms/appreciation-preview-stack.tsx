@@ -57,7 +57,8 @@ export function AppreciationPreviewStack({
           <Sparkles className="mx-auto h-10 w-10 text-muted-foreground" />
           <CardTitle>Aucune appréciation à prévisualiser</CardTitle>
           <CardDescription>
-            Configurez la génération ci-dessous pour afficher les propositions de l'IA.
+            Configurez la génération ci-dessous pour afficher les propositions
+            de l'IA.
           </CardDescription>
         </CardHeader>
       </Card>
@@ -152,7 +153,11 @@ function EditableAppreciationCard({
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <CardTitle className="text-sm">Prévisualisation IA</CardTitle>
-            {item.studentLabel && <Badge variant="secondary" className="text-xs">{item.studentLabel}</Badge>}
+            {item.studentLabel && (
+              <Badge variant="secondary" className="text-xs">
+                {item.studentLabel}
+              </Badge>
+            )}
           </div>
           <div className="flex items-center gap-2">
             {appreciation.status === "validated" && (
@@ -191,19 +196,39 @@ function EditableAppreciationCard({
             <CheckCircle className="mr-1.5 h-3.5 w-3.5" />
             Valider
           </Button>
-          <Button size="sm" variant="outline" onClick={handleRegenerate} disabled={isProcessing}>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={handleRegenerate}
+            disabled={isProcessing}
+          >
             <RefreshCw className="mr-1.5 h-3.5 w-3.5" />
             Régénérer
           </Button>
-          <Button size="sm" variant="outline" onClick={handleCopy} disabled={copyState === "copied"}>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={handleCopy}
+            disabled={copyState === "copied"}
+          >
             <Copy className="mr-1.5 h-3.5 w-3.5" />
             {copyState === "copied" ? "Copié" : "Copier"}
           </Button>
           <Button size="sm" variant="outline" onClick={handleToggleFavorite}>
-            <Star className={cn("mr-1.5 h-3.5 w-3.5", appreciation.isFavorite && "fill-current")} />
+            <Star
+              className={cn(
+                "mr-1.5 h-3.5 w-3.5",
+                appreciation.isFavorite && "fill-current",
+              )}
+            />
             Favori
           </Button>
-          <Button size="sm" variant="ghost" onClick={handleRemove} className="ml-auto text-destructive">
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={handleRemove}
+            className="ml-auto text-destructive"
+          >
             <Trash2 className="h-3.5 w-3.5" />
           </Button>
         </div>

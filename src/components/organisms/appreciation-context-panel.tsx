@@ -4,7 +4,13 @@ import { ReactNode } from "react";
 import { Switch } from "@/components/atoms/switch";
 import { Badge } from "@/components/atoms/badge";
 import { Separator } from "@/components/atoms/separator";
-import { TrendingUp, TrendingDown, Minus, Info, AlertCircle } from "lucide-react";
+import {
+  TrendingUp,
+  TrendingDown,
+  Minus,
+  Info,
+  AlertCircle,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export type ContextTrend = "up" | "down" | "steady";
@@ -66,8 +72,16 @@ export function AppreciationContextPanel({
             <Badge variant="secondary" className="text-xs py-0.5">
               {studentName ?? "Aucun élève"}
             </Badge>
-            {subjectLabel && <Badge variant="outline" className="text-xs py-0.5">{subjectLabel}</Badge>}
-            {periodLabel && <Badge variant="outline" className="text-xs py-0.5">{periodLabel}</Badge>}
+            {subjectLabel && (
+              <Badge variant="outline" className="text-xs py-0.5">
+                {subjectLabel}
+              </Badge>
+            )}
+            {periodLabel && (
+              <Badge variant="outline" className="text-xs py-0.5">
+                {periodLabel}
+              </Badge>
+            )}
           </div>
           <h2 className="text-sm font-medium text-foreground">Contexte IA</h2>
         </div>
@@ -96,62 +110,74 @@ export function AppreciationContextPanel({
                     </h3>
                     <Switch
                       checked={section.enabled}
-                      onCheckedChange={(checked) => onToggleSection(section.id, Boolean(checked))}
+                      onCheckedChange={(checked) =>
+                        onToggleSection(section.id, Boolean(checked))
+                      }
                       className="scale-75"
                     />
                   </div>
                 </div>
 
                 {/* Métriques compactes */}
-                {section.enabled && section.metrics && section.metrics.length > 0 && (
-                  <div className="space-y-1.5">
-                    {section.metrics.map((metric) => (
-                      <div
-                        key={metric.label}
-                        className="flex items-center justify-between p-2 rounded border bg-muted/30"
-                      >
-                        <div className="min-w-0 flex-1">
-                          <div className="text-xs text-muted-foreground">{metric.label}</div>
-                          <div className="text-sm font-medium">{metric.value}</div>
-                          {metric.helperText && (
-                            <div className="text-xs text-muted-foreground truncate">
-                              {metric.helperText}
+                {section.enabled &&
+                  section.metrics &&
+                  section.metrics.length > 0 && (
+                    <div className="space-y-1.5">
+                      {section.metrics.map((metric) => (
+                        <div
+                          key={metric.label}
+                          className="flex items-center justify-between p-2 rounded border bg-muted/30"
+                        >
+                          <div className="min-w-0 flex-1">
+                            <div className="text-xs text-muted-foreground">
+                              {metric.label}
+                            </div>
+                            <div className="text-sm font-medium">
+                              {metric.value}
+                            </div>
+                            {metric.helperText && (
+                              <div className="text-xs text-muted-foreground truncate">
+                                {metric.helperText}
+                              </div>
+                            )}
+                          </div>
+                          {metric.trend && (
+                            <div className="ml-2">
+                              {TREND_ICONS[metric.trend]}
                             </div>
                           )}
                         </div>
-                        {metric.trend && (
-                          <div className="ml-2">
-                            {TREND_ICONS[metric.trend]}
-                          </div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                )}
+                      ))}
+                    </div>
+                  )}
 
                 {/* Items compacts */}
-                {section.enabled && section.items && section.items.length > 0 && (
-                  <div className="space-y-1">
-                    {section.items.slice(0, 3).map((item) => (
-                      <div
-                        key={item.label}
-                        className={cn(
-                          "px-2 py-1.5 rounded text-xs",
-                          item.tone === "positive" && "bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-300",
-                          item.tone === "warning" && "bg-amber-50 text-amber-700 dark:bg-amber-500/10 dark:text-amber-300",
-                          !item.tone && "bg-muted/40 text-muted-foreground"
-                        )}
-                      >
-                        <span className="font-medium">{item.label}</span>
-                      </div>
-                    ))}
-                    {section.items.length > 3 && (
-                      <div className="text-xs text-muted-foreground px-2">
-                        +{section.items.length - 3} autres...
-                      </div>
-                    )}
-                  </div>
-                )}
+                {section.enabled &&
+                  section.items &&
+                  section.items.length > 0 && (
+                    <div className="space-y-1">
+                      {section.items.slice(0, 3).map((item) => (
+                        <div
+                          key={item.label}
+                          className={cn(
+                            "px-2 py-1.5 rounded text-xs",
+                            item.tone === "positive" &&
+                              "bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-300",
+                            item.tone === "warning" &&
+                              "bg-amber-50 text-amber-700 dark:bg-amber-500/10 dark:text-amber-300",
+                            !item.tone && "bg-muted/40 text-muted-foreground",
+                          )}
+                        >
+                          <span className="font-medium">{item.label}</span>
+                        </div>
+                      ))}
+                      {section.items.length > 3 && (
+                        <div className="text-xs text-muted-foreground px-2">
+                          +{section.items.length - 3} autres...
+                        </div>
+                      )}
+                    </div>
+                  )}
 
                 {!section.enabled && (
                   <div className="text-xs text-muted-foreground px-2 py-1">

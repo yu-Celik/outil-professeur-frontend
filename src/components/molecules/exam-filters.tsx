@@ -83,9 +83,12 @@ export function ExamFilters({
       {/* Filtres rapides par statut */}
       <div className="flex flex-wrap gap-2">
         {statusOptions.map((option) => {
-          const count = option.value === "all" ? filterStats.total : filterStats[option.value as keyof typeof filterStats];
+          const count =
+            option.value === "all"
+              ? filterStats.total
+              : filterStats[option.value as keyof typeof filterStats];
           const isActive = filters.status === option.value;
-          
+
           return (
             <Button
               key={option.value}
@@ -181,23 +184,27 @@ export function ExamFilters({
       {/* Filtres de dates */}
       <div className="flex flex-col sm:flex-row gap-4">
         <div className="flex-1">
-          <label className="text-sm font-medium mb-2 block">Date de début</label>
+          <label className="text-sm font-medium mb-2 block">
+            Date de début
+          </label>
           <Popover>
             <PopoverTrigger asChild>
               <Button variant="outline" className="w-full justify-start">
                 <CalendarIcon className="mr-2 w-4 h-4" />
-                {filters.dateRange.start ? (
-                  format(filters.dateRange.start, "dd MMM yyyy", { locale: fr })
-                ) : (
-                  "Sélectionner une date"
-                )}
+                {filters.dateRange.start
+                  ? format(filters.dateRange.start, "dd MMM yyyy", {
+                      locale: fr,
+                    })
+                  : "Sélectionner une date"}
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-auto p-0" align="start">
               <Calendar
                 mode="single"
                 selected={filters.dateRange.start || undefined}
-                onSelect={(date) => handleDateRangeChange("start", date || null)}
+                onSelect={(date) =>
+                  handleDateRangeChange("start", date || null)
+                }
                 initialFocus
               />
             </PopoverContent>
@@ -210,11 +217,9 @@ export function ExamFilters({
             <PopoverTrigger asChild>
               <Button variant="outline" className="w-full justify-start">
                 <CalendarIcon className="mr-2 w-4 h-4" />
-                {filters.dateRange.end ? (
-                  format(filters.dateRange.end, "dd MMM yyyy", { locale: fr })
-                ) : (
-                  "Sélectionner une date"
-                )}
+                {filters.dateRange.end
+                  ? format(filters.dateRange.end, "dd MMM yyyy", { locale: fr })
+                  : "Sélectionner une date"}
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-auto p-0" align="start">

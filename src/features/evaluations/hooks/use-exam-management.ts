@@ -280,13 +280,13 @@ export function useExamManagement(
           studentId: data.studentId,
           pointsObtained: computedPoints,
           grade: data.isAbsent
-            ? notationSystem?.minValue ?? 0
+            ? (notationSystem?.minValue ?? 0)
             : computedGrade,
           gradeDisplay: data.isAbsent
             ? "ABS"
             : notationSystem
-                ? formatGradeDisplay(computedGrade, notationSystem, "fr-FR")
-                : computedPoints.toString(),
+              ? formatGradeDisplay(computedGrade, notationSystem, "fr-FR")
+              : computedPoints.toString(),
           isAbsent: data.isAbsent,
           comments: data.comments,
           markedAt: new Date(),

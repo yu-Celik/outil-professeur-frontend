@@ -35,7 +35,9 @@ export function SessionAdvancedFilters({
     onFilterChange?.(newFilters);
   };
 
-  const hasActiveFilters = Object.values(filters).some(value => value !== "all");
+  const hasActiveFilters = Object.values(filters).some(
+    (value) => value !== "all",
+  );
 
   return (
     <div className="border border-border/50 rounded-lg bg-muted/20">
@@ -118,7 +120,9 @@ export function SessionAdvancedFilters({
               </label>
               <Select
                 value={filters.dateRange}
-                onValueChange={(value) => handleFilterChange("dateRange", value)}
+                onValueChange={(value) =>
+                  handleFilterChange("dateRange", value)
+                }
               >
                 <SelectTrigger className="h-8 text-xs">
                   <SelectValue />

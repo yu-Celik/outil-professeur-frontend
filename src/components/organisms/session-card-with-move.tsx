@@ -97,15 +97,9 @@ export function SessionCardWithMove({
 
         {/* Badges de statut */}
         <div className="flex gap-2">
-          {session.isMoved && (
-            <SessionStatusBadge
-              status="moved"
-            />
-          )}
+          {session.isMoved && <SessionStatusBadge status="moved" />}
           {session.status === "cancelled" && (
-            <SessionStatusBadge
-              status="cancelled"
-            />
+            <SessionStatusBadge status="cancelled" />
           )}
         </div>
 

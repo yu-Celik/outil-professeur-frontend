@@ -105,7 +105,8 @@ export function SessionsList({
               <h3 className="text-sm font-semibold text-foreground truncate">
                 {getSubjectById(selectedSession.subjectId)?.name ||
                   selectedSession.subjectId}{" "}
-                - {getClassById(selectedSession.classId)?.classCode ||
+                -{" "}
+                {getClassById(selectedSession.classId)?.classCode ||
                   selectedSession.classId}
               </h3>
               <div className="flex items-center gap-2 text-xs text-muted-foreground">

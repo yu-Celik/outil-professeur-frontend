@@ -1,1 +1,1 @@
-export * from './mock-user-preferences'
+export * from "./mock-user-preferences";

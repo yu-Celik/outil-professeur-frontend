@@ -26,7 +26,8 @@ export function StudentsGrid({
 }: StudentsGridProps) {
   const [showStudentForm, setShowStudentForm] = useState(false);
   const [editingStudent, setEditingStudent] = useState<Student | null>(null);
-  const { classes, createStudent, updateStudent, loading, error } = useStudentManagement();
+  const { classes, createStudent, updateStudent, loading, error } =
+    useStudentManagement();
 
   const handleCreateStudent = async (data: any) => {
     try {
@@ -100,9 +101,9 @@ export function StudentsGrid({
               <Badge variant="outline">
                 {students.length} élève{students.length > 1 ? "s" : ""}
               </Badge>
-              <Button 
-                size="sm" 
-                onClick={() => setShowStudentForm(true)} 
+              <Button
+                size="sm"
+                onClick={() => setShowStudentForm(true)}
                 className="gap-2"
               >
                 <Plus className="h-4 w-4" />

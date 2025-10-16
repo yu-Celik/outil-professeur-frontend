@@ -1,11 +1,6 @@
 "use client";
 
-import {
-  Eye,
-  GraduationCap,
-  Star,
-  X,
-} from "lucide-react";
+import { Eye, GraduationCap, Star, X } from "lucide-react";
 import { useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/atoms/avatar";
 import { Badge } from "@/components/atoms/badge";
@@ -33,22 +28,26 @@ export function StudentEvaluationsPanel({
 
   // Récupérer les entités Exam pour la classe de l'élève
   const { exams } = useExamManagement(teacherId);
-  const classExams = exams.filter(exam => exam.classId === student.currentClassId);
+  const classExams = exams.filter(
+    (exam) => exam.classId === student.currentClassId,
+  );
 
   // Récupérer les StudentExamResult pour cet élève
   const studentResults = getStudentExamResults(student.id);
 
   // Informations sur la classe et les résultats
   const studentClass = getClassById(student.currentClassId);
-  const averageGrade = studentResults.length > 0 
-    ? studentResults.reduce((sum, result) => sum + (result.grade || 0), 0) / studentResults.length 
-    : 0;
+  const averageGrade =
+    studentResults.length > 0
+      ? studentResults.reduce((sum, result) => sum + (result.grade || 0), 0) /
+        studentResults.length
+      : 0;
 
   const formatDate = (dateStr: string) => {
-    return new Date(dateStr).toLocaleDateString('fr-FR', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
+    return new Date(dateStr).toLocaleDateString("fr-FR", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
     });
   };
 
@@ -99,7 +98,9 @@ export function StudentEvaluationsPanel({
             <p className="text-xs text-muted-foreground">Évaluations</p>
           </div>
           <div className="text-center">
-            <div className={`text-2xl font-bold ${getGradeColor(averageGrade)}`}>
+            <div
+              className={`text-2xl font-bold ${getGradeColor(averageGrade)}`}
+            >
               {averageGrade > 0 ? averageGrade.toFixed(1) : "—"}
             </div>
             <p className="text-xs text-muted-foreground">Moyenne</p>
@@ -126,13 +127,15 @@ export function StudentEvaluationsPanel({
               <div className="text-center py-8 text-muted-foreground">
                 <Star className="h-8 w-8 mx-auto mb-2" />
                 <p className="text-sm">Aucune note enregistrée</p>
-                <p className="text-xs mt-1">Les notes de {student.firstName} apparaîtront ici</p>
+                <p className="text-xs mt-1">
+                  Les notes de {student.firstName} apparaîtront ici
+                </p>
               </div>
             ) : (
               studentResults.map((result) => {
-                const exam = classExams.find(e => e.id === result.examId);
+                const exam = classExams.find((e) => e.id === result.examId);
                 const subject = exam ? getSubjectById(exam.subjectId) : null;
-                
+
                 return (
                   <Card key={result.id} className="p-3">
                     <div className="space-y-2">
@@ -142,19 +145,25 @@ export function StudentEvaluationsPanel({
                             {exam?.title || "Évaluation supprimée"}
                           </h5>
                           <p className="text-xs text-muted-foreground">
-                            {subject?.name} • {exam ? formatDate(exam.examDate.toISOString()) : "—"}
+                            {subject?.name} •{" "}
+                            {exam
+                              ? formatDate(exam.examDate.toISOString())
+                              : "—"}
                           </p>
                         </div>
                         <div className="text-right">
-                          <div className={`text-lg font-bold ${getGradeColor(result.grade)}`}>
-                            {result.grade || "—"}<span className="text-sm">/20</span>
+                          <div
+                            className={`text-lg font-bold ${getGradeColor(result.grade)}`}
+                          >
+                            {result.grade || "—"}
+                            <span className="text-sm">/20</span>
                           </div>
                           <p className="text-xs text-muted-foreground">
                             Coef. {exam?.coefficient || 1}
                           </p>
                         </div>
                       </div>
-                      
+
                       {result.comments && (
                         <div className="bg-muted/30 rounded-md p-2">
                           <p className="text-xs text-muted-foreground italic">
@@ -162,7 +171,7 @@ export function StudentEvaluationsPanel({
                           </p>
                         </div>
                       )}
-                      
+
                       <div className="flex items-center justify-between text-xs">
                         <span className="text-muted-foreground">
                           Noté le {formatDate(result.markedAt.toISOString())}

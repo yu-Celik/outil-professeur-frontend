@@ -3,14 +3,27 @@
 import { useState, useEffect } from "react";
 import { Input } from "@/components/atoms/input";
 import { Label } from "@/components/atoms/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/molecules/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/molecules/select";
 import { Button } from "@/components/atoms/button";
 import { Badge } from "@/components/atoms/badge";
 import { Alert, AlertDescription } from "@/components/molecules/alert";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/molecules/popover";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/molecules/popover";
 import { AlertCircle, ArrowLeftRight, Check, X } from "lucide-react";
 import { useNotationSystem } from "@/features/evaluations/hooks/use-notation-system";
-import { GradeValidator, GradeFormatter } from "@/features/evaluations/utils/grade-validator";
+import {
+  GradeValidator,
+  GradeFormatter,
+} from "@/features/evaluations/utils/grade-validator";
 import { NotationConverter } from "@/features/evaluations/utils/notation-converter";
 import type { NotationSystem } from "@/types/uml-entities";
 
@@ -44,15 +57,20 @@ export function NotationGradeInput({
   className = "",
 }: NotationGradeInputProps) {
   const { notationSystems, defaultSystem, loading } = useNotationSystem();
-  const [currentSystemId, setCurrentSystemId] = useState(systemId || defaultSystem?.id || "");
+  const [currentSystemId, setCurrentSystemId] = useState(
+    systemId || defaultSystem?.id || "",
+  );
   const [inputValue, setInputValue] = useState(value?.toString() || "");
   const [validationResult, setValidationResult] = useState<any>(null);
   const [isConverterOpen, setIsConverterOpen] = useState(false);
 
-  const currentSystem = notationSystems.find(s => s.id === currentSystemId);
-  const validator = notationSystems.length > 0 ? new GradeValidator(notationSystems) : null;
-  const formatter = notationSystems.length > 0 ? new GradeFormatter(notationSystems) : null;
-  const converter = notationSystems.length > 0 ? new NotationConverter(notationSystems) : null;
+  const currentSystem = notationSystems.find((s) => s.id === currentSystemId);
+  const validator =
+    notationSystems.length > 0 ? new GradeValidator(notationSystems) : null;
+  const formatter =
+    notationSystems.length > 0 ? new GradeFormatter(notationSystems) : null;
+  const converter =
+    notationSystems.length > 0 ? new NotationConverter(notationSystems) : null;
 
   // Update local state when props change
   useEffect(() => {
@@ -74,14 +92,25 @@ export function NotationGradeInput({
         setValidationResult(result);
         onValidationChange?.(result.isValid, result.errors);
       } else {
-        setValidationResult({ isValid: false, errors: ["Valeur numérique requise"], warnings: [], info: [] });
+        setValidationResult({
+          isValid: false,
+          errors: ["Valeur numérique requise"],
+          warnings: [],
+          info: [],
+        });
         onValidationChange?.(false, ["Valeur numérique requise"]);
       }
     } else {
       setValidationResult(null);
       onValidationChange?.(true, []);
     }
-  }, [inputValue, currentSystemId, validator, currentSystem, onValidationChange]);
+  }, [
+    inputValue,
+    currentSystemId,
+    validator,
+    currentSystem,
+    onValidationChange,
+  ]);
 
   const handleValueChange = (newValue: string) => {
     setInputValue(newValue);
@@ -100,7 +129,7 @@ export function NotationGradeInput({
   const handleSystemChange = (newSystemId: string) => {
     if (!allowSystemChange) return;
 
-    const newSystem = notationSystems.find(s => s.id === newSystemId);
+    const newSystem = notationSystems.find((s) => s.id === newSystemId);
     if (!newSystem || !currentSystem || !inputValue) {
       setCurrentSystemId(newSystemId);
       onChange?.(value ?? null, newSystemId);
@@ -110,7 +139,11 @@ export function NotationGradeInput({
     // Try to convert the current value to the new system
     if (converter && value !== null && value !== undefined) {
       try {
-        const conversionResult = converter.convert(value, currentSystemId, newSystemId);
+        const conversionResult = converter.convert(
+          value,
+          currentSystemId,
+          newSystemId,
+        );
         setCurrentSystemId(newSystemId);
         setInputValue(conversionResult.value.toString());
         onChange?.(conversionResult.value, newSystemId);
@@ -171,8 +204,12 @@ export function NotationGradeInput({
             required={required}
             min={currentSystem?.minValue}
             max={currentSystem?.maxValue}
-            step={currentSystem?.rules && (currentSystem.rules as any).precision || 0.5}
-            className={`pr-8 ${validationResult && !validationResult.isValid ? 'border-red-500' : ''}`}
+            step={
+              (currentSystem?.rules &&
+                (currentSystem.rules as any).precision) ||
+              0.5
+            }
+            className={`pr-8 ${validationResult && !validationResult.isValid ? "border-red-500" : ""}`}
           />
           {getValidationIcon() && (
             <div className="absolute right-2 top-1/2 -translate-y-1/2">
@@ -193,7 +230,7 @@ export function NotationGradeInput({
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {notationSystems.map(system => (
+                {notationSystems.map((system) => (
                   <SelectItem key={system.id} value={system.id}>
                     <div className="flex items-center gap-2">
                       <span>{system.name}</span>
@@ -248,9 +285,7 @@ export function NotationGradeInput({
       {getFormattedPreview() && (
         <div className="text-sm">
           <span className="text-muted-foreground">Aperçu: </span>
-          <Badge variant="outline">
-            {getFormattedPreview()?.display}
-          </Badge>
+          <Badge variant="outline">{getFormattedPreview()?.display}</Badge>
           {getFormattedPreview()?.description && (
             <span className="ml-2 text-muted-foreground">
               {getFormattedPreview()?.description}
@@ -260,32 +295,40 @@ export function NotationGradeInput({
       )}
 
       {/* Validation Feedback */}
-      {showValidationFeedback && validationResult && !validationResult.isValid && (
-        <Alert>
-          <AlertCircle className="h-4 w-4" />
-          <AlertDescription>
-            <ul className="list-disc list-inside">
-              {validationResult.errors.map((error: string, index: number) => (
-                <li key={index}>{error}</li>
-              ))}
-            </ul>
-          </AlertDescription>
-        </Alert>
-      )}
+      {showValidationFeedback &&
+        validationResult &&
+        !validationResult.isValid && (
+          <Alert>
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>
+              <ul className="list-disc list-inside">
+                {validationResult.errors.map((error: string, index: number) => (
+                  <li key={index}>{error}</li>
+                ))}
+              </ul>
+            </AlertDescription>
+          </Alert>
+        )}
 
       {/* Warnings */}
-      {showValidationFeedback && validationResult && validationResult.warnings.length > 0 && (
-        <Alert>
-          <AlertCircle className="h-4 w-4" />
-          <AlertDescription>
-            <ul className="list-disc list-inside">
-              {validationResult.warnings.map((warning: string, index: number) => (
-                <li key={index} className="text-orange-600">{warning}</li>
-              ))}
-            </ul>
-          </AlertDescription>
-        </Alert>
-      )}
+      {showValidationFeedback &&
+        validationResult &&
+        validationResult.warnings.length > 0 && (
+          <Alert>
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>
+              <ul className="list-disc list-inside">
+                {validationResult.warnings.map(
+                  (warning: string, index: number) => (
+                    <li key={index} className="text-orange-600">
+                      {warning}
+                    </li>
+                  ),
+                )}
+              </ul>
+            </AlertDescription>
+          </Alert>
+        )}
     </div>
   );
 }
@@ -317,7 +360,11 @@ function ConversionHelper({
     if (isNaN(numValue)) return;
 
     try {
-      const result = converter.convert(numValue, sourceSystemId, targetSystemId);
+      const result = converter.convert(
+        numValue,
+        sourceSystemId,
+        targetSystemId,
+      );
       setConversionResult(result);
     } catch (error) {
       console.error("Erreur de conversion:", error);
@@ -348,8 +395,8 @@ function ConversionHelper({
             </SelectTrigger>
             <SelectContent>
               {systems
-                .filter(s => s.id !== currentSystemId)
-                .map(system => (
+                .filter((s) => s.id !== currentSystemId)
+                .map((system) => (
                   <SelectItem key={system.id} value={system.id}>
                     {system.name}
                   </SelectItem>
@@ -367,7 +414,10 @@ function ConversionHelper({
               onChange={(e) => setInputValue(e.target.value)}
               placeholder="Note source"
             />
-            <Button onClick={handleConvert} disabled={!inputValue || !targetSystemId}>
+            <Button
+              onClick={handleConvert}
+              disabled={!inputValue || !targetSystemId}
+            >
               Convertir
             </Button>
           </div>
@@ -377,15 +427,17 @@ function ConversionHelper({
           <div className="bg-muted p-3 rounded-lg">
             <div className="flex items-center justify-between mb-2">
               <span className="font-semibold">Résultat:</span>
-              <Badge variant="outline">
-                {conversionResult.value}
-              </Badge>
+              <Badge variant="outline">{conversionResult.value}</Badge>
             </div>
             <div className="text-sm text-muted-foreground mb-3">
               Confiance: {(conversionResult.confidence * 100).toFixed(1)}%
               {!conversionResult.isExact && " (approximatif)"}
             </div>
-            <Button onClick={handleApplyConversion} size="sm" className="w-full">
+            <Button
+              onClick={handleApplyConversion}
+              size="sm"
+              className="w-full"
+            >
               Utiliser cette note
             </Button>
           </div>

@@ -262,9 +262,9 @@ export function StudentParticipationAccordion({
                       <span className="text-sm text-muted-foreground">
                         Score
                       </span>
-                    <div className="flex items-center gap-1">
-                      <Star className="h-4 w-4 text-warning" />
-                      <span className="text-lg font-bold text-foreground">
+                      <div className="flex items-center gap-1">
+                        <Star className="h-4 w-4 text-warning" />
+                        <span className="text-lg font-bold text-foreground">
                           {formState.participationLevel}/10
                         </span>
                       </div>
@@ -357,7 +357,8 @@ export function StudentParticipationAccordion({
                             : "text-muted-foreground"
                         }`}
                       >
-                        Caméra {formState.cameraEnabled ? "activée" : "désactivée"}
+                        Caméra{" "}
+                        {formState.cameraEnabled ? "activée" : "désactivée"}
                       </span>
                       <Switch
                         checked={formState.cameraEnabled}

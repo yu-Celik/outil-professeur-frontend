@@ -9,7 +9,7 @@ import {
   getDefaultStyleGuide,
   getAllStyleGuideTones,
   getAllStyleGuideRegisters,
-  getAllStyleGuideLengths
+  getAllStyleGuideLengths,
 } from "@/features/appreciations/mocks";
 import type { StyleGuide } from "@/types/uml-entities";
 
@@ -35,7 +35,9 @@ export interface UpdateStyleGuideData extends Partial<CreateStyleGuideData> {
   id: string;
 }
 
-export function useStyleGuides(teacherId: string = "KsmNtVf4zwqO3VV3SQJqPrRlQBA1fFyR") {
+export function useStyleGuides(
+  teacherId: string = "KsmNtVf4zwqO3VV3SQJqPrRlQBA1fFyR",
+) {
   const [styleGuides, setStyleGuides] = useState<StyleGuide[]>([]);
   const [filteredGuides, setFilteredGuides] = useState<StyleGuide[]>([]);
   const [defaultGuide, setDefaultGuide] = useState<StyleGuide | null>(null);
@@ -50,7 +52,9 @@ export function useStyleGuides(teacherId: string = "KsmNtVf4zwqO3VV3SQJqPrRlQBA1
       setError(null);
 
       // Charger tous les guides de style
-      const guides = MOCK_STYLE_GUIDES.filter(guide => guide.createdBy === teacherId);
+      const guides = MOCK_STYLE_GUIDES.filter(
+        (guide) => guide.createdBy === teacherId,
+      );
       setStyleGuides(guides);
 
       // Définir le guide par défaut
@@ -59,7 +63,9 @@ export function useStyleGuides(teacherId: string = "KsmNtVf4zwqO3VV3SQJqPrRlQBA1
 
       setLoading(false);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Erreur lors du chargement");
+      setError(
+        err instanceof Error ? err.message : "Erreur lors du chargement",
+      );
       setLoading(false);
     }
   }, [teacherId]);
@@ -69,23 +75,26 @@ export function useStyleGuides(teacherId: string = "KsmNtVf4zwqO3VV3SQJqPrRlQBA1
     let filtered = [...styleGuides];
 
     if (filters.tone) {
-      filtered = filtered.filter(guide => guide.tone === filters.tone);
+      filtered = filtered.filter((guide) => guide.tone === filters.tone);
     }
 
     if (filters.register) {
-      filtered = filtered.filter(guide => guide.register === filters.register);
+      filtered = filtered.filter(
+        (guide) => guide.register === filters.register,
+      );
     }
 
     if (filters.length) {
-      filtered = filtered.filter(guide => guide.length === filters.length);
+      filtered = filtered.filter((guide) => guide.length === filters.length);
     }
 
     if (filters.search) {
       const searchTerm = filters.search.toLowerCase();
-      filtered = filtered.filter(guide =>
-        guide.name.toLowerCase().includes(searchTerm) ||
-        guide.tone.toLowerCase().includes(searchTerm) ||
-        guide.register.toLowerCase().includes(searchTerm)
+      filtered = filtered.filter(
+        (guide) =>
+          guide.name.toLowerCase().includes(searchTerm) ||
+          guide.tone.toLowerCase().includes(searchTerm) ||
+          guide.register.toLowerCase().includes(searchTerm),
       );
     }
 
@@ -93,93 +102,110 @@ export function useStyleGuides(teacherId: string = "KsmNtVf4zwqO3VV3SQJqPrRlQBA1
   }, [styleGuides, filters]);
 
   // CRUD Operations
-  const createStyleGuide = useCallback(async (data: CreateStyleGuideData): Promise<StyleGuide | null> => {
-    try {
-      setLoading(true);
-      setError(null);
+  const createStyleGuide = useCallback(
+    async (data: CreateStyleGuideData): Promise<StyleGuide | null> => {
+      try {
+        setLoading(true);
+        setError(null);
 
-      const newGuide: StyleGuide = {
-        id: `style-guide-${Date.now()}`,
-        createdBy: teacherId,
-        name: data.name,
-        tone: data.tone,
-        register: data.register,
-        length: data.length,
-        person: data.person,
-        variability: data.variability,
-        bannedPhrases: data.bannedPhrases,
-        preferredPhrases: data.preferredPhrases,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      };
+        const newGuide: StyleGuide = {
+          id: `style-guide-${Date.now()}`,
+          createdBy: teacherId,
+          name: data.name,
+          tone: data.tone,
+          register: data.register,
+          length: data.length,
+          person: data.person,
+          variability: data.variability,
+          bannedPhrases: data.bannedPhrases,
+          preferredPhrases: data.preferredPhrases,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        };
 
-      // Simuler un délai d'API
-      await new Promise(resolve => setTimeout(resolve, 500));
+        // Simuler un délai d'API
+        await new Promise((resolve) => setTimeout(resolve, 500));
 
-      setStyleGuides(prev => [...prev, newGuide]);
-      return newGuide;
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Erreur lors de la création");
-      return null;
-    } finally {
-      setLoading(false);
-    }
-  }, [teacherId]);
-
-  const updateStyleGuide = useCallback(async (data: UpdateStyleGuideData): Promise<StyleGuide | null> => {
-    try {
-      setLoading(true);
-      setError(null);
-
-      const guideIndex = styleGuides.findIndex(guide => guide.id === data.id);
-      if (guideIndex === -1) {
-        throw new Error("Guide de style non trouvé");
+        setStyleGuides((prev) => [...prev, newGuide]);
+        return newGuide;
+      } catch (err) {
+        setError(
+          err instanceof Error ? err.message : "Erreur lors de la création",
+        );
+        return null;
+      } finally {
+        setLoading(false);
       }
+    },
+    [teacherId],
+  );
 
-      const updatedGuide: StyleGuide = {
-        ...styleGuides[guideIndex],
-        ...data,
-        updatedAt: new Date(),
-      };
+  const updateStyleGuide = useCallback(
+    async (data: UpdateStyleGuideData): Promise<StyleGuide | null> => {
+      try {
+        setLoading(true);
+        setError(null);
 
-      // Simuler un délai d'API
-      await new Promise(resolve => setTimeout(resolve, 500));
+        const guideIndex = styleGuides.findIndex(
+          (guide) => guide.id === data.id,
+        );
+        if (guideIndex === -1) {
+          throw new Error("Guide de style non trouvé");
+        }
 
-      const updatedGuides = [...styleGuides];
-      updatedGuides[guideIndex] = updatedGuide;
-      setStyleGuides(updatedGuides);
+        const updatedGuide: StyleGuide = {
+          ...styleGuides[guideIndex],
+          ...data,
+          updatedAt: new Date(),
+        };
 
-      return updatedGuide;
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Erreur lors de la mise à jour");
-      return null;
-    } finally {
-      setLoading(false);
-    }
-  }, [styleGuides]);
+        // Simuler un délai d'API
+        await new Promise((resolve) => setTimeout(resolve, 500));
 
-  const deleteStyleGuide = useCallback(async (id: string): Promise<boolean> => {
-    try {
-      setLoading(true);
-      setError(null);
+        const updatedGuides = [...styleGuides];
+        updatedGuides[guideIndex] = updatedGuide;
+        setStyleGuides(updatedGuides);
 
-      const guideExists = styleGuides.some(guide => guide.id === id);
-      if (!guideExists) {
-        throw new Error("Guide de style non trouvé");
+        return updatedGuide;
+      } catch (err) {
+        setError(
+          err instanceof Error ? err.message : "Erreur lors de la mise à jour",
+        );
+        return null;
+      } finally {
+        setLoading(false);
       }
+    },
+    [styleGuides],
+  );
 
-      // Simuler un délai d'API
-      await new Promise(resolve => setTimeout(resolve, 500));
+  const deleteStyleGuide = useCallback(
+    async (id: string): Promise<boolean> => {
+      try {
+        setLoading(true);
+        setError(null);
 
-      setStyleGuides(prev => prev.filter(guide => guide.id !== id));
-      return true;
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Erreur lors de la suppression");
-      return false;
-    } finally {
-      setLoading(false);
-    }
-  }, [styleGuides]);
+        const guideExists = styleGuides.some((guide) => guide.id === id);
+        if (!guideExists) {
+          throw new Error("Guide de style non trouvé");
+        }
+
+        // Simuler un délai d'API
+        await new Promise((resolve) => setTimeout(resolve, 500));
+
+        setStyleGuides((prev) => prev.filter((guide) => guide.id !== id));
+        return true;
+      } catch (err) {
+        setError(
+          err instanceof Error ? err.message : "Erreur lors de la suppression",
+        );
+        return false;
+      } finally {
+        setLoading(false);
+      }
+    },
+    [styleGuides],
+  );
 
   const getStyleGuide = useCallback((id: string): StyleGuide | undefined => {
     return getStyleGuideById(id);
@@ -215,27 +241,33 @@ export function useStyleGuides(teacherId: string = "KsmNtVf4zwqO3VV3SQJqPrRlQBA1
   }, []);
 
   const searchGuides = useCallback((searchTerm: string) => {
-    setFilters(prev => ({ ...prev, search: searchTerm }));
+    setFilters((prev) => ({ ...prev, search: searchTerm }));
   }, []);
 
   // Statistiques
   const getStats = useCallback(() => {
     const totalGuides = styleGuides.length;
-    const byTone = styleGuides.reduce((acc, guide) => {
-      acc[guide.tone] = (acc[guide.tone] || 0) + 1;
-      return acc;
-    }, {} as Record<string, number>);
+    const byTone = styleGuides.reduce(
+      (acc, guide) => {
+        acc[guide.tone] = (acc[guide.tone] || 0) + 1;
+        return acc;
+      },
+      {} as Record<string, number>,
+    );
 
-    const byLength = styleGuides.reduce((acc, guide) => {
-      acc[guide.length] = (acc[guide.length] || 0) + 1;
-      return acc;
-    }, {} as Record<string, number>);
+    const byLength = styleGuides.reduce(
+      (acc, guide) => {
+        acc[guide.length] = (acc[guide.length] || 0) + 1;
+        return acc;
+      },
+      {} as Record<string, number>,
+    );
 
     return {
       total: totalGuides,
       byTone,
       byLength,
-      filtered: filteredGuides.length
+      filtered: filteredGuides.length,
     };
   }, [styleGuides, filteredGuides]);
 
@@ -269,8 +301,10 @@ export function useStyleGuides(teacherId: string = "KsmNtVf4zwqO3VV3SQJqPrRlQBA1
 
     // Refresh function
     refresh: () => {
-      setStyleGuides([...MOCK_STYLE_GUIDES.filter(guide => guide.createdBy === teacherId)]);
+      setStyleGuides([
+        ...MOCK_STYLE_GUIDES.filter((guide) => guide.createdBy === teacherId),
+      ]);
       setError(null);
-    }
+    },
   };
 }

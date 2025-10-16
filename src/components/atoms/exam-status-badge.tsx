@@ -1,7 +1,7 @@
 "use client";
 
-import { Badge } from "@/components/atoms/badge";
 import { CalendarDays, CheckCircle, Clock, XCircle } from "lucide-react";
+import { Badge } from "@/components/atoms/badge";
 
 export interface ExamStatusBadgeProps {
   isPublished: boolean;
@@ -9,7 +9,11 @@ export interface ExamStatusBadgeProps {
   className?: string;
 }
 
-export function ExamStatusBadge({ isPublished, examDate, className }: ExamStatusBadgeProps) {
+export function ExamStatusBadge({
+  isPublished,
+  examDate,
+  className,
+}: ExamStatusBadgeProps) {
   const now = new Date();
   const isPast = examDate < now;
   const isUpcoming = examDate >= now;

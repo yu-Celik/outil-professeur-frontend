@@ -4,7 +4,7 @@
  */
 
 // Token Management
-export { tokenManager } from './token-manager'
+export { tokenManager } from "./token-manager";
 export {
   storeSessionMetadata,
   getSessionMetadata,
@@ -12,7 +12,7 @@ export {
   isTokenExpiringSoon,
   isTokenExpired,
   getTimeUntilExpiration,
-} from './token-storage'
+} from "./token-storage";
 
 // Multi-Tab Sync
-export { authBroadcast } from './broadcast-channel'
+export { authBroadcast } from "./broadcast-channel";

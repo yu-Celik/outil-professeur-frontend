@@ -1,7 +1,12 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/molecules/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/molecules/card";
 import { Button } from "@/components/atoms/button";
 import { Badge } from "@/components/atoms/badge";
 import { Label } from "@/components/atoms/label";
@@ -15,9 +20,16 @@ import {
   Calculator,
   BookOpen,
 } from "lucide-react";
-import { useRubricManagement, type RubricEvaluationData } from "@/features/evaluations";
+import {
+  useRubricManagement,
+  type RubricEvaluationData,
+} from "@/features/evaluations";
 import type { Rubric, Student } from "@/types/uml-entities";
-import type { RubricSection, RubricCriterion, RubricLevel } from "@/features/evaluations/mocks";
+import type {
+  RubricSection,
+  RubricCriterion,
+  RubricLevel,
+} from "@/features/evaluations/mocks";
 
 export interface RubricGradingInterfaceProps {
   rubric: Rubric;
@@ -38,7 +50,8 @@ export function RubricGradingInterface({
   initialComments = "",
   className = "",
 }: RubricGradingInterfaceProps) {
-  const [evaluations, setEvaluations] = useState<Record<string, Record<string, number>>>(initialEvaluation);
+  const [evaluations, setEvaluations] =
+    useState<Record<string, Record<string, number>>>(initialEvaluation);
   const [comments, setComments] = useState(initialComments);
   const { evaluateWithRubric } = useRubricManagement();
 
@@ -60,8 +73,12 @@ export function RubricGradingInterface({
     onCommentsChange?.(comments);
   }, [comments, onCommentsChange]);
 
-  const handleCriterionChange = (sectionId: string, criterionId: string, points: number) => {
-    setEvaluations(prev => ({
+  const handleCriterionChange = (
+    sectionId: string,
+    criterionId: string,
+    points: number,
+  ) => {
+    setEvaluations((prev) => ({
       ...prev,
       [sectionId]: {
         ...prev[sectionId],
@@ -77,11 +94,13 @@ export function RubricGradingInterface({
 
   const getSectionMaxScore = (section: RubricSection): number => {
     return section.criteria.reduce((sum, criterion) => {
-      return sum + Math.max(...criterion.levels.map(level => level.points));
+      return sum + Math.max(...criterion.levels.map((level) => level.points));
     }, 0);
   };
 
-  const getCompletionStatus = (sectionId: string): "complete" | "partial" | "empty" => {
+  const getCompletionStatus = (
+    sectionId: string,
+  ): "complete" | "partial" | "empty" => {
     const section = sections[sectionId];
     const sectionEvals = evaluations[sectionId] || {};
     const evaluatedCount = Object.keys(sectionEvals).length;
@@ -134,21 +153,26 @@ export function RubricGradingInterface({
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className={`w-2 h-8 rounded-full ${
-                      status === "complete"
-                        ? "bg-green-500"
-                        : status === "partial"
-                        ? "bg-yellow-500"
-                        : "bg-gray-300"
-                    }`} />
+                    <div
+                      className={`w-2 h-8 rounded-full ${
+                        status === "complete"
+                          ? "bg-green-500"
+                          : status === "partial"
+                            ? "bg-yellow-500"
+                            : "bg-gray-300"
+                      }`}
+                    />
                     <div>
-                      <CardTitle className="text-base">{section.name}</CardTitle>
+                      <CardTitle className="text-base">
+                        {section.name}
+                      </CardTitle>
                       <div className="flex items-center gap-2 mt-1">
                         <Badge variant="outline" className="text-xs">
                           {section.weight}%
                         </Badge>
                         <span className="text-xs text-muted-foreground">
-                          {section.criteria.length} critère{section.criteria.length > 1 ? "s" : ""}
+                          {section.criteria.length} critère
+                          {section.criteria.length > 1 ? "s" : ""}
                         </span>
                       </div>
                     </div>
@@ -236,7 +260,8 @@ export function RubricGradingInterface({
 
               <div className="text-right">
                 <div className="text-xl font-bold text-primary">
-                  {evaluationResult.totalScore} / {evaluationResult.maxScore} pts
+                  {evaluationResult.totalScore} / {evaluationResult.maxScore}{" "}
+                  pts
                 </div>
                 <div className="text-sm font-medium">
                   {evaluationResult.percentage}%
@@ -281,7 +306,10 @@ function RubricCriterionEvaluation({
       >
         <div className="grid gap-2">
           {criterion.levels.map((level) => (
-            <div key={level.id} className="flex items-center space-x-3 p-2 rounded border hover:bg-muted/50">
+            <div
+              key={level.id}
+              className="flex items-center space-x-3 p-2 rounded border hover:bg-muted/50"
+            >
               <RadioGroupItem
                 value={level.points.toString()}
                 id={`${sectionId}-${criterion.id}-${level.id}`}

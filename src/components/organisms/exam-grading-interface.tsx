@@ -18,20 +18,26 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/components/atoms/tabs";
-import { 
-  Save, 
-  Users, 
-  UserCheck, 
-  UserX, 
+import {
+  Save,
+  Users,
+  UserCheck,
+  UserX,
   AlertTriangle,
   CheckCircle,
   Download,
   FileText,
   BarChart3,
 } from "lucide-react";
-import { useExamManagement, type StudentExamResultFormData } from "@/features/evaluations";
+import {
+  useExamManagement,
+  type StudentExamResultFormData,
+} from "@/features/evaluations";
 import { useNotationSystem } from "@/features/evaluations";
-import { useRubricManagement, type RubricEvaluationData } from "@/features/evaluations";
+import {
+  useRubricManagement,
+  type RubricEvaluationData,
+} from "@/features/evaluations";
 import { RubricGradingInterface } from "@/components/organisms/rubric-grading-interface";
 import { MOCK_STUDENTS } from "@/features/students/mocks";
 import type { Exam, Student, StudentExamResult } from "@/types/uml-entities";
@@ -42,12 +48,23 @@ export interface ExamGradingInterfaceProps {
   className?: string;
 }
 
-export function ExamGradingInterface({ exam, className }: ExamGradingInterfaceProps) {
+export function ExamGradingInterface({
+  exam,
+  className,
+}: ExamGradingInterfaceProps) {
   const [activeTab, setActiveTab] = useState("grading");
-  const [selectedStudentId, setSelectedStudentId] = useState<string | null>(null);
-  const [gradeData, setGradeData] = useState<Record<string, StudentExamResultFormData>>({});
-  const [rubricEvaluations, setRubricEvaluations] = useState<Record<string, Record<string, Record<string, number>>>>({});
-  const [rubricComments, setRubricComments] = useState<Record<string, string>>({});
+  const [selectedStudentId, setSelectedStudentId] = useState<string | null>(
+    null,
+  );
+  const [gradeData, setGradeData] = useState<
+    Record<string, StudentExamResultFormData>
+  >({});
+  const [rubricEvaluations, setRubricEvaluations] = useState<
+    Record<string, Record<string, Record<string, number>>>
+  >({});
+  const [rubricComments, setRubricComments] = useState<Record<string, string>>(
+    {},
+  );
   const [isSaving, setIsSaving] = useState(false);
   const [showExportDialog, setShowExportDialog] = useState(false);
 
@@ -55,27 +72,33 @@ export function ExamGradingInterface({ exam, className }: ExamGradingInterfacePr
   const examRubric = exam.rubricId ? getRubric(exam.rubricId) : null;
 
   const {
-    getResultsForExam, 
-    addExamResult, 
+    getResultsForExam,
+    addExamResult,
     updateExamResult,
-    getExamStatistics 
+    getExamStatistics,
   } = useExamManagement();
   const { notationSystems, formatGrade, validateGrade } = useNotationSystem();
 
   const examResults = getResultsForExam(exam.id);
   const statistics = getExamStatistics(exam.id);
-  const notationSystem = notationSystems.find(ns => ns.id === exam.notationSystemId);
+  const notationSystem = notationSystems.find(
+    (ns) => ns.id === exam.notationSystemId,
+  );
 
   // Récupérer les étudiants de la classe
-  const classStudents = MOCK_STUDENTS.filter(student => student.currentClassId === exam.classId);
+  const classStudents = MOCK_STUDENTS.filter(
+    (student) => student.currentClassId === exam.classId,
+  );
 
   // Initialiser les données de notation
   useEffect(() => {
     const initialData: Record<string, StudentExamResultFormData> = {};
-    
-    classStudents.forEach(student => {
-      const existingResult = examResults.find(result => result.studentId === student.id);
-      
+
+    classStudents.forEach((student) => {
+      const existingResult = examResults.find(
+        (result) => result.studentId === student.id,
+      );
+
       initialData[student.id] = {
         studentId: student.id,
         pointsObtained: existingResult?.pointsObtained || 0,
@@ -83,12 +106,16 @@ export function ExamGradingInterface({ exam, className }: ExamGradingInterfacePr
         comments: existingResult?.comments || "",
       };
     });
-    
+
     setGradeData(initialData);
   }, [examResults, classStudents]);
 
-  const handleGradeChange = (studentId: string, field: keyof StudentExamResultFormData, value: any) => {
-    setGradeData(prev => ({
+  const handleGradeChange = (
+    studentId: string,
+    field: keyof StudentExamResultFormData,
+    value: any,
+  ) => {
+    setGradeData((prev) => ({
       ...prev,
       [studentId]: {
         ...prev[studentId],
@@ -103,14 +130,16 @@ export function ExamGradingInterface({ exam, className }: ExamGradingInterfacePr
 
     setIsSaving(true);
     try {
-      const existingResult = examResults.find(result => result.studentId === studentId);
-      
+      const existingResult = examResults.find(
+        (result) => result.studentId === studentId,
+      );
+
       if (existingResult) {
         await updateExamResult(existingResult.id, data);
       } else {
         await addExamResult(exam.id, data);
       }
-      
+
       console.log(`Note sauvegardée pour l'étudiant ${studentId}`);
     } catch (error) {
       console.error("Erreur lors de la sauvegarde:", error);
@@ -122,7 +151,9 @@ export function ExamGradingInterface({ exam, className }: ExamGradingInterfacePr
   const handleSaveAll = async () => {
     setIsSaving(true);
     try {
-      const promises = Object.keys(gradeData).map(studentId => handleSaveGrade(studentId));
+      const promises = Object.keys(gradeData).map((studentId) =>
+        handleSaveGrade(studentId),
+      );
       await Promise.all(promises);
       console.log("Toutes les notes ont été sauvegardées");
     } catch (error) {
@@ -133,14 +164,17 @@ export function ExamGradingInterface({ exam, className }: ExamGradingInterfacePr
   };
 
   // Gestion des évaluations par grille
-  const handleRubricEvaluationChange = (studentId: string, evaluation: RubricEvaluationData) => {
-    setRubricEvaluations(prev => ({
+  const handleRubricEvaluationChange = (
+    studentId: string,
+    evaluation: RubricEvaluationData,
+  ) => {
+    setRubricEvaluations((prev) => ({
       ...prev,
       [studentId]: evaluation.evaluations,
     }));
 
     // Synchroniser avec les données de note traditionnelles
-    setGradeData(prev => ({
+    setGradeData((prev) => ({
       ...prev,
       [studentId]: {
         ...prev[studentId],
@@ -150,13 +184,13 @@ export function ExamGradingInterface({ exam, className }: ExamGradingInterfacePr
   };
 
   const handleRubricCommentsChange = (studentId: string, comments: string) => {
-    setRubricComments(prev => ({
+    setRubricComments((prev) => ({
       ...prev,
       [studentId]: comments,
     }));
 
     // Synchroniser avec les commentaires traditionnels
-    setGradeData(prev => ({
+    setGradeData((prev) => ({
       ...prev,
       [studentId]: {
         ...prev[studentId],
@@ -167,13 +201,19 @@ export function ExamGradingInterface({ exam, className }: ExamGradingInterfacePr
 
   const validatePoints = (points: number): boolean => {
     if (!notationSystem) return true;
-    return points >= 0 && points <= exam.totalPoints && validateGrade(points, exam.notationSystemId);
+    return (
+      points >= 0 &&
+      points <= exam.totalPoints &&
+      validateGrade(points, exam.notationSystemId)
+    );
   };
 
   const getStudentStatus = (studentId: string) => {
     const data = gradeData[studentId];
-    const existingResult = examResults.find(result => result.studentId === studentId);
-    
+    const existingResult = examResults.find(
+      (result) => result.studentId === studentId,
+    );
+
     if (data?.isAbsent) return "absent";
     if (existingResult) return "graded";
     return "pending";
@@ -218,7 +258,7 @@ export function ExamGradingInterface({ exam, className }: ExamGradingInterfacePr
               <span>×{exam.coefficient}</span>
             </div>
           </div>
-          
+
           <div className="flex gap-2">
             <Button variant="outline" onClick={() => setShowExportDialog(true)}>
               <Download className="w-4 h-4 mr-2" />
@@ -260,19 +300,19 @@ export function ExamGradingInterface({ exam, className }: ExamGradingInterfacePr
                 <Users className="w-4 h-4" />
                 Étudiants ({classStudents.length})
               </h3>
-              
+
               <div className="space-y-2 max-h-96 overflow-y-auto">
-                {classStudents.map(student => {
+                {classStudents.map((student) => {
                   const status = getStudentStatus(student.id);
                   const isSelected = selectedStudentId === student.id;
-                  
+
                   return (
                     <div
                       key={student.id}
                       className={cn(
                         "flex items-center justify-between p-3 rounded-lg border cursor-pointer transition-colors",
                         isSelected && "border-primary bg-primary/5",
-                        !isSelected && "hover:bg-muted/50"
+                        !isSelected && "hover:bg-muted/50",
                       )}
                       onClick={() => setSelectedStudentId(student.id)}
                     >
@@ -287,17 +327,18 @@ export function ExamGradingInterface({ exam, className }: ExamGradingInterfacePr
                           </div>
                         </div>
                       </div>
-                      
+
                       <div className="flex items-center gap-2">
-                        {status === "graded" && !gradeData[student.id]?.isAbsent && (
-                          <ExamGradeDisplay
-                            grade={gradeData[student.id]?.pointsObtained || 0}
-                            isAbsent={false}
-                            notationSystemId={exam.notationSystemId}
-                            showBadge={false}
-                            className="text-sm"
-                          />
-                        )}
+                        {status === "graded" &&
+                          !gradeData[student.id]?.isAbsent && (
+                            <ExamGradeDisplay
+                              grade={gradeData[student.id]?.pointsObtained || 0}
+                              isAbsent={false}
+                              notationSystemId={exam.notationSystemId}
+                              showBadge={false}
+                              className="text-sm"
+                            />
+                          )}
                         {getStatusBadge(status)}
                       </div>
                     </div>
@@ -310,9 +351,11 @@ export function ExamGradingInterface({ exam, className }: ExamGradingInterfacePr
             <Card className="p-6 lg:col-span-2">
               {selectedStudentId ? (
                 (() => {
-                  const student = classStudents.find(s => s.id === selectedStudentId);
+                  const student = classStudents.find(
+                    (s) => s.id === selectedStudentId,
+                  );
                   const data = gradeData[selectedStudentId];
-                  
+
                   if (!student || !data) return null;
 
                   return (
@@ -326,7 +369,7 @@ export function ExamGradingInterface({ exam, className }: ExamGradingInterfacePr
                             Correction de l'examen
                           </p>
                         </div>
-                        
+
                         <Button
                           onClick={() => handleSaveGrade(selectedStudentId)}
                           disabled={isSaving}
@@ -342,7 +385,11 @@ export function ExamGradingInterface({ exam, className }: ExamGradingInterfacePr
                           id={`absent-${selectedStudentId}`}
                           checked={data.isAbsent}
                           onCheckedChange={(checked) =>
-                            handleGradeChange(selectedStudentId, "isAbsent", checked)
+                            handleGradeChange(
+                              selectedStudentId,
+                              "isAbsent",
+                              checked,
+                            )
                           }
                         />
                         <Label htmlFor={`absent-${selectedStudentId}`}>
@@ -357,10 +404,24 @@ export function ExamGradingInterface({ exam, className }: ExamGradingInterfacePr
                             <RubricGradingInterface
                               rubric={examRubric}
                               student={student}
-                              onEvaluationChange={(evaluation) => handleRubricEvaluationChange(selectedStudentId, evaluation)}
-                              onCommentsChange={(comments) => handleRubricCommentsChange(selectedStudentId, comments)}
-                              initialEvaluation={rubricEvaluations[selectedStudentId] || {}}
-                              initialComments={rubricComments[selectedStudentId] || ""}
+                              onEvaluationChange={(evaluation) =>
+                                handleRubricEvaluationChange(
+                                  selectedStudentId,
+                                  evaluation,
+                                )
+                              }
+                              onCommentsChange={(comments) =>
+                                handleRubricCommentsChange(
+                                  selectedStudentId,
+                                  comments,
+                                )
+                              }
+                              initialEvaluation={
+                                rubricEvaluations[selectedStudentId] || {}
+                              }
+                              initialComments={
+                                rubricComments[selectedStudentId] || ""
+                              }
                             />
                           ) : (
                             <>
@@ -381,23 +442,34 @@ export function ExamGradingInterface({ exam, className }: ExamGradingInterfacePr
                                       handleGradeChange(
                                         selectedStudentId,
                                         "pointsObtained",
-                                        parseFloat(e.target.value) || 0
+                                        parseFloat(e.target.value) || 0,
                                       )
                                     }
                                     className={cn(
                                       "w-32",
-                                      !validatePoints(data.pointsObtained) && "border-destructive"
+                                      !validatePoints(data.pointsObtained) &&
+                                        "border-destructive",
                                     )}
                                   />
 
                                   {notationSystem && (
                                     <div className="text-sm text-muted-foreground">
-                                      = {formatGrade(data.pointsObtained, notationSystem, "fr-FR")}
+                                      ={" "}
+                                      {formatGrade(
+                                        data.pointsObtained,
+                                        notationSystem,
+                                        "fr-FR",
+                                      )}
                                     </div>
                                   )}
 
                                   <div className="text-sm text-muted-foreground">
-                                    ({((data.pointsObtained / exam.totalPoints) * 100).toFixed(1)}%)
+                                    (
+                                    {(
+                                      (data.pointsObtained / exam.totalPoints) *
+                                      100
+                                    ).toFixed(1)}
+                                    %)
                                   </div>
                                 </div>
                               </div>
@@ -405,7 +477,9 @@ export function ExamGradingInterface({ exam, className }: ExamGradingInterfacePr
                               {/* Aperçu de la note */}
                               <div className="p-4 bg-muted/50 rounded-lg">
                                 <div className="flex items-center gap-4">
-                                  <span className="text-sm font-medium">Aperçu:</span>
+                                  <span className="text-sm font-medium">
+                                    Aperçu:
+                                  </span>
                                   <ExamGradeDisplay
                                     grade={data.pointsObtained}
                                     isAbsent={false}
@@ -417,14 +491,20 @@ export function ExamGradingInterface({ exam, className }: ExamGradingInterfacePr
 
                               {/* Commentaires traditionnels */}
                               <div className="space-y-2">
-                                <Label htmlFor={`comments-${selectedStudentId}`}>
+                                <Label
+                                  htmlFor={`comments-${selectedStudentId}`}
+                                >
                                   Commentaires
                                 </Label>
                                 <Textarea
                                   id={`comments-${selectedStudentId}`}
                                   value={data.comments}
                                   onChange={(e) =>
-                                    handleGradeChange(selectedStudentId, "comments", e.target.value)
+                                    handleGradeChange(
+                                      selectedStudentId,
+                                      "comments",
+                                      e.target.value,
+                                    )
                                   }
                                   placeholder="Commentaires sur la copie, conseils d'amélioration..."
                                   rows={4}
@@ -445,7 +525,8 @@ export function ExamGradingInterface({ exam, className }: ExamGradingInterfacePr
                       Sélectionnez un étudiant
                     </h3>
                     <p className="text-sm">
-                      Choisissez un étudiant dans la liste pour commencer la correction
+                      Choisissez un étudiant dans la liste pour commencer la
+                      correction
                     </p>
                   </div>
                 </div>
@@ -457,8 +538,10 @@ export function ExamGradingInterface({ exam, className }: ExamGradingInterfacePr
         <TabsContent value="overview" className="space-y-4">
           {/* Tableau récapitulatif */}
           <Card className="p-6">
-            <h3 className="text-lg font-semibold mb-4">Récapitulatif des notes</h3>
-            
+            <h3 className="text-lg font-semibold mb-4">
+              Récapitulatif des notes
+            </h3>
+
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
@@ -471,12 +554,15 @@ export function ExamGradingInterface({ exam, className }: ExamGradingInterfacePr
                   </tr>
                 </thead>
                 <tbody>
-                  {classStudents.map(student => {
+                  {classStudents.map((student) => {
                     const data = gradeData[student.id];
                     const status = getStudentStatus(student.id);
-                    
+
                     return (
-                      <tr key={student.id} className="border-b hover:bg-muted/50">
+                      <tr
+                        key={student.id}
+                        className="border-b hover:bg-muted/50"
+                      >
                         <td className="p-2">
                           <div className="font-medium">
                             {student.firstName} {student.lastName}
@@ -500,7 +586,11 @@ export function ExamGradingInterface({ exam, className }: ExamGradingInterfacePr
                         <td className="p-2 text-center">
                           {data && !data.isAbsent ? (
                             <span className="text-sm text-muted-foreground">
-                              {((data.pointsObtained / exam.totalPoints) * 100).toFixed(1)}%
+                              {(
+                                (data.pointsObtained / exam.totalPoints) *
+                                100
+                              ).toFixed(1)}
+                              %
                             </span>
                           ) : (
                             <span className="text-muted-foreground">-</span>
@@ -508,13 +598,11 @@ export function ExamGradingInterface({ exam, className }: ExamGradingInterfacePr
                         </td>
                         <td className="p-2">
                           <span className="text-sm text-muted-foreground">
-                            {data?.comments ? (
-                              data.comments.length > 50
+                            {data?.comments
+                              ? data.comments.length > 50
                                 ? data.comments.substring(0, 50) + "..."
                                 : data.comments
-                            ) : (
-                              "-"
-                            )}
+                              : "-"}
                           </span>
                         </td>
                       </tr>

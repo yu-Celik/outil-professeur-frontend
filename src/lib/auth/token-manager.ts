@@ -4,65 +4,62 @@
  * Epic 7: Refresh Token System
  */
 
-import type { SessionTokenMetadata } from '@/types/auth'
+import type { SessionTokenMetadata } from "@/types/auth";
 import {
   storeSessionMetadata,
   clearSessionMetadata,
   getTimeUntilExpiration,
   isTokenExpiringSoon,
-  storeRefreshToken,
-  clearRefreshToken,
-} from './token-storage'
+} from "./token-storage";
 
 // Refresh 2 minutes before expiration (120000ms)
-const REFRESH_THRESHOLD_MS = 120000
+const REFRESH_THRESHOLD_MS = 120000;
 
 interface TokenManagerConfig {
   /** Callback to execute actual refresh API call */
-  onRefresh: () => Promise<SessionTokenMetadata>
+  onRefresh: () => Promise<SessionTokenMetadata>;
   /** Callback when refresh succeeds */
-  onRefreshSuccess?: (metadata: SessionTokenMetadata) => void
+  onRefreshSuccess?: (metadata: SessionTokenMetadata) => void;
   /** Callback when refresh fails */
-  onRefreshError?: (error: Error) => void
+  onRefreshError?: (error: Error) => void;
   /** Callback when logout is required */
-  onLogoutRequired?: () => void
+  onLogoutRequired?: () => void;
 }
 
 /**
  * Singleton TokenManager for managing automatic token refresh
  */
 class TokenManager {
-  private refreshTimer: NodeJS.Timeout | null = null
-  private isRefreshing = false
-  private refreshPromise: Promise<SessionTokenMetadata> | null = null
-  private config: TokenManagerConfig | null = null
+  private refreshTimer: NodeJS.Timeout | null = null;
+  private isRefreshing = false;
+  private refreshPromise: Promise<SessionTokenMetadata> | null = null;
+  private config: TokenManagerConfig | null = null;
 
   /**
    * Initialize the token manager with configuration
    */
   public initialize(config: TokenManagerConfig): void {
-    this.config = config
+    this.config = config;
   }
 
   /**
    * Start automatic token refresh monitoring
-   * @param metadata Initial session metadata with refresh_token
+   * @param metadata Initial session metadata returned by backend
    */
   public start(metadata: SessionTokenMetadata): void {
     if (!this.config) {
-      console.error('TokenManager not initialized')
-      return
+      console.error("TokenManager not initialized");
+      return;
     }
 
-    // Store metadata and refresh token
-    storeSessionMetadata(metadata)
-    storeRefreshToken(metadata.refresh_token)
+    // Store metadata locally for expiration tracking
+    storeSessionMetadata(metadata);
 
     // Clear any existing timer
-    this.stop()
+    this.stop();
 
     // Schedule next refresh
-    this.scheduleNextRefresh()
+    this.scheduleNextRefresh();
   }
 
   /**
@@ -70,11 +67,11 @@ class TokenManager {
    */
   public stop(): void {
     if (this.refreshTimer) {
-      clearTimeout(this.refreshTimer)
-      this.refreshTimer = null
+      clearTimeout(this.refreshTimer);
+      this.refreshTimer = null;
     }
-    this.isRefreshing = false
-    this.refreshPromise = null
+    this.isRefreshing = false;
+    this.refreshPromise = null;
   }
 
   /**
@@ -83,24 +80,24 @@ class TokenManager {
    */
   public async forceRefresh(): Promise<SessionTokenMetadata> {
     if (!this.config) {
-      throw new Error('TokenManager not initialized')
+      throw new Error("TokenManager not initialized");
     }
 
     // If already refreshing, return the existing promise
     if (this.isRefreshing && this.refreshPromise) {
-      return this.refreshPromise
+      return this.refreshPromise;
     }
 
     // Start new refresh
-    this.isRefreshing = true
-    this.refreshPromise = this.executeRefresh()
+    this.isRefreshing = true;
+    this.refreshPromise = this.executeRefresh();
 
     try {
-      const metadata = await this.refreshPromise
-      return metadata
+      const metadata = await this.refreshPromise;
+      return metadata;
     } finally {
-      this.isRefreshing = false
-      this.refreshPromise = null
+      this.isRefreshing = false;
+      this.refreshPromise = null;
     }
   }
 
@@ -110,10 +107,10 @@ class TokenManager {
    */
   public async checkAndRefresh(): Promise<boolean> {
     if (isTokenExpiringSoon(REFRESH_THRESHOLD_MS)) {
-      await this.forceRefresh()
-      return true
+      await this.forceRefresh();
+      return true;
     }
-    return false
+    return false;
   }
 
   /**
@@ -123,33 +120,36 @@ class TokenManager {
     return {
       isRefreshing: this.isRefreshing,
       hasTimer: this.refreshTimer !== null,
-    }
+    };
   }
 
   /**
    * Schedule next automatic refresh
    */
   private scheduleNextRefresh(): void {
-    const timeUntilExpiration = getTimeUntilExpiration()
+    const timeUntilExpiration = getTimeUntilExpiration();
 
     if (timeUntilExpiration <= 0) {
       // Token already expired, trigger immediate refresh
       this.forceRefresh().catch((error) => {
-        console.error('Auto-refresh failed for expired token:', error)
-        this.handleRefreshError(error)
-      })
-      return
+        console.error("Auto-refresh failed for expired token:", error);
+        this.handleRefreshError(error);
+      });
+      return;
     }
 
     // Schedule refresh REFRESH_THRESHOLD_MS before expiration
-    const refreshDelay = Math.max(0, timeUntilExpiration - REFRESH_THRESHOLD_MS)
+    const refreshDelay = Math.max(
+      0,
+      timeUntilExpiration - REFRESH_THRESHOLD_MS,
+    );
 
     this.refreshTimer = setTimeout(() => {
       this.forceRefresh().catch((error) => {
-        console.error('Scheduled auto-refresh failed:', error)
-        this.handleRefreshError(error)
-      })
-    }, refreshDelay)
+        console.error("Scheduled auto-refresh failed:", error);
+        this.handleRefreshError(error);
+      });
+    }, refreshDelay);
   }
 
   /**
@@ -157,29 +157,29 @@ class TokenManager {
    */
   private async executeRefresh(): Promise<SessionTokenMetadata> {
     if (!this.config) {
-      throw new Error('TokenManager not initialized')
+      throw new Error("TokenManager not initialized");
     }
 
     try {
       // Call the refresh callback (API call)
-      const metadata = await this.config.onRefresh()
+      const metadata = await this.config.onRefresh();
 
-      // Store new metadata and rotated refresh token
-      storeSessionMetadata(metadata)
-      storeRefreshToken(metadata.refresh_token)
+      // Store new metadata from backend
+      storeSessionMetadata(metadata);
 
       // Call success callback
-      this.config.onRefreshSuccess?.(metadata)
+      this.config.onRefreshSuccess?.(metadata);
 
       // Schedule next refresh
-      this.scheduleNextRefresh()
+      this.scheduleNextRefresh();
 
-      return metadata
+      return metadata;
     } catch (error) {
       // Handle error
-      const err = error instanceof Error ? error : new Error('Unknown refresh error')
-      this.handleRefreshError(err)
-      throw err
+      const err =
+        error instanceof Error ? error : new Error("Unknown refresh error");
+      this.handleRefreshError(err);
+      throw err;
     }
   }
 
@@ -187,35 +187,34 @@ class TokenManager {
    * Handle refresh errors
    */
   private handleRefreshError(error: Error): void {
-    if (!this.config) return
+    if (!this.config) return;
 
     // Stop automatic refresh
-    this.stop()
+    this.stop();
 
-    // Clear stored metadata and refresh token
-    clearSessionMetadata()
-    clearRefreshToken()
+    // Clear stored metadata
+    clearSessionMetadata();
 
     // Call error callback
-    this.config.onRefreshError?.(error)
+    this.config.onRefreshError?.(error);
 
     // Check if we need to trigger logout
     // Error codes that require logout:
     // - 401: Unauthorized (token expired/invalid)
     // - TOKEN_REUSE_DETECTED: Security breach
     // - REFRESH_TOKEN_EXPIRED: Token chain expired
-    const errorMessage = error.message.toLowerCase()
+    const errorMessage = error.message.toLowerCase();
     const requiresLogout =
-      errorMessage.includes('unauthorized') ||
-      errorMessage.includes('token_reuse') ||
-      errorMessage.includes('expired') ||
-      errorMessage.includes('401')
+      errorMessage.includes("unauthorized") ||
+      errorMessage.includes("token_reuse") ||
+      errorMessage.includes("expired") ||
+      errorMessage.includes("401");
 
     if (requiresLogout) {
-      this.config.onLogoutRequired?.()
+      this.config.onLogoutRequired?.();
     }
   }
 }
 
 // Export singleton instance
-export const tokenManager = new TokenManager()
+export const tokenManager = new TokenManager();

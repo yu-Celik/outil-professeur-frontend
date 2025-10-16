@@ -5,7 +5,11 @@ import { Input } from "@/components/atoms/input";
 import { cn } from "@/lib/utils";
 import type { NotationSystem } from "@/types/uml-entities";
 
-interface GradeInputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'onChange' | 'value'> {
+interface GradeInputProps
+  extends Omit<
+    React.InputHTMLAttributes<HTMLInputElement>,
+    "onChange" | "value"
+  > {
   value?: number | null;
   onChange?: (value: number | null) => void;
   notationSystem?: NotationSystem;
@@ -14,9 +18,12 @@ interface GradeInputProps extends Omit<React.InputHTMLAttributes<HTMLInputElemen
 }
 
 export const GradeInput = forwardRef<HTMLInputElement, GradeInputProps>(
-  ({ value, onChange, notationSystem, isAbsent, error, className, ...props }, ref) => {
+  (
+    { value, onChange, notationSystem, isAbsent, error, className, ...props },
+    ref,
+  ) => {
     const [stringValue, setStringValue] = useState(
-      value !== null && value !== undefined ? value.toString() : ""
+      value !== null && value !== undefined ? value.toString() : "",
     );
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -29,7 +36,7 @@ export const GradeInput = forwardRef<HTMLInputElement, GradeInputProps>(
       }
 
       const numericValue = parseFloat(newValue);
-      if (!isNaN(numericValue)) {
+      if (!Number.isNaN(numericValue)) {
         // Validate against notation system if provided
         if (notationSystem && !notationSystem.validateGrade(numericValue)) {
           return; // Don't update if invalid
@@ -84,7 +91,7 @@ export const GradeInput = forwardRef<HTMLInputElement, GradeInputProps>(
         )}
       </div>
     );
-  }
+  },
 );
 
 GradeInput.displayName = "GradeInput";

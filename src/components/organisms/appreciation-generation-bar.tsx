@@ -141,7 +141,10 @@ export function AppreciationGenerationBar({
           <div className="flex items-center gap-3">
             <Sparkles className="h-5 w-5 text-primary" />
             <span className="font-medium">Génération IA</span>
-            <Tabs value={mode} onValueChange={(value) => onModeChange(value as GenerationMode)}>
+            <Tabs
+              value={mode}
+              onValueChange={(value) => onModeChange(value as GenerationMode)}
+            >
               <TabsList className="h-8">
                 <TabsTrigger value="individual" className="h-6 px-3 text-xs">
                   <User className="h-3 w-3 mr-1" />
@@ -208,14 +211,21 @@ export function AppreciationGenerationBar({
                         onClick={() => onToggleStudent(student.id)}
                         className={cn(
                           "flex items-start gap-3 rounded-lg border p-4 text-left transition",
-                          checked ? "border-primary/60 bg-primary/5" : "hover:bg-muted/60"
+                          checked
+                            ? "border-primary/60 bg-primary/5"
+                            : "hover:bg-muted/60",
                         )}
                       >
-                        <Checkbox checked={checked} className="pointer-events-none" />
+                        <Checkbox
+                          checked={checked}
+                          className="pointer-events-none"
+                        />
                         <div className="flex-1 space-y-1">
                           <div className="font-medium">{student.label}</div>
                           {student.classLabel && (
-                            <div className="text-xs text-muted-foreground">{student.classLabel}</div>
+                            <div className="text-xs text-muted-foreground">
+                              {student.classLabel}
+                            </div>
                           )}
                         </div>
                       </button>
@@ -227,7 +237,12 @@ export function AppreciationGenerationBar({
           )}
 
           {/* Matière */}
-          <Select value={subjectId || "__general"} onValueChange={(value) => onSubjectChange(value === "__general" ? undefined : value)}>
+          <Select
+            value={subjectId || "__general"}
+            onValueChange={(value) =>
+              onSubjectChange(value === "__general" ? undefined : value)
+            }
+          >
             <SelectTrigger className="w-36">
               <SelectValue placeholder="Matière" />
             </SelectTrigger>
@@ -242,7 +257,12 @@ export function AppreciationGenerationBar({
           </Select>
 
           {/* Période */}
-          <Select value={periodId || "__year"} onValueChange={(value) => onPeriodChange(value === "__year" ? undefined : value)}>
+          <Select
+            value={periodId || "__year"}
+            onValueChange={(value) =>
+              onPeriodChange(value === "__year" ? undefined : value)
+            }
+          >
             <SelectTrigger className="w-32">
               <SelectValue placeholder="Période" />
             </SelectTrigger>
@@ -282,7 +302,12 @@ export function AppreciationGenerationBar({
 
           {/* Banque de phrases */}
           <div className="flex items-center gap-2">
-            <Select value={phraseBankId || "__none"} onValueChange={(value) => onPhraseBankChange(value === "__none" ? undefined : value)}>
+            <Select
+              value={phraseBankId || "__none"}
+              onValueChange={(value) =>
+                onPhraseBankChange(value === "__none" ? undefined : value)
+              }
+            >
               <SelectTrigger className="w-36">
                 <SelectValue placeholder="Banque" />
               </SelectTrigger>

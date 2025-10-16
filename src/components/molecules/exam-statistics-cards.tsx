@@ -3,10 +3,10 @@
 import { Card } from "@/components/atoms/card";
 import { Badge } from "@/components/atoms/badge";
 import { ExamProgressRing } from "@/components/atoms/exam-progress-ring";
-import { 
-  FileText, 
-  Clock, 
-  CheckCircle, 
+import {
+  FileText,
+  Clock,
+  CheckCircle,
   TrendingUp,
   Users,
   UserCheck,
@@ -20,7 +20,10 @@ export interface ExamStatisticsCardsProps {
   className?: string;
 }
 
-export function ExamStatisticsCards({ statistics, className = "" }: ExamStatisticsCardsProps) {
+export function ExamStatisticsCards({
+  statistics,
+  className = "",
+}: ExamStatisticsCardsProps) {
   const {
     totalStudents,
     submittedCount,
@@ -32,7 +35,8 @@ export function ExamStatisticsCards({ statistics, className = "" }: ExamStatisti
     passRate,
   } = statistics;
 
-  const participationRate = totalStudents > 0 ? (submittedCount / totalStudents) * 100 : 0;
+  const participationRate =
+    totalStudents > 0 ? (submittedCount / totalStudents) * 100 : 0;
 
   return (
     <div className={`grid gap-4 md:grid-cols-2 lg:grid-cols-4 ${className}`}>
@@ -52,10 +56,16 @@ export function ExamStatisticsCards({ statistics, className = "" }: ExamStatisti
           <ExamProgressRing
             percentage={participationRate}
             size="sm"
-            color={participationRate >= 80 ? "green" : participationRate >= 60 ? "orange" : "red"}
+            color={
+              participationRate >= 80
+                ? "green"
+                : participationRate >= 60
+                  ? "orange"
+                  : "red"
+            }
           />
         </div>
-        
+
         <div className="flex gap-2 mt-3">
           <Badge variant="outline" className="text-xs">
             <UserCheck className="w-3 h-3 mr-1" />
@@ -82,10 +92,12 @@ export function ExamStatisticsCards({ statistics, className = "" }: ExamStatisti
               {submittedCount > 0 ? averageGrade.toFixed(1) : "-"}
             </div>
             <p className="text-xs text-muted-foreground">
-              {submittedCount > 0 ? `Médiane: ${medianGrade.toFixed(1)}` : "Aucune note"}
+              {submittedCount > 0
+                ? `Médiane: ${medianGrade.toFixed(1)}`
+                : "Aucune note"}
             </p>
           </div>
-          
+
           {submittedCount > 0 && (
             <div className="text-right text-xs text-muted-foreground">
               <div>Min: {minGrade}</div>
@@ -106,27 +118,40 @@ export function ExamStatisticsCards({ statistics, className = "" }: ExamStatisti
             <div className="text-2xl font-bold">
               {submittedCount > 0 ? `${passRate}%` : "-"}
             </div>
-            <p className="text-xs text-muted-foreground">
-              élèves en réussite
-            </p>
+            <p className="text-xs text-muted-foreground">élèves en réussite</p>
           </div>
-          
+
           {submittedCount > 0 && (
             <ExamProgressRing
               percentage={passRate}
               size="sm"
-              color={passRate >= 80 ? "green" : passRate >= 60 ? "blue" : passRate >= 40 ? "orange" : "red"}
+              color={
+                passRate >= 80
+                  ? "green"
+                  : passRate >= 60
+                    ? "blue"
+                    : passRate >= 40
+                      ? "orange"
+                      : "red"
+              }
             />
           )}
         </div>
-        
+
         {submittedCount > 0 && (
           <div className="mt-3">
-            <Badge 
-              variant={passRate >= 80 ? "default" : passRate >= 60 ? "secondary" : "outline"}
+            <Badge
+              variant={
+                passRate >= 80
+                  ? "default"
+                  : passRate >= 60
+                    ? "secondary"
+                    : "outline"
+              }
               className="text-xs"
             >
-              {Math.round((passRate / 100) * submittedCount)} / {submittedCount} réussis
+              {Math.round((passRate / 100) * submittedCount)} / {submittedCount}{" "}
+              réussis
             </Badge>
           </div>
         )}
@@ -144,21 +169,19 @@ export function ExamStatisticsCards({ statistics, className = "" }: ExamStatisti
               {submittedCount === 0 ? "En attente" : "Corrigé"}
             </div>
             <p className="text-xs text-muted-foreground">
-              {submittedCount === 0 
-                ? "Aucune copie corrigée" 
-                : submittedCount === totalStudents 
+              {submittedCount === 0
+                ? "Aucune copie corrigée"
+                : submittedCount === totalStudents
                   ? "Correction terminée"
-                  : "Correction en cours"
-              }
+                  : "Correction en cours"}
             </p>
           </div>
         </div>
-        
+
         <div className="mt-3">
           {submittedCount === 0 && (
             <Badge variant="outline" className="text-xs">
-              <Clock className="w-3 h-3 mr-1" />
-              À corriger
+              <Clock className="w-3 h-3 mr-1" />À corriger
             </Badge>
           )}
           {submittedCount > 0 && submittedCount < totalStudents && (

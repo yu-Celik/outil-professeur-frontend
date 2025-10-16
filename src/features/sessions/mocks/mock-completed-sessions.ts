@@ -293,7 +293,8 @@ export const MOCK_COMPLETED_SESSIONS: CourseSession[] = [
     status: "done",
     objectives: "Christmas traditions around the world",
     content: "Cultural comparison, vocabulary about festivities",
-    homeworkAssigned: "Research Christmas traditions in English-speaking countries",
+    homeworkAssigned:
+      "Research Christmas traditions in English-speaking countries",
     isMakeup: false,
     isMoved: false,
     notes: "Session très appréciée, bons échanges culturels",

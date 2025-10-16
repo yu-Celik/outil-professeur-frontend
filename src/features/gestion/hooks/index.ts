@@ -1,5 +1,5 @@
-export { useClassManagement } from './use-class-management'
-export { useSubjectManagement } from './use-subject-management'
-export { useTeachingAssignments } from './use-teaching-assignments'
-export { useAcademicStructures } from './use-academic-structures'
-export { useGestionManagement } from './use-gestion-management'
+export { useClassManagement } from "./use-class-management";
+export { useSubjectManagement } from "./use-subject-management";
+export { useTeachingAssignments } from "./use-teaching-assignments";
+export { useAcademicStructures } from "./use-academic-structures";
+export { useGestionManagement } from "./use-gestion-management";

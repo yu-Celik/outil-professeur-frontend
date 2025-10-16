@@ -2,7 +2,14 @@
 import { useMemo } from "react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
-import { Sparkles, Clock, History, Filter, Star, MessageSquare } from "lucide-react";
+import {
+  Sparkles,
+  Clock,
+  History,
+  Filter,
+  Star,
+  MessageSquare,
+} from "lucide-react";
 import { Badge } from "@/components/atoms/badge";
 import { Button } from "@/components/atoms/button";
 import { Input } from "@/components/atoms/input";
@@ -34,7 +41,6 @@ const ALL_STYLES_VALUE = "__all-styles" as const;
 const ALL_STATUS_VALUE = "__all-status" as const;
 
 export interface AppreciationHistoryFilters {
-
   studentId?: string;
   subjectId?: string;
   periodId?: string;
@@ -69,13 +75,18 @@ export function AppreciationHistoryPanel({
   const filteredItems = useMemo(() => {
     return items
       .filter((item) => {
-        if (filters.studentId && item.studentId !== filters.studentId) return false;
-        if (filters.subjectId && item.subjectId !== filters.subjectId) return false;
-        if (filters.periodId && item.academicPeriodId !== filters.periodId) return false;
-        if (filters.styleGuideId && item.styleGuideId !== filters.styleGuideId) return false;
+        if (filters.studentId && item.studentId !== filters.studentId)
+          return false;
+        if (filters.subjectId && item.subjectId !== filters.subjectId)
+          return false;
+        if (filters.periodId && item.academicPeriodId !== filters.periodId)
+          return false;
+        if (filters.styleGuideId && item.styleGuideId !== filters.styleGuideId)
+          return false;
         if (filters.status && item.status !== filters.status) return false;
         if (filters.search) {
-          const haystack = `${item.content} ${(item.inputData?.studentName as string) ?? ""}`.toLowerCase();
+          const haystack =
+            `${item.content} ${(item.inputData?.studentName as string) ?? ""}`.toLowerCase();
           if (!haystack.includes(filters.search.toLowerCase())) {
             return false;
           }
@@ -90,7 +101,9 @@ export function AppreciationHistoryPanel({
   }, [items, filters]);
 
   const stats = useMemo(() => {
-    const validated = items.filter((item) => item.status === "validated").length;
+    const validated = items.filter(
+      (item) => item.status === "validated",
+    ).length;
     const favorites = items.filter((item) => item.isFavorite).length;
     return { total: items.length, validated, favorites };
   }, [items]);
@@ -105,7 +118,8 @@ export function AppreciationHistoryPanel({
               Historique des appréciations
             </CardTitle>
             <CardDescription>
-              Retrouvez toutes les appréciations générées et filtrer par élève, matière, période ou statut.
+              Retrouvez toutes les appréciations générées et filtrer par élève,
+              matière, période ou statut.
             </CardDescription>
           </div>
           <Badge variant="outline" className="flex items-center gap-1">
@@ -119,20 +133,29 @@ export function AppreciationHistoryPanel({
           <Input
             placeholder="Rechercher dans les appréciations"
             value={filters.search ?? ""}
-            onChange={(event) => onFiltersChange({ ...filters, search: event.target.value })}
+            onChange={(event) =>
+              onFiltersChange({ ...filters, search: event.target.value })
+            }
             className="max-w-md"
           />
 
           <div className="flex flex-wrap items-center gap-3">
             <Select
               value={filters.studentId ?? ALL_STUDENTS_VALUE}
-              onValueChange={(value) => onFiltersChange({ ...filters, studentId: value === ALL_STUDENTS_VALUE ? undefined : value })}
+              onValueChange={(value) =>
+                onFiltersChange({
+                  ...filters,
+                  studentId: value === ALL_STUDENTS_VALUE ? undefined : value,
+                })
+              }
             >
               <SelectTrigger className="w-auto min-w-[140px]">
                 <SelectValue placeholder="Élèves" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value={ALL_STUDENTS_VALUE}>Tous les élèves</SelectItem>
+                <SelectItem value={ALL_STUDENTS_VALUE}>
+                  Tous les élèves
+                </SelectItem>
                 {students.map((student) => (
                   <SelectItem key={student.id} value={student.id}>
                     {student.label}
@@ -143,13 +166,20 @@ export function AppreciationHistoryPanel({
 
             <Select
               value={filters.subjectId ?? ALL_SUBJECTS_VALUE}
-              onValueChange={(value) => onFiltersChange({ ...filters, subjectId: value === ALL_SUBJECTS_VALUE ? undefined : value })}
+              onValueChange={(value) =>
+                onFiltersChange({
+                  ...filters,
+                  subjectId: value === ALL_SUBJECTS_VALUE ? undefined : value,
+                })
+              }
             >
               <SelectTrigger className="w-auto min-w-[120px]">
                 <SelectValue placeholder="Matières" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value={ALL_SUBJECTS_VALUE}>Toutes matières</SelectItem>
+                <SelectItem value={ALL_SUBJECTS_VALUE}>
+                  Toutes matières
+                </SelectItem>
                 {subjects.map((subject) => (
                   <SelectItem key={subject.id} value={subject.id}>
                     {subject.label}
@@ -160,13 +190,20 @@ export function AppreciationHistoryPanel({
 
             <Select
               value={filters.periodId ?? ALL_PERIODS_VALUE}
-              onValueChange={(value) => onFiltersChange({ ...filters, periodId: value === ALL_PERIODS_VALUE ? undefined : value })}
+              onValueChange={(value) =>
+                onFiltersChange({
+                  ...filters,
+                  periodId: value === ALL_PERIODS_VALUE ? undefined : value,
+                })
+              }
             >
               <SelectTrigger className="w-auto min-w-[120px]">
                 <SelectValue placeholder="Périodes" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value={ALL_PERIODS_VALUE}>Toutes périodes</SelectItem>
+                <SelectItem value={ALL_PERIODS_VALUE}>
+                  Toutes périodes
+                </SelectItem>
                 {periods.map((period) => (
                   <SelectItem key={period.id} value={period.id}>
                     {period.label}
@@ -177,7 +214,12 @@ export function AppreciationHistoryPanel({
 
             <Select
               value={filters.styleGuideId ?? ALL_STYLES_VALUE}
-              onValueChange={(value) => onFiltersChange({ ...filters, styleGuideId: value === ALL_STYLES_VALUE ? undefined : value })}
+              onValueChange={(value) =>
+                onFiltersChange({
+                  ...filters,
+                  styleGuideId: value === ALL_STYLES_VALUE ? undefined : value,
+                })
+              }
             >
               <SelectTrigger className="w-auto min-w-[100px]">
                 <SelectValue placeholder="Styles" />
@@ -194,7 +236,12 @@ export function AppreciationHistoryPanel({
 
             <Select
               value={filters.status ?? ALL_STATUS_VALUE}
-              onValueChange={(value) => onFiltersChange({ ...filters, status: value === ALL_STATUS_VALUE ? undefined : value })}
+              onValueChange={(value) =>
+                onFiltersChange({
+                  ...filters,
+                  status: value === ALL_STATUS_VALUE ? undefined : value,
+                })
+              }
             >
               <SelectTrigger className="w-auto min-w-[100px]">
                 <SelectValue placeholder="Statuts" />
@@ -206,7 +253,11 @@ export function AppreciationHistoryPanel({
               </SelectContent>
             </Select>
 
-            <Button variant="ghost" onClick={onResetFilters} className="ml-auto">
+            <Button
+              variant="ghost"
+              onClick={onResetFilters}
+              className="ml-auto"
+            >
               <Filter className="h-4 w-4 mr-2" />
               Réinitialiser
             </Button>
@@ -218,59 +269,75 @@ export function AppreciationHistoryPanel({
             {filteredItems.length === 0 ? (
               <div className="rounded-lg border border-dashed p-6 text-center text-sm text-muted-foreground">
                 <MessageSquare className="mx-auto mb-3 h-8 w-8 opacity-60" />
-                Aucun résultat pour ces filtres. Ajustez vos critères ou générez une nouvelle appréciation.
+                Aucun résultat pour ces filtres. Ajustez vos critères ou générez
+                une nouvelle appréciation.
               </div>
             ) : (
               filteredItems.map((item) => {
-              const generatedAt = item.generatedAt
-                ? format(new Date(item.generatedAt), "d MMM yyyy 'à' HH:mm", { locale: fr })
-                : "Date inconnue";
+                const generatedAt = item.generatedAt
+                  ? format(new Date(item.generatedAt), "d MMM yyyy 'à' HH:mm", {
+                      locale: fr,
+                    })
+                  : "Date inconnue";
 
-              const studentName = typeof item.inputData?.studentName === "string"
-                ? item.inputData.studentName
-                : undefined;
+                const studentName =
+                  typeof item.inputData?.studentName === "string"
+                    ? item.inputData.studentName
+                    : undefined;
 
-              return (
-                <div key={item.id} className="rounded-xl border bg-background/70 p-4 shadow-sm">
-                  <div className="flex flex-wrap items-center justify-between gap-2">
-                    <div className="space-y-1">
-                      <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
-                        <Clock className="h-3.5 w-3.5" />
-                        {generatedAt}
+                return (
+                  <div
+                    key={item.id}
+                    className="rounded-xl border bg-background/70 p-4 shadow-sm"
+                  >
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <div className="space-y-1">
+                        <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
+                          <Clock className="h-3.5 w-3.5" />
+                          {generatedAt}
+                        </div>
+                        <div className="flex flex-wrap items-center gap-2">
+                          {studentName && (
+                            <Badge variant="secondary">{studentName}</Badge>
+                          )}
+                          {item.subjectId && (
+                            <Badge variant="outline">{item.subjectId}</Badge>
+                          )}
+                          {item.academicPeriodId && (
+                            <Badge variant="outline">
+                              {item.academicPeriodId}
+                            </Badge>
+                          )}
+                          {item.styleGuideId && (
+                            <Badge variant="outline">{item.styleGuideId}</Badge>
+                          )}
+                          {item.isFavorite && (
+                            <Badge
+                              variant="outline"
+                              className="flex items-center gap-1"
+                            >
+                              <Star className="h-3 w-3" />
+                              Favori
+                            </Badge>
+                          )}
+                        </div>
                       </div>
-                      <div className="flex flex-wrap items-center gap-2">
-                        {studentName && (
-                          <Badge variant="secondary">{studentName}</Badge>
-                        )}
-                        {item.subjectId && (
-                          <Badge variant="outline">{item.subjectId}</Badge>
-                        )}
-                        {item.academicPeriodId && (
-                          <Badge variant="outline">{item.academicPeriodId}</Badge>
-                        )}
-                        {item.styleGuideId && (
-                          <Badge variant="outline">{item.styleGuideId}</Badge>
-                        )}
-                        {item.isFavorite && (
-                          <Badge variant="outline" className="flex items-center gap-1">
-                            <Star className="h-3 w-3" />
-                            Favori
-                          </Badge>
-                        )}
-                      </div>
+                      {onReuse && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => onReuse(item)}
+                        >
+                          <Sparkles className="mr-1.5 h-4 w-4" />
+                          Réutiliser
+                        </Button>
+                      )}
                     </div>
-                    {onReuse && (
-                      <Button variant="outline" size="sm" onClick={() => onReuse(item)}>
-                        <Sparkles className="mr-1.5 h-4 w-4" />
-                        Réutiliser
-                      </Button>
-                    )}
+                    <p className="mt-3 text-sm text-foreground/90 leading-relaxed">
+                      {item.content}
+                    </p>
                   </div>
-                  <p className="mt-3 text-sm text-foreground/90 leading-relaxed">
-                    {item.content}
-                  </p>
-                </div>
-              );
+                );
               })
             )}
           </div>

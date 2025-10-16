@@ -1,11 +1,6 @@
 "use client";
 
-import {
-  ArrowRightLeft,
-  MoreHorizontal,
-  Users,
-  XCircle,
-} from "lucide-react";
+import { ArrowRightLeft, MoreHorizontal, Users, XCircle } from "lucide-react";
 import { Button } from "@/components/atoms/button";
 import {
   DropdownMenu,
@@ -47,7 +42,6 @@ export function SessionContextMenu({
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-48">
-
         <DropdownMenuItem onClick={() => onManageAttendance(session.id)}>
           <Users className="mr-2 h-4 w-4" />
           Gérer la participation

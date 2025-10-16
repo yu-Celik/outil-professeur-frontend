@@ -1,6 +1,13 @@
 "use client";
 
-import { BookOpen, Clock, Users, CheckCircle, XCircle, AlertCircle } from "lucide-react";
+import {
+  BookOpen,
+  Clock,
+  Users,
+  CheckCircle,
+  XCircle,
+  AlertCircle,
+} from "lucide-react";
 import { Button } from "@/components/atoms/button";
 import { SessionStatusBadge } from "@/components/atoms/session-status-badge";
 import { getClassById } from "@/features/gestion/mocks";
@@ -24,10 +31,10 @@ export function SessionTimelineItem({
   const subject = getSubjectById(session.subjectId);
   const timeSlot = getTimeSlotById(session.timeSlotId);
   const studentsCount = getStudentsByClass(session.classId).length;
-  
+
   const sessionTime = timeSlot?.startTime || "Non défini";
   const sessionEndTime = timeSlot?.endTime || "";
-  
+
   // Déterminer l'état de la séance
   const now = new Date();
   const sessionDateTime = new Date(session.sessionDate);
@@ -37,9 +44,12 @@ export function SessionTimelineItem({
 
   // Icône selon le statut
   const getStatusIcon = () => {
-    if (session.status === "done") return <CheckCircle className="h-4 w-4 text-green-600" />;
-    if (session.status === "cancelled") return <XCircle className="h-4 w-4 text-red-600" />;
-    if (session.status === "planned" && isToday) return <AlertCircle className="h-4 w-4 text-orange-600" />;
+    if (session.status === "done")
+      return <CheckCircle className="h-4 w-4 text-green-600" />;
+    if (session.status === "cancelled")
+      return <XCircle className="h-4 w-4 text-red-600" />;
+    if (session.status === "planned" && isToday)
+      return <AlertCircle className="h-4 w-4 text-orange-600" />;
     return <Clock className="h-4 w-4 text-blue-600" />;
   };
 
@@ -58,7 +68,7 @@ export function SessionTimelineItem({
         <div className="flex-shrink-0 flex flex-col items-center gap-1">
           <div className="flex items-center gap-1">
             {getStatusIcon()}
-            <span 
+            <span
               className={`font-mono text-sm font-medium ${
                 isSelected ? "text-primary-foreground" : "text-foreground"
               }`}
@@ -67,9 +77,11 @@ export function SessionTimelineItem({
             </span>
           </div>
           {sessionEndTime && (
-            <span 
+            <span
               className={`font-mono text-xs ${
-                isSelected ? "text-primary-foreground/70" : "text-muted-foreground"
+                isSelected
+                  ? "text-primary-foreground/70"
+                  : "text-muted-foreground"
               }`}
             >
               {sessionEndTime}
@@ -78,12 +90,12 @@ export function SessionTimelineItem({
         </div>
 
         {/* Séparateur visuel */}
-        <div 
+        <div
           className={`w-px h-12 ${
-            isSelected 
-              ? "bg-primary-foreground/20" 
-              : isPast 
-                ? "bg-muted-foreground/30" 
+            isSelected
+              ? "bg-primary-foreground/20"
+              : isPast
+                ? "bg-muted-foreground/30"
                 : "bg-primary/30"
           }`}
         />
@@ -96,10 +108,10 @@ export function SessionTimelineItem({
               {subject?.name || session.subjectId}
             </span>
             {session.isMakeup && (
-              <span 
+              <span
                 className={`text-xs px-2 py-0.5 rounded-full font-medium ${
-                  isSelected 
-                    ? "bg-primary-foreground/20 text-primary-foreground" 
+                  isSelected
+                    ? "bg-primary-foreground/20 text-primary-foreground"
                     : "bg-orange-100 text-orange-800"
                 }`}
               >
@@ -107,20 +119,24 @@ export function SessionTimelineItem({
               </span>
             )}
           </div>
-          
+
           <div className="flex items-center gap-4 text-sm">
-            <div 
+            <div
               className={`flex items-center gap-1 ${
-                isSelected ? "text-primary-foreground/80" : "text-muted-foreground"
+                isSelected
+                  ? "text-primary-foreground/80"
+                  : "text-muted-foreground"
               }`}
             >
               <Users className="h-3 w-3" />
               <span>{classData?.classCode || session.classId}</span>
             </div>
-            
-            <span 
+
+            <span
               className={`text-xs ${
-                isSelected ? "text-primary-foreground/70" : "text-muted-foreground"
+                isSelected
+                  ? "text-primary-foreground/70"
+                  : "text-muted-foreground"
               }`}
             >
               {studentsCount} élève{studentsCount > 1 ? "s" : ""}
@@ -133,12 +149,14 @@ export function SessionTimelineItem({
               )}
             </div>
           </div>
-          
+
           {/* Notes ou objectifs si disponibles */}
           {(session.objectives || session.notes) && (
-            <div 
+            <div
               className={`mt-2 text-xs truncate ${
-                isSelected ? "text-primary-foreground/70" : "text-muted-foreground"
+                isSelected
+                  ? "text-primary-foreground/70"
+                  : "text-muted-foreground"
               }`}
             >
               {session.objectives || session.notes}

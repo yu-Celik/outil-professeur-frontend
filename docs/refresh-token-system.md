@@ -57,9 +57,10 @@ This document describes the frontend implementation of the **Epic 7 Refresh Toke
 
 ```typescript
 interface SessionTokenMetadata {
-  expires_at: string    // ISO 8601 timestamp
-  issued_at: string     // ISO 8601 timestamp
-  expires_in?: number   // Seconds until expiration
+  access_token_expires_at: string        // ISO 8601 timestamp
+  refresh_token_issued_at: string        // ISO 8601 timestamp
+  refresh_token_expires_at: string       // ISO 8601 timestamp
+  refresh_token_last_used_at?: string | null
 }
 
 interface LoginResponse {
@@ -70,21 +71,23 @@ interface LoginResponse {
 
 interface RefreshResponse {
   message: string
+  user: { id: string; email: string; display_name: string }
   session: SessionTokenMetadata
 }
 ```
 
 ### 2. Token Storage (`src/lib/auth/token-storage.ts`)
 
-**Purpose**: SSR-safe localStorage abstraction for session metadata
+**Purpose**: SSR-safe localStorage abstraction for session metadata (no sensitive token storage)
 
 **Key Functions**:
-- `storeSessionMetadata(metadata)` - Save session metadata
+- `storeSessionMetadata(metadata)` - Save session metadata (expiry timestamps only)
 - `getSessionMetadata()` - Retrieve session metadata
 - `clearSessionMetadata()` - Remove session metadata
 - `isTokenExpiringSoon(thresholdMs)` - Check if token expires within threshold
 - `isTokenExpired()` - Check if token is currently expired
 - `getTimeUntilExpiration()` - Get milliseconds until expiration
+- `getCsrfToken()` / `clearCsrfToken()` - Non-sensitive CSRF token caching for defense-in-depth
 
 ### 3. Token Manager (`src/lib/auth/token-manager.ts`)
 
@@ -124,11 +127,13 @@ interface RefreshResponse {
 ```
 
 **Endpoints**:
-- `api.auth.login(email, password)` → `LoginResponse`
+- `api.auth.login(email, password)` → `LoginResponse` (HttpOnly cookies set by backend)
 - `api.auth.register(email, password, displayName)` → `RegisterResponse`
-- `api.auth.refresh()` → `RefreshResponse`
-- `api.auth.logout()` → `LogoutResponse`
+- `api.auth.refresh()` → `RefreshResponse` (no request body, relies on cookies)
+- `api.auth.logout()` → `LogoutResponse` (no request body, backend clears cookies)
 - `api.auth.me()` → User data
+
+> ℹ️ **CSRF header (optionnel)** — définissez `NEXT_PUBLIC_ENABLE_CSRF_HEADER=true` pour ajouter automatiquement `X-CSRF-Token` aux requêtes sortantes. Laissez la variable absente (par défaut) si l'API ne whiteliste pas cet en-tête via CORS.
 
 ### 5. BroadcastChannel (`src/lib/auth/broadcast-channel.ts`)
 
@@ -199,6 +204,11 @@ interface AuthContextType {
 - Backend detects refresh token reuse
 - Triggers immediate token chain revocation
 - Frontend receives 401 → forces logout
+
+### ✅ HttpOnly Cookie Storage
+- Access and refresh tokens are stored exclusively in HttpOnly cookies
+- Frontend retains only expiration metadata plus an optional CSRF token
+- Eliminates XSS access to token material and simplifies logout handling
 
 ### ✅ Refresh Error Handling
 ```typescript

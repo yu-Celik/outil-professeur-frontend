@@ -24,8 +24,13 @@ export interface UseSubjectManagementReturn {
   updateSubject: (id: string, data: SubjectFormData) => Promise<Subject>;
   deleteSubject: (id: string) => Promise<void>;
   getSubjectById: (id: string) => Subject | undefined;
-  validateForm: (data: SubjectFormData, excludeId?: string) => Record<keyof SubjectFormData, string | null>;
-  hasValidationErrors: (errors: Record<keyof SubjectFormData, string | null>) => boolean;
+  validateForm: (
+    data: SubjectFormData,
+    excludeId?: string,
+  ) => Record<keyof SubjectFormData, string | null>;
+  hasValidationErrors: (
+    errors: Record<keyof SubjectFormData, string | null>,
+  ) => boolean;
   refresh: () => void;
 
   // Méthodes spécifiques aux matières
@@ -34,13 +39,12 @@ export interface UseSubjectManagementReturn {
 }
 
 export function useSubjectManagement(): UseSubjectManagementReturn {
-  
   // Configuration pour le hook de base
   const baseManagement = useBaseManagement<Subject, SubjectFormData>({
     entityName: "matière",
     mockData: MOCK_SUBJECTS,
     generateId: () => `subject-${generateUniqueId()}`,
-    
+
     // Règles de validation
     validationRules: {
       name: [
@@ -53,9 +57,7 @@ export function useSubjectManagement(): UseSubjectManagementReturn {
         lengthRule(2, 10, "Code de la matière"),
         uniqueRule("code", "Code de matière"),
       ],
-      description: [
-        lengthRule(0, 500, "Description"),
-      ],
+      description: [lengthRule(0, 500, "Description")],
     },
 
     // Création d'entité
@@ -78,24 +80,31 @@ export function useSubjectManagement(): UseSubjectManagementReturn {
   });
 
   // Méthodes spécifiques aux matières
-  const getSubjectByCode = useCallback((code: string) => {
-    return baseManagement.items.find((subject) => 
-      subject.code.toLowerCase() === code.toLowerCase()
-    );
-  }, [baseManagement.items]);
+  const getSubjectByCode = useCallback(
+    (code: string) => {
+      return baseManagement.items.find(
+        (subject) => subject.code.toLowerCase() === code.toLowerCase(),
+      );
+    },
+    [baseManagement.items],
+  );
 
-  const searchSubjects = useCallback((query: string) => {
-    if (!query.trim()) {
-      return baseManagement.items;
-    }
+  const searchSubjects = useCallback(
+    (query: string) => {
+      if (!query.trim()) {
+        return baseManagement.items;
+      }
 
-    const searchTerm = query.toLowerCase().trim();
-    return baseManagement.items.filter((subject) => 
-      subject.name.toLowerCase().includes(searchTerm) ||
-      subject.code.toLowerCase().includes(searchTerm) ||
-      subject.description.toLowerCase().includes(searchTerm)
-    );
-  }, [baseManagement.items]);
+      const searchTerm = query.toLowerCase().trim();
+      return baseManagement.items.filter(
+        (subject) =>
+          subject.name.toLowerCase().includes(searchTerm) ||
+          subject.code.toLowerCase().includes(searchTerm) ||
+          subject.description.toLowerCase().includes(searchTerm),
+      );
+    },
+    [baseManagement.items],
+  );
 
   return {
     // Propriétés héritées du hook de base

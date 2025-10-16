@@ -1,4 +1,4 @@
-import { LoginForm } from '@/components/organisms/login-form'
+import { LoginForm } from "@/components/organisms/login-form";
 
 export default function LoginPage() {
   return (
@@ -8,11 +8,9 @@ export default function LoginPage() {
 
         <div className="mt-4 text-center text-sm text-muted-foreground">
           <p>Compte de test :</p>
-          <p className="mt-1 font-mono text-xs">
-            teacher@test.com / Test1234
-          </p>
+          <p className="mt-1 font-mono text-xs">teacher@test.com / Test1234</p>
         </div>
       </div>
     </div>
-  )
+  );
 }

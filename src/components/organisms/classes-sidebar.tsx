@@ -26,13 +26,15 @@ export function ClassesSidebar({
 }: ClassesSidebarProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isInitialLoad, setIsInitialLoad] = useState(true);
-  const [hoverOpenTimeoutId, setHoverOpenTimeoutId] = useState<NodeJS.Timeout | null>(null);
-  const [hoverCloseTimeoutId, setHoverCloseTimeoutId] = useState<NodeJS.Timeout | null>(null);
+  const [hoverOpenTimeoutId, setHoverOpenTimeoutId] =
+    useState<NodeJS.Timeout | null>(null);
+  const [hoverCloseTimeoutId, setHoverCloseTimeoutId] =
+    useState<NodeJS.Timeout | null>(null);
   const [hoverDelay, setHoverDelay] = useState(1000);
 
   // Initialiser le délai depuis localStorage côté client
   useEffect(() => {
-    const saved = localStorage.getItem('sidebar-hover-delay');
+    const saved = localStorage.getItem("sidebar-hover-delay");
     if (saved) {
       setHoverDelay(parseInt(saved));
     }
@@ -44,10 +46,16 @@ export function ClassesSidebar({
       setHoverDelay(event.detail);
     };
 
-    window.addEventListener('sidebar-hover-delay-change', handleDelayChange as EventListener);
+    window.addEventListener(
+      "sidebar-hover-delay-change",
+      handleDelayChange as EventListener,
+    );
 
     return () => {
-      window.removeEventListener('sidebar-hover-delay-change', handleDelayChange as EventListener);
+      window.removeEventListener(
+        "sidebar-hover-delay-change",
+        handleDelayChange as EventListener,
+      );
     };
   }, []);
 
@@ -114,8 +122,8 @@ export function ClassesSidebar({
     };
   }, [hoverOpenTimeoutId, hoverCloseTimeoutId]);
 
-  const selectedClass = selectedClassId 
-    ? classes.find(c => c.id === selectedClassId) 
+  const selectedClass = selectedClassId
+    ? classes.find((c) => c.id === selectedClassId)
     : null;
   return (
     <div
@@ -133,7 +141,8 @@ export function ClassesSidebar({
               <div
                 className="w-10 h-10 rounded-lg flex items-center justify-center"
                 style={{
-                  backgroundColor: getClassColorWithText(selectedClass.id).backgroundColor,
+                  backgroundColor: getClassColorWithText(selectedClass.id)
+                    .backgroundColor,
                 }}
               >
                 <span
@@ -155,7 +164,7 @@ export function ClassesSidebar({
               </Button>
             </div>
           </div>
-          
+
           <div className="flex-1 flex items-center justify-center">
             <div className="text-center space-y-3 px-2">
               <p className="text-xs font-medium text-foreground [writing-mode:vertical-lr] transform rotate-180">
@@ -188,7 +197,7 @@ export function ClassesSidebar({
               </Button>
             </div>
           </div>
-          
+
           <div className="flex-1 flex items-center justify-center">
             <div className="text-center px-2">
               <p className="text-xs font-medium text-muted-foreground [writing-mode:vertical-lr] transform rotate-180">
@@ -206,7 +215,9 @@ export function ClassesSidebar({
             <div className="flex items-center justify-between mb-1">
               <div className="flex items-center gap-2">
                 <GraduationCap className="h-4 w-4 text-primary" />
-                <h3 className="font-semibold text-sm text-foreground">Mes Classes</h3>
+                <h3 className="font-semibold text-sm text-foreground">
+                  Mes Classes
+                </h3>
               </div>
               <Button
                 size="sm"
@@ -221,7 +232,7 @@ export function ClassesSidebar({
               {classes.length} classe{classes.length > 1 ? "s" : ""} au total
             </p>
           </div>
-          
+
           <div className="flex-1 overflow-y-auto min-h-0 p-4">
             <div className="space-y-2">
               {classes.map((classData) => {

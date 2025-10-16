@@ -36,7 +36,9 @@ export default function StudentProfilePage({
 
   // Calculer les statistiques
   const totalSessions = recentParticipations.length;
-  const presentSessions = recentParticipations.filter((p) => p.isPresent).length;
+  const presentSessions = recentParticipations.filter(
+    (p) => p.isPresent,
+  ).length;
 
   if (rightsLoading) {
     return (

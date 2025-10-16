@@ -5,7 +5,13 @@ import { X, Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/atoms/button";
 import { Input } from "@/components/atoms/input";
 import { Label } from "@/components/atoms/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/atoms/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/atoms/select";
 import { ACADEMIC_STRUCTURE_TEMPLATES } from "@/features/gestion/mocks";
 import type { AcademicStructure } from "@/types/uml-entities";
 
@@ -46,14 +52,20 @@ export function AcademicStructureCrudForm({
         name: academicStructure.name,
         periodModel: academicStructure.periodModel,
         periodsPerYear: academicStructure.periodsPerYear,
-        periodNames: { ...academicStructure.periodNames } as Record<string, string>,
+        periodNames: { ...academicStructure.periodNames } as Record<
+          string,
+          string
+        >,
       });
     }
   }, [academicStructure]);
 
   // Appliquer un template
   const applyTemplate = (templateKey: string) => {
-    const template = ACADEMIC_STRUCTURE_TEMPLATES[templateKey as keyof typeof ACADEMIC_STRUCTURE_TEMPLATES];
+    const template =
+      ACADEMIC_STRUCTURE_TEMPLATES[
+        templateKey as keyof typeof ACADEMIC_STRUCTURE_TEMPLATES
+      ];
     if (template) {
       setFormData({
         name: template.name,
@@ -71,10 +83,11 @@ export function AcademicStructureCrudForm({
 
     // Conserver les noms existants
     for (let i = 1; i <= count; i++) {
-      newPeriodNames[i.toString()] = formData.periodNames[i.toString()] || `Période ${i}`;
+      newPeriodNames[i.toString()] =
+        formData.periodNames[i.toString()] || `Période ${i}`;
     }
 
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       periodsPerYear: count,
       periodNames: newPeriodNames,
@@ -83,7 +96,7 @@ export function AcademicStructureCrudForm({
 
   // Mettre à jour le nom d'une période
   const updatePeriodName = (order: number, name: string) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       periodNames: {
         ...prev.periodNames,
@@ -105,7 +118,8 @@ export function AcademicStructureCrudForm({
     }
 
     if (formData.periodsPerYear < 1 || formData.periodsPerYear > 12) {
-      newErrors.periodsPerYear = "Le nombre de périodes doit être entre 1 et 12";
+      newErrors.periodsPerYear =
+        "Le nombre de périodes doit être entre 1 et 12";
     }
 
     // Vérifier que tous les noms de périodes sont définis
@@ -134,7 +148,9 @@ export function AcademicStructureCrudForm({
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-semibold">
-          {isEditing ? "Modifier la structure académique" : "Créer une structure académique"}
+          {isEditing
+            ? "Modifier la structure académique"
+            : "Créer une structure académique"}
         </h3>
         <Button variant="ghost" size="sm" onClick={onCancel}>
           <X className="h-4 w-4" />
@@ -158,11 +174,13 @@ export function AcademicStructureCrudForm({
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="none">Aucun template</SelectItem>
-                {Object.entries(ACADEMIC_STRUCTURE_TEMPLATES).map(([key, template]) => (
-                  <SelectItem key={key} value={key}>
-                    {template.name} ({template.periodsPerYear} périodes)
-                  </SelectItem>
-                ))}
+                {Object.entries(ACADEMIC_STRUCTURE_TEMPLATES).map(
+                  ([key, template]) => (
+                    <SelectItem key={key} value={key}>
+                      {template.name} ({template.periodsPerYear} périodes)
+                    </SelectItem>
+                  ),
+                )}
               </SelectContent>
             </Select>
           </div>
@@ -176,7 +194,9 @@ export function AcademicStructureCrudForm({
           <Input
             id="name"
             value={formData.name}
-            onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+            onChange={(e) =>
+              setFormData((prev) => ({ ...prev, name: e.target.value }))
+            }
             placeholder="Ex: Système Trimestre (France)"
             className={errors.name ? "border-red-500" : ""}
           />
@@ -191,11 +211,15 @@ export function AcademicStructureCrudForm({
           <Input
             id="periodModel"
             value={formData.periodModel}
-            onChange={(e) => setFormData(prev => ({ ...prev, periodModel: e.target.value }))}
+            onChange={(e) =>
+              setFormData((prev) => ({ ...prev, periodModel: e.target.value }))
+            }
             placeholder="Ex: trimestre, semestre, quartier"
             className={errors.periodModel ? "border-red-500" : ""}
           />
-          {errors.periodModel && <p className="text-sm text-red-500">{errors.periodModel}</p>}
+          {errors.periodModel && (
+            <p className="text-sm text-red-500">{errors.periodModel}</p>
+          )}
         </div>
 
         {/* Nombre de périodes par an */}
@@ -207,18 +231,22 @@ export function AcademicStructureCrudForm({
             value={formData.periodsPerYear.toString()}
             onValueChange={(value) => updatePeriodsPerYear(parseInt(value))}
           >
-            <SelectTrigger className={errors.periodsPerYear ? "border-red-500" : ""}>
+            <SelectTrigger
+              className={errors.periodsPerYear ? "border-red-500" : ""}
+            >
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              {Array.from({ length: 12 }, (_, i) => i + 1).map(num => (
+              {Array.from({ length: 12 }, (_, i) => i + 1).map((num) => (
                 <SelectItem key={num} value={num.toString()}>
-                  {num} période{num > 1 ? 's' : ''}
+                  {num} période{num > 1 ? "s" : ""}
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
-          {errors.periodsPerYear && <p className="text-sm text-red-500">{errors.periodsPerYear}</p>}
+          {errors.periodsPerYear && (
+            <p className="text-sm text-red-500">{errors.periodsPerYear}</p>
+          )}
         </div>
 
         {/* Noms des périodes */}
@@ -233,7 +261,9 @@ export function AcademicStructureCrudForm({
 
               return (
                 <div key={order} className="flex items-center space-x-2">
-                  <span className="text-sm font-medium min-w-[80px]">Période {order}:</span>
+                  <span className="text-sm font-medium min-w-[80px]">
+                    Période {order}:
+                  </span>
                   <Input
                     value={formData.periodNames[order.toString()] || ""}
                     onChange={(e) => updatePeriodName(order, e.target.value)}

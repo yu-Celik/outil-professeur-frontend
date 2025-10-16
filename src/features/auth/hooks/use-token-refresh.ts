@@ -4,20 +4,20 @@
  * Epic 7: Refresh Token System
  */
 
-import { useEffect, useRef } from 'react'
-import { api } from '@/lib/api'
-import { tokenManager } from '@/lib/auth/token-manager'
-import type { SessionTokenMetadata } from '@/types/auth'
+import { useEffect, useRef } from "react";
+import { api } from "@/lib/api";
+import { tokenManager } from "@/lib/auth/token-manager";
+import type { SessionTokenMetadata } from "@/types/auth";
 
 interface UseTokenRefreshOptions {
   /** Enable automatic token refresh monitoring */
-  enabled: boolean
+  enabled: boolean;
   /** Callback when refresh succeeds with new metadata */
-  onRefreshSuccess?: (metadata: SessionTokenMetadata) => void
+  onRefreshSuccess?: (metadata: SessionTokenMetadata) => void;
   /** Callback when refresh fails */
-  onRefreshError?: (error: Error) => void
+  onRefreshError?: (error: Error) => void;
   /** Callback when logout is required due to refresh failure */
-  onLogoutRequired?: () => void
+  onLogoutRequired?: () => void;
 }
 
 /**
@@ -40,37 +40,44 @@ export function useTokenRefresh({
   onRefreshError,
   onLogoutRequired,
 }: UseTokenRefreshOptions) {
-  const isInitialized = useRef(false)
+  const callbacksRef = useRef<{
+    onRefreshSuccess?: (metadata: SessionTokenMetadata) => void;
+    onRefreshError?: (error: Error) => void;
+    onLogoutRequired?: () => void;
+  }>({});
+
+  // Keep latest callbacks in ref to avoid stale closures
+  useEffect(() => {
+    callbacksRef.current.onRefreshSuccess = onRefreshSuccess;
+    callbacksRef.current.onRefreshError = onRefreshError;
+    callbacksRef.current.onLogoutRequired = onLogoutRequired;
+  }, [onRefreshSuccess, onRefreshError, onLogoutRequired]);
 
   useEffect(() => {
-    // Initialize token manager once
-    if (!isInitialized.current && enabled) {
-      tokenManager.initialize({
-        onRefresh: async () => {
-          // Execute refresh API call
-          const response = await api.auth.refresh()
-          return response.session
-        },
-        onRefreshSuccess: (metadata) => {
-          onRefreshSuccess?.(metadata)
-        },
-        onRefreshError: (error) => {
-          onRefreshError?.(error)
-        },
-        onLogoutRequired: () => {
-          onLogoutRequired?.()
-        },
-      })
-      isInitialized.current = true
-    }
-  }, [enabled, onRefreshSuccess, onRefreshError, onLogoutRequired])
+    tokenManager.initialize({
+      onRefresh: async () => {
+        const response = await api.auth.refresh();
+        return response.session;
+      },
+      onRefreshSuccess: (metadata) => {
+        callbacksRef.current.onRefreshSuccess?.(metadata);
+      },
+      onRefreshError: (error) => {
+        callbacksRef.current.onRefreshError?.(error);
+      },
+      onLogoutRequired: () => {
+        callbacksRef.current.onLogoutRequired?.();
+      },
+    });
 
-  useEffect(() => {
-    // Cleanup on unmount
     return () => {
-      if (!enabled) {
-        tokenManager.stop()
-      }
+      tokenManager.stop();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!enabled) {
+      tokenManager.stop();
     }
-  }, [enabled])
+  }, [enabled]);
 }

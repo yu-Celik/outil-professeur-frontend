@@ -1,5 +1,12 @@
-import type { StudentProfile, StudentParticipation, StudentExamResult } from "@/types/uml-entities";
-import type { StudentProfileFeatures, StudentProfileEvidenceRefs } from "../services/student-profile-service";
+import type {
+  StudentProfile,
+  StudentParticipation,
+  StudentExamResult,
+} from "@/types/uml-entities";
+import type {
+  StudentProfileFeatures,
+  StudentProfileEvidenceRefs,
+} from "../services/student-profile-service";
 
 // Mock de participations enrichies pour les analyses comportementales
 export const MOCK_STUDENT_PARTICIPATIONS: StudentParticipation[] = [
@@ -17,10 +24,13 @@ export const MOCK_STUDENT_PARTICIPATIONS: StudentParticipation[] = [
     technicalIssues: "",
     cameraEnabled: true,
     markedAt: new Date("2024-11-15T10:00:00Z"),
-    markAttendance: (isPresent: boolean) => console.log("Marked attendance:", isPresent),
-    setParticipationLevel: (level: number) => console.log("Set participation level:", level),
+    markAttendance: (isPresent: boolean) =>
+      console.log("Marked attendance:", isPresent),
+    setParticipationLevel: (level: number) =>
+      console.log("Set participation level:", level),
     addRemarks: (remarks: string) => console.log("Added remarks:", remarks),
-    updateBehavior: (behavior: string) => console.log("Updated behavior:", behavior),
+    updateBehavior: (behavior: string) =>
+      console.log("Updated behavior:", behavior),
   },
   {
     id: "participation-zircon-002",
@@ -35,10 +45,13 @@ export const MOCK_STUDENT_PARTICIPATIONS: StudentParticipation[] = [
     technicalIssues: "",
     cameraEnabled: true,
     markedAt: new Date("2024-11-18T10:00:00Z"),
-    markAttendance: (isPresent: boolean) => console.log("Marked attendance:", isPresent),
-    setParticipationLevel: (level: number) => console.log("Set participation level:", level),
+    markAttendance: (isPresent: boolean) =>
+      console.log("Marked attendance:", isPresent),
+    setParticipationLevel: (level: number) =>
+      console.log("Set participation level:", level),
     addRemarks: (remarks: string) => console.log("Added remarks:", remarks),
-    updateBehavior: (behavior: string) => console.log("Updated behavior:", behavior),
+    updateBehavior: (behavior: string) =>
+      console.log("Updated behavior:", behavior),
   },
   {
     id: "participation-zircon-003",
@@ -53,10 +66,13 @@ export const MOCK_STUDENT_PARTICIPATIONS: StudentParticipation[] = [
     technicalIssues: "",
     cameraEnabled: false,
     markedAt: new Date("2024-11-22T10:00:00Z"),
-    markAttendance: (isPresent: boolean) => console.log("Marked attendance:", isPresent),
-    setParticipationLevel: (level: number) => console.log("Set participation level:", level),
+    markAttendance: (isPresent: boolean) =>
+      console.log("Marked attendance:", isPresent),
+    setParticipationLevel: (level: number) =>
+      console.log("Set participation level:", level),
     addRemarks: (remarks: string) => console.log("Added remarks:", remarks),
-    updateBehavior: (behavior: string) => console.log("Updated behavior:", behavior),
+    updateBehavior: (behavior: string) =>
+      console.log("Updated behavior:", behavior),
   },
   {
     id: "participation-zircon-004",
@@ -71,10 +87,13 @@ export const MOCK_STUDENT_PARTICIPATIONS: StudentParticipation[] = [
     technicalIssues: "",
     cameraEnabled: true,
     markedAt: new Date("2024-11-25T10:00:00Z"),
-    markAttendance: (isPresent: boolean) => console.log("Marked attendance:", isPresent),
-    setParticipationLevel: (level: number) => console.log("Set participation level:", level),
+    markAttendance: (isPresent: boolean) =>
+      console.log("Marked attendance:", isPresent),
+    setParticipationLevel: (level: number) =>
+      console.log("Set participation level:", level),
     addRemarks: (remarks: string) => console.log("Added remarks:", remarks),
-    updateBehavior: (behavior: string) => console.log("Updated behavior:", behavior),
+    updateBehavior: (behavior: string) =>
+      console.log("Updated behavior:", behavior),
   },
   {
     id: "participation-zircon-005",
@@ -89,10 +108,13 @@ export const MOCK_STUDENT_PARTICIPATIONS: StudentParticipation[] = [
     technicalIssues: "",
     cameraEnabled: true,
     markedAt: new Date("2024-11-29T10:00:00Z"),
-    markAttendance: (isPresent: boolean) => console.log("Marked attendance:", isPresent),
-    setParticipationLevel: (level: number) => console.log("Set participation level:", level),
+    markAttendance: (isPresent: boolean) =>
+      console.log("Marked attendance:", isPresent),
+    setParticipationLevel: (level: number) =>
+      console.log("Set participation level:", level),
     addRemarks: (remarks: string) => console.log("Added remarks:", remarks),
-    updateBehavior: (behavior: string) => console.log("Updated behavior:", behavior),
+    updateBehavior: (behavior: string) =>
+      console.log("Updated behavior:", behavior),
   },
   {
     id: "participation-zircon-006",
@@ -107,11 +129,14 @@ export const MOCK_STUDENT_PARTICIPATIONS: StudentParticipation[] = [
     technicalIssues: "",
     cameraEnabled: true,
     markedAt: new Date("2024-12-02T10:00:00Z"),
-    markAttendance: (isPresent: boolean) => console.log("Marked attendance:", isPresent),
-    setParticipationLevel: (level: number) => console.log("Set participation level:", level),
+    markAttendance: (isPresent: boolean) =>
+      console.log("Marked attendance:", isPresent),
+    setParticipationLevel: (level: number) =>
+      console.log("Set participation level:", level),
     addRemarks: (remarks: string) => console.log("Added remarks:", remarks),
-    updateBehavior: (behavior: string) => console.log("Updated behavior:", behavior),
-  }
+    updateBehavior: (behavior: string) =>
+      console.log("Updated behavior:", behavior),
+  },
 ];
 
 // Mock de profils étudiants enrichis
@@ -123,14 +148,18 @@ export const MOCK_STUDENT_PROFILES: StudentProfile[] = [
     academicPeriodId: "period-1",
     features: {
       behavioral: {
-        dominantBehaviors: ["Très participatif", "Excellent esprit d'équipe", "Très autonome"],
+        dominantBehaviors: [
+          "Très participatif",
+          "Excellent esprit d'équipe",
+          "Très autonome",
+        ],
         behavioralEvolution: "improving" as const,
         attentionLevel: 16.0,
         participationLevel: 15.8,
         cooperationLevel: 16.0,
         autonomyLevel: 17.0,
         attendanceRate: 0.83,
-        punctualityRate: 0.80,
+        punctualityRate: 0.8,
         cameraUsageRate: 0.83,
       },
       academic: {
@@ -159,12 +188,12 @@ export const MOCK_STUDENT_PROFILES: StudentProfile[] = [
         overallAverage: 14.85,
         strongestSubjects: ["Mathématiques"],
         weakestSubjects: [],
-        consistencyScore: 0.80,
+        consistencyScore: 0.8,
       },
       engagement: {
         attendanceRate: 0.83,
-        homeworkCompletionRate: 0.90,
-        punctualityRate: 0.80,
+        homeworkCompletionRate: 0.9,
+        punctualityRate: 0.8,
         cameraUsageRate: 0.83,
       },
       alerts: {
@@ -236,8 +265,21 @@ export const MOCK_STUDENT_PROFILES: StudentProfile[] = [
         "participation-005",
         "participation-006",
       ],
-      examResults: ["exam-result-001", "exam-result-002", "exam-result-003", "exam-result-004", "exam-result-005"],
-      sessions: ["session-001", "session-002", "session-003", "session-004", "session-005", "session-006"],
+      examResults: [
+        "exam-result-001",
+        "exam-result-002",
+        "exam-result-003",
+        "exam-result-004",
+        "exam-result-005",
+      ],
+      sessions: [
+        "session-001",
+        "session-002",
+        "session-003",
+        "session-004",
+        "session-005",
+        "session-006",
+      ],
       subjects: ["math-001", "french-001"],
       analysisMetadata: {
         analysisDate: new Date("2025-02-05T00:00:00Z"),
@@ -252,7 +294,8 @@ export const MOCK_STUDENT_PROFILES: StudentProfile[] = [
     status: "validated",
     generatedAt: new Date("2025-02-05T00:00:00Z"),
     updatedAt: new Date("2025-02-05T00:00:00Z"),
-    review: (notes: string) => console.log("Profile reviewed with notes:", notes),
+    review: (notes: string) =>
+      console.log("Profile reviewed with notes:", notes),
   },
   {
     id: "profile-002",
@@ -261,14 +304,18 @@ export const MOCK_STUDENT_PROFILES: StudentProfile[] = [
     academicPeriodId: "period-1",
     features: {
       behavioral: {
-        dominantBehaviors: ["Attention difficile", "Participation faible", "Absences fréquentes"],
+        dominantBehaviors: [
+          "Attention difficile",
+          "Participation faible",
+          "Absences fréquentes",
+        ],
         behavioralEvolution: "declining",
         attentionLevel: 8.5,
         participationLevel: 7.2,
         cooperationLevel: 9.0,
         autonomyLevel: 6.8,
         attendanceRate: 0.65,
-        punctualityRate: 0.70,
+        punctualityRate: 0.7,
         cameraUsageRate: 0.45,
       },
       academic: {
@@ -279,7 +326,7 @@ export const MOCK_STUDENT_PROFILES: StudentProfile[] = [
             average: 8.2,
             examCount: 3,
             trend: "declining" as const,
-            consistency: 0.60,
+            consistency: 0.6,
             lastExamGrade: 6.5,
             progressFromFirst: -2.5,
           },
@@ -289,7 +336,7 @@ export const MOCK_STUDENT_PROFILES: StudentProfile[] = [
             average: 9.8,
             examCount: 2,
             trend: "stable" as const,
-            consistency: 0.80,
+            consistency: 0.8,
             lastExamGrade: 10.0,
             progressFromFirst: 0.2,
           },
@@ -297,12 +344,12 @@ export const MOCK_STUDENT_PROFILES: StudentProfile[] = [
         overallAverage: 9.0,
         strongestSubjects: [],
         weakestSubjects: ["Mathématiques"],
-        consistencyScore: 0.70,
+        consistencyScore: 0.7,
       },
       engagement: {
         attendanceRate: 0.65,
         homeworkCompletionRate: 0.55,
-        punctualityRate: 0.70,
+        punctualityRate: 0.7,
         cameraUsageRate: 0.45,
       },
       alerts: {
@@ -335,7 +382,8 @@ export const MOCK_STUDENT_PROFILES: StudentProfile[] = [
             type: "subject_difficulty",
             severity: "high",
             affectedSubjects: ["Mathématiques"],
-            description: "Difficultés importantes en Mathématiques: moyenne de 8.2/20",
+            description:
+              "Difficultés importantes en Mathématiques: moyenne de 8.2/20",
             suggestedActions: [
               "Soutien spécialisé en Mathématiques",
               "Adapter les méthodes pédagogiques",
@@ -350,7 +398,8 @@ export const MOCK_STUDENT_PROFILES: StudentProfile[] = [
             type: "behavioral",
             category: "Engagement",
             title: "Plan de soutien urgentent",
-            description: "L'élève nécessite un accompagnement renforcé immédiat",
+            description:
+              "L'élève nécessite un accompagnement renforcé immédiat",
             priority: "high",
             actionItems: [
               "Organiser un entretien avec l'élève et les parents",
@@ -373,7 +422,8 @@ export const MOCK_STUDENT_PROFILES: StudentProfile[] = [
             changePercentage: -18.7,
             periodComparison: "participation en baisse",
           },
-          evolutionSummary: "Évolution observée: attention en baisse et participation en baisse",
+          evolutionSummary:
+            "Évolution observée: attention en baisse et participation en baisse",
         },
         academic: {
           overallTrend: "declining" as const,
@@ -400,7 +450,7 @@ export const MOCK_STUDENT_PROFILES: StudentProfile[] = [
           examResults: 5,
           sessionsAnalyzed: 8,
         },
-        confidence: 0.90,
+        confidence: 0.9,
       },
     } as unknown as Record<string, unknown>,
     evidenceRefs: {
@@ -414,8 +464,23 @@ export const MOCK_STUDENT_PROFILES: StudentProfile[] = [
         "participation-013",
         "participation-014",
       ],
-      examResults: ["exam-result-006", "exam-result-007", "exam-result-008", "exam-result-009", "exam-result-010"],
-      sessions: ["session-007", "session-008", "session-009", "session-010", "session-011", "session-012", "session-013", "session-014"],
+      examResults: [
+        "exam-result-006",
+        "exam-result-007",
+        "exam-result-008",
+        "exam-result-009",
+        "exam-result-010",
+      ],
+      sessions: [
+        "session-007",
+        "session-008",
+        "session-009",
+        "session-010",
+        "session-011",
+        "session-012",
+        "session-013",
+        "session-014",
+      ],
       subjects: ["math-001", "french-001"],
       analysisMetadata: {
         analysisDate: new Date("2025-02-05T00:00:00Z"),
@@ -430,28 +495,42 @@ export const MOCK_STUDENT_PROFILES: StudentProfile[] = [
     status: "generated",
     generatedAt: new Date("2025-02-05T00:00:00Z"),
     updatedAt: new Date("2025-02-05T00:00:00Z"),
-    review: (notes: string) => console.log("Profile reviewed with notes:", notes),
+    review: (notes: string) =>
+      console.log("Profile reviewed with notes:", notes),
   },
 ];
 
 // Fonctions utilitaires pour accéder aux données mockées
-export function getStudentProfileById(profileId: string): StudentProfile | undefined {
+export function getStudentProfileById(
+  profileId: string,
+): StudentProfile | undefined {
   return MOCK_STUDENT_PROFILES.find((profile) => profile.id === profileId);
 }
 
-export function getStudentProfilesByStudentId(studentId: string): StudentProfile[] {
-  return MOCK_STUDENT_PROFILES.filter((profile) => profile.studentId === studentId);
+export function getStudentProfilesByStudentId(
+  studentId: string,
+): StudentProfile[] {
+  return MOCK_STUDENT_PROFILES.filter(
+    (profile) => profile.studentId === studentId,
+  );
 }
 
-export function getStudentProfilesByPeriod(academicPeriodId: string): StudentProfile[] {
-  return MOCK_STUDENT_PROFILES.filter((profile) => profile.academicPeriodId === academicPeriodId);
+export function getStudentProfilesByPeriod(
+  academicPeriodId: string,
+): StudentProfile[] {
+  return MOCK_STUDENT_PROFILES.filter(
+    (profile) => profile.academicPeriodId === academicPeriodId,
+  );
 }
 
 export function getStudentProfilesByStatus(status: string): StudentProfile[] {
   return MOCK_STUDENT_PROFILES.filter((profile) => profile.status === status);
 }
 
-export function getStudentParticipationsByStudentId(studentId: string): StudentParticipation[] {
-  return MOCK_STUDENT_PARTICIPATIONS.filter((participation) => participation.studentId === studentId);
+export function getStudentParticipationsByStudentId(
+  studentId: string,
+): StudentParticipation[] {
+  return MOCK_STUDENT_PARTICIPATIONS.filter(
+    (participation) => participation.studentId === studentId,
+  );
 }
-

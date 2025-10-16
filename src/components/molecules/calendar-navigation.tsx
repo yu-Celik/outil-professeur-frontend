@@ -1,22 +1,18 @@
 "use client";
 
-import { Calendar, ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/atoms/button";
 
 interface CalendarNavigationProps {
   monthYear: string;
   onNavigateMonth: (direction: "prev" | "next") => void;
   onNavigateToToday: () => void;
-  onNavigateToJanuary2025: () => void;
-  onNavigateToAugust2025: () => void;
 }
 
 export function CalendarNavigation({
   monthYear,
   onNavigateMonth,
   onNavigateToToday,
-  onNavigateToJanuary2025,
-  onNavigateToAugust2025,
 }: CalendarNavigationProps) {
   return (
     <div className="flex items-center gap-4">

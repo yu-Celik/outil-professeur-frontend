@@ -43,11 +43,7 @@ export function StudentHeaderCard({
             </div>
           </div>
           <div className="flex gap-2">
-            <Button
-              variant="outline"
-              className="gap-2"
-              disabled={!canContact}
-            >
+            <Button variant="outline" className="gap-2" disabled={!canContact}>
               <MessageSquare className="h-4 w-4" />
               Contacter
             </Button>

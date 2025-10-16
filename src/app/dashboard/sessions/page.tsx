@@ -1,22 +1,17 @@
 "use client";
 
+import { Calendar } from "lucide-react";
 import { Suspense } from "react";
 
 import { SessionsList } from "@/components/organisms/sessions-list";
 import { SessionsTimeline } from "@/components/organisms/sessions-timeline";
+import { useClassSelection } from "@/contexts/class-selection-context";
 import { useSessionManagement } from "@/features/sessions";
 import { useSetPageTitle } from "@/shared/hooks";
-import { useClassColors } from "@/features/calendar";
-import { useUserSession } from "@/features/settings";
-import { useClassSelection } from "@/contexts/class-selection-context";
-import { Calendar } from "lucide-react";
 
 function SessionsPageContent() {
   useSetPageTitle("Gestion des participations");
 
-  const { user } = useUserSession();
-  const teacherId = user?.id || "KsmNtVf4zwqO3VV3SQJqPrRlQBA1fFyR";
-  const { getClassColorWithText } = useClassColors(teacherId);
   const { selectedClassId, assignmentsLoading } = useClassSelection();
 
   const {
@@ -68,7 +63,9 @@ function SessionsPageContent() {
         <SessionsTimeline
           sessions={allSessions}
           selectedClassId={selectedClassId}
-          selectedSessionId={selectedSessionId === "all" ? null : selectedSessionId}
+          selectedSessionId={
+            selectedSessionId === "all" ? null : selectedSessionId
+          }
           onSessionSelect={setSelectedSessionId}
           currentDate={selectedDate}
           onNavigateDate={(direction) => {

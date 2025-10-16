@@ -24,21 +24,13 @@ export function ClassSelectorDropdown() {
   const {
     isOpen: isCreateModalOpen,
     open: openCreateModal,
-    close: closeCreateModal
+    close: closeCreateModal,
   } = useSimpleModal();
 
-  const {
-    classes,
-    selectedClassId,
-    handleClassSelect,
-    getClassColorWithText
-  } = useClassSelection();
+  const { classes, selectedClassId, handleClassSelect, getClassColorWithText } =
+    useClassSelection();
 
-  const {
-    schoolYears,
-    createClass,
-    isCreatingClass
-  } = useGestionManagement();
+  const { schoolYears, createClass, isCreatingClass } = useGestionManagement();
 
   const handleCreateClass = async (data: {
     classCode: string;
@@ -58,7 +50,7 @@ export function ClassSelectorDropdown() {
   };
 
   const selectedClass = selectedClassId
-    ? classes.find(c => c.id === selectedClassId)
+    ? classes.find((c) => c.id === selectedClassId)
     : null;
 
   // S'il n'y a pas de classes, afficher directement le bouton de création
@@ -97,7 +89,8 @@ export function ClassSelectorDropdown() {
                     <div
                       className="w-4 h-4 rounded-sm flex items-center justify-center text-xs font-medium"
                       style={{
-                        backgroundColor: getClassColorWithText(selectedClass.id).backgroundColor,
+                        backgroundColor: getClassColorWithText(selectedClass.id)
+                          .backgroundColor,
                       }}
                     >
                       <span
@@ -128,7 +121,10 @@ export function ClassSelectorDropdown() {
                 <ChevronDown className="ml-auto h-4 w-4" />
               </SidebarMenuButton>
             </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-[--radix-popper-anchor-width]" align="start">
+            <DropdownMenuContent
+              className="w-[--radix-popper-anchor-width]"
+              align="start"
+            >
               {classes.map((classData: Class) => {
                 const studentCount = getStudentCount(classData.id);
                 const classColors = getClassColorWithText(classData.id);
@@ -143,8 +139,10 @@ export function ClassSelectorDropdown() {
                     <div
                       className="w-4 h-4 rounded-sm flex items-center justify-center text-xs font-medium mr-2"
                       style={{
-                        backgroundColor: `${classColors.backgroundColor}${isSelected ? '' : '20'}`,
-                        color: isSelected ? classColors.color : classColors.backgroundColor,
+                        backgroundColor: `${classColors.backgroundColor}${isSelected ? "" : "20"}`,
+                        color: isSelected
+                          ? classColors.color
+                          : classColors.backgroundColor,
                       }}
                     >
                       {classData.classCode?.charAt(0) || "C"}
@@ -164,7 +162,10 @@ export function ClassSelectorDropdown() {
 
               <DropdownMenuSeparator />
 
-              <DropdownMenuItem onClick={openCreateModal} className="text-primary">
+              <DropdownMenuItem
+                onClick={openCreateModal}
+                className="text-primary"
+              >
                 <Plus className="h-4 w-4 mr-2" />
                 <span>Nouvelle classe</span>
               </DropdownMenuItem>

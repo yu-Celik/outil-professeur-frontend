@@ -152,7 +152,10 @@ export function StudentCrudForm({
   };
 
   const addObservation = () => {
-    if (newObservation.trim() && !observations.includes(newObservation.trim())) {
+    if (
+      newObservation.trim() &&
+      !observations.includes(newObservation.trim())
+    ) {
       setObservations([...observations, newObservation.trim()]);
       setNewObservation("");
     }
@@ -257,7 +260,10 @@ export function StudentCrudForm({
                   <GraduationCap className="h-4 w-4 text-primary" />
                   Classe actuelle
                 </Label>
-                <Select value={currentClassId} onValueChange={setCurrentClassId}>
+                <Select
+                  value={currentClassId}
+                  onValueChange={setCurrentClassId}
+                >
                   <SelectTrigger
                     className={`h-11 ${errors.currentClassId ? "border-destructive" : ""}`}
                   >

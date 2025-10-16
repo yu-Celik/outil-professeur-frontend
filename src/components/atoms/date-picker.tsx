@@ -23,7 +23,7 @@ export function DatePicker({
     const inputValue = event.target.value;
     if (inputValue) {
       const date = new Date(inputValue);
-      if (!isNaN(date.getTime())) {
+      if (!Number.isNaN(date.getTime())) {
         onChange(date);
       }
     } else {

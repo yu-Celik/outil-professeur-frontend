@@ -1,8 +1,16 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { getActiveNotationSystems, getDefaultNotationSystem } from "@/features/evaluations/mocks";
-import { notationSystemService, type CreateNotationSystemData, type UpdateNotationSystemData, type NotationSystemSearchOptions } from "@/features/evaluations/services/notation-system-service";
+import {
+  getActiveNotationSystems,
+  getDefaultNotationSystem,
+} from "@/features/evaluations/mocks";
+import {
+  notationSystemService,
+  type CreateNotationSystemData,
+  type UpdateNotationSystemData,
+  type NotationSystemSearchOptions,
+} from "@/features/evaluations/services/notation-system-service";
 import type { NotationSystem } from "@/types/uml-entities";
 
 export function useNotationSystem(_schoolYearId: string = "year-2025") {
@@ -14,22 +22,27 @@ export function useNotationSystem(_schoolYearId: string = "year-2025") {
   const [error, setError] = useState<string | null>(null);
 
   // Load data from service
-  const loadNotationSystems = useCallback(async (options?: NotationSystemSearchOptions) => {
-    try {
-      setLoading(true);
-      setError(null);
-      const systems = await notationSystemService.getAll(options);
-      setNotationSystems(systems);
+  const loadNotationSystems = useCallback(
+    async (options?: NotationSystemSearchOptions) => {
+      try {
+        setLoading(true);
+        setError(null);
+        const systems = await notationSystemService.getAll(options);
+        setNotationSystems(systems);
 
-      if (!defaultSystem && systems.length > 0) {
-        setDefaultSystem(getDefaultNotationSystem());
+        if (!defaultSystem && systems.length > 0) {
+          setDefaultSystem(getDefaultNotationSystem());
+        }
+      } catch (err) {
+        setError(
+          err instanceof Error ? err.message : "Erreur lors du chargement",
+        );
+      } finally {
+        setLoading(false);
       }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Erreur lors du chargement");
-    } finally {
-      setLoading(false);
-    }
-  }, [defaultSystem]);
+    },
+    [defaultSystem],
+  );
 
   // Initial load
   useEffect(() => {
@@ -37,110 +50,155 @@ export function useNotationSystem(_schoolYearId: string = "year-2025") {
   }, [loadNotationSystems]);
 
   // CRUD Operations
-  const createNotationSystem = useCallback(async (data: CreateNotationSystemData): Promise<NotationSystem | null> => {
-    try {
-      setLoading(true);
-      setError(null);
-      const newSystem = await notationSystemService.create(data);
-      await loadNotationSystems(); // Refresh the list
-      return newSystem;
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Erreur lors de la création");
-      return null;
-    } finally {
-      setLoading(false);
-    }
-  }, [loadNotationSystems]);
-
-  const updateNotationSystem = useCallback(async (data: UpdateNotationSystemData): Promise<NotationSystem | null> => {
-    try {
-      setLoading(true);
-      setError(null);
-      const updatedSystem = await notationSystemService.update(data);
-      if (updatedSystem) {
+  const createNotationSystem = useCallback(
+    async (data: CreateNotationSystemData): Promise<NotationSystem | null> => {
+      try {
+        setLoading(true);
+        setError(null);
+        const newSystem = await notationSystemService.create(data);
         await loadNotationSystems(); // Refresh the list
+        return newSystem;
+      } catch (err) {
+        setError(
+          err instanceof Error ? err.message : "Erreur lors de la création",
+        );
+        return null;
+      } finally {
+        setLoading(false);
       }
-      return updatedSystem;
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Erreur lors de la mise à jour");
-      return null;
-    } finally {
-      setLoading(false);
-    }
-  }, [loadNotationSystems]);
+    },
+    [loadNotationSystems],
+  );
 
-  const deleteNotationSystem = useCallback(async (id: string): Promise<boolean> => {
-    try {
-      setLoading(true);
-      setError(null);
-      const success = await notationSystemService.delete(id);
-      if (success) {
-        await loadNotationSystems(); // Refresh the list
+  const updateNotationSystem = useCallback(
+    async (data: UpdateNotationSystemData): Promise<NotationSystem | null> => {
+      try {
+        setLoading(true);
+        setError(null);
+        const updatedSystem = await notationSystemService.update(data);
+        if (updatedSystem) {
+          await loadNotationSystems(); // Refresh the list
+        }
+        return updatedSystem;
+      } catch (err) {
+        setError(
+          err instanceof Error ? err.message : "Erreur lors de la mise à jour",
+        );
+        return null;
+      } finally {
+        setLoading(false);
       }
-      return success;
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Erreur lors de la suppression");
-      return false;
-    } finally {
-      setLoading(false);
-    }
-  }, [loadNotationSystems]);
+    },
+    [loadNotationSystems],
+  );
 
-  const getNotationSystemById = useCallback(async (id: string): Promise<NotationSystem | null> => {
-    try {
-      return await notationSystemService.getById(id);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Erreur lors de la récupération");
-      return null;
-    }
-  }, []);
+  const deleteNotationSystem = useCallback(
+    async (id: string): Promise<boolean> => {
+      try {
+        setLoading(true);
+        setError(null);
+        const success = await notationSystemService.delete(id);
+        if (success) {
+          await loadNotationSystems(); // Refresh the list
+        }
+        return success;
+      } catch (err) {
+        setError(
+          err instanceof Error ? err.message : "Erreur lors de la suppression",
+        );
+        return false;
+      } finally {
+        setLoading(false);
+      }
+    },
+    [loadNotationSystems],
+  );
+
+  const getNotationSystemById = useCallback(
+    async (id: string): Promise<NotationSystem | null> => {
+      try {
+        return await notationSystemService.getById(id);
+      } catch (err) {
+        setError(
+          err instanceof Error ? err.message : "Erreur lors de la récupération",
+        );
+        return null;
+      }
+    },
+    [],
+  );
 
   // Advanced operations
-  const convertGradeBetweenSystems = useCallback(async (
-    value: number,
-    fromSystemId: string,
-    toSystemId: string,
-  ): Promise<number | null> => {
-    try {
-      return await notationSystemService.convertGrade(value, fromSystemId, toSystemId);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Erreur lors de la conversion");
-      return null;
-    }
-  }, []);
+  const convertGradeBetweenSystems = useCallback(
+    async (
+      value: number,
+      fromSystemId: string,
+      toSystemId: string,
+    ): Promise<number | null> => {
+      try {
+        return await notationSystemService.convertGrade(
+          value,
+          fromSystemId,
+          toSystemId,
+        );
+      } catch (err) {
+        setError(
+          err instanceof Error ? err.message : "Erreur lors de la conversion",
+        );
+        return null;
+      }
+    },
+    [],
+  );
 
   const getScaleConfigurations = useCallback(async () => {
     try {
       return await notationSystemService.getScaleConfigurations();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Erreur lors de la récupération des configurations");
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Erreur lors de la récupération des configurations",
+      );
       return {};
     }
   }, []);
 
-  const importNotationSystems = useCallback(async (systemsData: Partial<NotationSystem>[]): Promise<NotationSystem[]> => {
-    try {
-      setLoading(true);
-      setError(null);
-      const imported = await notationSystemService.importSystems(systemsData);
-      await loadNotationSystems(); // Refresh the list
-      return imported;
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Erreur lors de l'importation");
-      return [];
-    } finally {
-      setLoading(false);
-    }
-  }, [loadNotationSystems]);
+  const importNotationSystems = useCallback(
+    async (
+      systemsData: Partial<NotationSystem>[],
+    ): Promise<NotationSystem[]> => {
+      try {
+        setLoading(true);
+        setError(null);
+        const imported = await notationSystemService.importSystems(systemsData);
+        await loadNotationSystems(); // Refresh the list
+        return imported;
+      } catch (err) {
+        setError(
+          err instanceof Error ? err.message : "Erreur lors de l'importation",
+        );
+        return [];
+      } finally {
+        setLoading(false);
+      }
+    },
+    [loadNotationSystems],
+  );
 
-  const exportNotationSystems = useCallback(async (systemIds?: string[]): Promise<Partial<NotationSystem>[]> => {
-    try {
-      return await notationSystemService.exportSystems(systemIds);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Erreur lors de l'exportation");
-      return [];
-    }
-  }, []);
+  const exportNotationSystems = useCallback(
+    async (systemIds?: string[]): Promise<Partial<NotationSystem>[]> => {
+      try {
+        return await notationSystemService.exportSystems(systemIds);
+      } catch (err) {
+        setError(
+          err instanceof Error ? err.message : "Erreur lors de l'exportation",
+        );
+        return [];
+      }
+    },
+    [],
+  );
 
   // Legacy methods for compatibility
   const convertGrade = (

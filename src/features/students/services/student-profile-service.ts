@@ -1,6 +1,24 @@
-import type { StudentProfile, Student, StudentParticipation, StudentExamResult, Exam, AcademicPeriod } from "@/types/uml-entities";
-import { BehavioralAnalysisService, type BehavioralFeatures, type BehavioralTrends, type BehavioralAlert, type Recommendation } from "./behavioral-analysis-service";
-import { AcademicAnalysisService, type SubjectPerformances, type AcademicProgress, type AcademicRisk } from "./academic-analysis-service";
+import type {
+  StudentProfile,
+  Student,
+  StudentParticipation,
+  StudentExamResult,
+  Exam,
+  AcademicPeriod,
+} from "@/types/uml-entities";
+import {
+  BehavioralAnalysisService,
+  type BehavioralFeatures,
+  type BehavioralTrends,
+  type BehavioralAlert,
+  type Recommendation,
+} from "./behavioral-analysis-service";
+import {
+  AcademicAnalysisService,
+  type SubjectPerformances,
+  type AcademicProgress,
+  type AcademicRisk,
+} from "./academic-analysis-service";
 
 export interface StudentProfileFeatures {
   // Métriques comportementales
@@ -11,10 +29,10 @@ export interface StudentProfileFeatures {
 
   // Métriques engagement
   engagement: {
-    attendanceRate: number;      // 0-1
+    attendanceRate: number; // 0-1
     homeworkCompletionRate: number;
     punctualityRate: number;
-    cameraUsageRate: number;     // pour cours en ligne
+    cameraUsageRate: number; // pour cours en ligne
   };
 
   // Alertes et recommandations
@@ -44,10 +62,10 @@ export interface StudentProfileFeatures {
 
 export interface StudentProfileEvidenceRefs {
   // Références données sources
-  participations: string[];      // IDs participations analysées
-  examResults: string[];         // IDs résultats analysés
-  sessions: string[];           // IDs sessions concernées
-  subjects: string[];           // IDs matières évaluées
+  participations: string[]; // IDs participations analysées
+  examResults: string[]; // IDs résultats analysés
+  sessions: string[]; // IDs sessions concernées
+  subjects: string[]; // IDs matières évaluées
 
   // Métadonnées analyse
   analysisMetadata: {
@@ -55,22 +73,22 @@ export interface StudentProfileEvidenceRefs {
     analysisVersion: string;
     participationCount: number;
     examCount: number;
-    analysisScope: 'period' | 'year' | 'custom';
+    analysisScope: "period" | "year" | "custom";
   };
 
   // Liens vers éléments connexes
-  relatedProfiles: string[];    // Autres profils de l'élève
-  comparisonBaseline: string | null;   // Profil de référence classe/niveau
+  relatedProfiles: string[]; // Autres profils de l'élève
+  comparisonBaseline: string | null; // Profil de référence classe/niveau
 }
 
 export interface ProfileGenerationParams {
   includeComparisons?: boolean;
-  analysisScope?: 'period' | 'year' | 'custom';
+  analysisScope?: "period" | "year" | "custom";
   customDateRange?: {
     startDate: Date;
     endDate: Date;
   };
-  focusAreas?: ('behavioral' | 'academic' | 'engagement')[];
+  focusAreas?: ("behavioral" | "academic" | "engagement")[];
 }
 
 export class StudentProfileService {
@@ -80,30 +98,57 @@ export class StudentProfileService {
   static async generateProfile(
     studentId: string,
     periodId: string,
-    params: ProfileGenerationParams = {}
+    params: ProfileGenerationParams = {},
   ): Promise<StudentProfile> {
     // Récupérer les données nécessaires
-    const participations = await this.getStudentParticipations(studentId, periodId, params);
-    const examResults = await this.getStudentExamResults(studentId, periodId, params);
+    const participations = await this.getStudentParticipations(
+      studentId,
+      periodId,
+      params,
+    );
+    const examResults = await this.getStudentExamResults(
+      studentId,
+      periodId,
+      params,
+    );
     const exams = await this.getRelatedExams(examResults);
     const subjects = await this.getRelatedSubjects(exams);
 
     // Générer les analyses
-    const behavioralAnalysis = BehavioralAnalysisService.analyzeBehavioralPatterns(participations);
-    const academicAnalysis = AcademicAnalysisService.analyzeSubjectPerformances(examResults, exams, subjects);
+    const behavioralAnalysis =
+      BehavioralAnalysisService.analyzeBehavioralPatterns(participations);
+    const academicAnalysis = AcademicAnalysisService.analyzeSubjectPerformances(
+      examResults,
+      exams,
+      subjects,
+    );
 
-    const behavioralTrends = BehavioralAnalysisService.calculateBehavioralTrends(participations);
-    const academicProgress = AcademicAnalysisService.calculateAcademicProgress(examResults);
+    const behavioralTrends =
+      BehavioralAnalysisService.calculateBehavioralTrends(participations);
+    const academicProgress =
+      AcademicAnalysisService.calculateAcademicProgress(examResults);
 
     // Détecter les alertes et générer les recommandations
-    const behavioralAlerts = BehavioralAnalysisService.detectBehavioralAlerts(participations);
-    const academicRisks = AcademicAnalysisService.detectAcademicRisks(examResults, exams, subjects);
+    const behavioralAlerts =
+      BehavioralAnalysisService.detectBehavioralAlerts(participations);
+    const academicRisks = AcademicAnalysisService.detectAcademicRisks(
+      examResults,
+      exams,
+      subjects,
+    );
 
-    const behavioralRecommendations = BehavioralAnalysisService.generateBehavioralRecommendations(behavioralAnalysis);
-    const academicRecommendations = AcademicAnalysisService.generateAcademicRecommendations(academicAnalysis);
+    const behavioralRecommendations =
+      BehavioralAnalysisService.generateBehavioralRecommendations(
+        behavioralAnalysis,
+      );
+    const academicRecommendations =
+      AcademicAnalysisService.generateAcademicRecommendations(academicAnalysis);
 
     // Calculer les métriques d'engagement
-    const engagement = this.calculateEngagementMetrics(participations, examResults);
+    const engagement = this.calculateEngagementMetrics(
+      participations,
+      examResults,
+    );
 
     // Assembler les features du profil
     const features: StudentProfileFeatures = {
@@ -113,55 +158,61 @@ export class StudentProfileService {
       alerts: {
         behavioralAlerts,
         academicRisks,
-        recommendations: [...behavioralRecommendations, ...academicRecommendations]
+        recommendations: [
+          ...behavioralRecommendations,
+          ...academicRecommendations,
+        ],
       },
       trends: {
         behavioral: behavioralTrends,
-        academic: academicProgress
+        academic: academicProgress,
       },
       analysisMetadata: {
         generatedAt: new Date(),
         dataPointsCount: {
           participations: participations.length,
           examResults: examResults.length,
-          sessionsAnalyzed: this.getUniqueSessionCount(participations)
+          sessionsAnalyzed: this.getUniqueSessionCount(participations),
         },
-        confidence: this.calculateAnalysisConfidence(participations, examResults)
-      }
+        confidence: this.calculateAnalysisConfidence(
+          participations,
+          examResults,
+        ),
+      },
     };
 
     // Assembler les références d'évidence
     const evidenceRefs: StudentProfileEvidenceRefs = {
-      participations: participations.map(p => p.id),
-      examResults: examResults.map(r => r.id),
-      sessions: [...new Set(participations.map(p => p.courseSessionId))],
-      subjects: [...new Set(exams.map(e => e.subjectId))],
+      participations: participations.map((p) => p.id),
+      examResults: examResults.map((r) => r.id),
+      sessions: [...new Set(participations.map((p) => p.courseSessionId))],
+      subjects: [...new Set(exams.map((e) => e.subjectId))],
       analysisMetadata: {
         analysisDate: new Date(),
-        analysisVersion: '1.0.0',
+        analysisVersion: "1.0.0",
         participationCount: participations.length,
         examCount: examResults.length,
-        analysisScope: params.analysisScope || 'period'
+        analysisScope: params.analysisScope || "period",
       },
       relatedProfiles: await this.getRelatedProfileIds(studentId, periodId),
-      comparisonBaseline: await this.getComparisonBaseline(studentId, periodId)
+      comparisonBaseline: await this.getComparisonBaseline(studentId, periodId),
     };
 
     // Créer le profil final
     const profile: StudentProfile = {
       id: this.generateProfileId(),
-      createdBy: 'system',
+      createdBy: "system",
       studentId,
       academicPeriodId: periodId,
       features: features as unknown as Record<string, unknown>,
       evidenceRefs: evidenceRefs as unknown as Record<string, unknown>,
-      status: 'generated',
+      status: "generated",
       generatedAt: new Date(),
       updatedAt: new Date(),
       review: (notes: string) => {
         // TODO: Implement review functionality
-        console.log('Profile reviewed with notes:', notes);
-      }
+        console.log("Profile reviewed with notes:", notes);
+      },
     };
 
     return profile;
@@ -172,7 +223,7 @@ export class StudentProfileService {
    */
   static async updateProfile(
     profileId: string,
-    data: Partial<StudentProfile>
+    data: Partial<StudentProfile>,
   ): Promise<StudentProfile> {
     // TODO: Implement actual database update
     // Pour l'instant, retourner un profil mocké avec les modifications
@@ -181,7 +232,7 @@ export class StudentProfileService {
     const updatedProfile: StudentProfile = {
       ...existingProfile,
       ...data,
-      updatedAt: new Date()
+      updatedAt: new Date(),
     };
 
     return updatedProfile;
@@ -193,22 +244,25 @@ export class StudentProfileService {
   static async validateProfile(
     profileId: string,
     notes: string,
-    validatedBy: string
+    validatedBy: string,
   ): Promise<StudentProfile> {
     const profile = await this.getProfileById(profileId);
 
     // Mettre à jour le statut et ajouter les notes de validation
     const validatedProfile: StudentProfile = {
       ...profile,
-      status: 'validated',
+      status: "validated",
       updatedAt: new Date(),
       review: (reviewNotes: string) => {
-        console.log('Profile validation notes:', reviewNotes);
-      }
+        console.log("Profile validation notes:", reviewNotes);
+      },
     };
 
     // TODO: Sauvegarder les notes de validation
-    console.log(`Profile ${profileId} validated by ${validatedBy} with notes:`, notes);
+    console.log(
+      `Profile ${profileId} validated by ${validatedBy} with notes:`,
+      notes,
+    );
 
     return validatedProfile;
   }
@@ -218,7 +272,7 @@ export class StudentProfileService {
    */
   static async regenerateProfile(
     profileId: string,
-    params: ProfileGenerationParams = {}
+    params: ProfileGenerationParams = {},
   ): Promise<StudentProfile> {
     const existingProfile = await this.getProfileById(profileId);
 
@@ -226,15 +280,15 @@ export class StudentProfileService {
     const newProfile = await this.generateProfile(
       existingProfile.studentId,
       existingProfile.academicPeriodId,
-      params
+      params,
     );
 
     // Garder l'ID original mais marquer comme régénéré
     return {
       ...newProfile,
       id: profileId,
-      status: 'regenerated',
-      updatedAt: new Date()
+      status: "regenerated",
+      updatedAt: new Date(),
     };
   }
 
@@ -243,15 +297,15 @@ export class StudentProfileService {
    */
   static async exportProfile(
     profileId: string,
-    format: 'pdf' | 'json'
+    format: "pdf" | "json",
   ): Promise<string> {
     const profile = await this.getProfileById(profileId);
 
-    if (format === 'json') {
+    if (format === "json") {
       return JSON.stringify(profile, null, 2);
     }
 
-    if (format === 'pdf') {
+    if (format === "pdf") {
       // TODO: Implement PDF generation
       return this.generatePDFReport(profile);
     }
@@ -264,7 +318,7 @@ export class StudentProfileService {
    */
   static async getProfilesByStudent(
     studentId: string,
-    periodId?: string
+    periodId?: string,
   ): Promise<StudentProfile[]> {
     // TODO: Implement actual database query
     // Pour l'instant, retourner des données mockées
@@ -274,9 +328,7 @@ export class StudentProfileService {
   /**
    * Récupère les profils par statut
    */
-  static async getProfilesByStatus(
-    status: string
-  ): Promise<StudentProfile[]> {
+  static async getProfilesByStatus(status: string): Promise<StudentProfile[]> {
     // TODO: Implement actual database query
     return this.getMockedProfilesByStatus(status);
   }
@@ -286,11 +338,13 @@ export class StudentProfileService {
   private static async getStudentParticipations(
     studentId: string,
     periodId: string,
-    params: ProfileGenerationParams
+    params: ProfileGenerationParams,
   ): Promise<StudentParticipation[]> {
     // TODO: Implement actual data fetching
     // Pour l'instant, utiliser les mocks existants
-    const { getStudentParticipation } = await import("@/features/students/mocks");
+    const { getStudentParticipation } = await import(
+      "@/features/students/mocks"
+    );
 
     // Simuler la récupération des participations
     // En réalité, cela ferait une requête à la base de données
@@ -300,15 +354,19 @@ export class StudentProfileService {
   private static async getStudentExamResults(
     studentId: string,
     periodId: string,
-    params: ProfileGenerationParams
+    params: ProfileGenerationParams,
   ): Promise<StudentExamResult[]> {
     // TODO: Implement actual data fetching
-    const { getStudentExamResults } = await import("@/features/evaluations/mocks");
+    const { getStudentExamResults } = await import(
+      "@/features/evaluations/mocks"
+    );
 
     return getStudentExamResults(studentId);
   }
 
-  private static async getRelatedExams(examResults: StudentExamResult[]): Promise<Exam[]> {
+  private static async getRelatedExams(
+    examResults: StudentExamResult[],
+  ): Promise<Exam[]> {
     // TODO: Implement actual data fetching
     const { getExamById } = await import("@/features/evaluations/mocks");
 
@@ -323,7 +381,9 @@ export class StudentProfileService {
     return exams;
   }
 
-  private static async getRelatedSubjects(exams: Exam[]): Promise<Array<{ id: string; name: string }>> {
+  private static async getRelatedSubjects(
+    exams: Exam[],
+  ): Promise<Array<{ id: string; name: string }>> {
     // TODO: Implement actual data fetching
     const { getSubjectById } = await import("@/features/gestion/mocks");
 
@@ -340,32 +400,38 @@ export class StudentProfileService {
 
   private static calculateEngagementMetrics(
     participations: StudentParticipation[],
-    examResults: StudentExamResult[]
-  ): StudentProfileFeatures['engagement'] {
+    examResults: StudentExamResult[],
+  ): StudentProfileFeatures["engagement"] {
     const totalSessions = participations.length;
-    const presentSessions = participations.filter(p => p.isPresent).length;
+    const presentSessions = participations.filter((p) => p.isPresent).length;
     const punctualSessions = Math.floor(presentSessions * 0.8); // Mock - calculate from markedAt
-    const cameraOnSessions = participations.filter(p => p.cameraEnabled).length;
+    const cameraOnSessions = participations.filter(
+      (p) => p.cameraEnabled,
+    ).length;
 
     const totalExams = examResults.length;
-    const completedExams = examResults.filter(r => !r.isAbsent).length;
+    const completedExams = examResults.filter((r) => !r.isAbsent).length;
 
     return {
       attendanceRate: totalSessions > 0 ? presentSessions / totalSessions : 0,
       homeworkCompletionRate: totalExams > 0 ? completedExams / totalExams : 0,
       punctualityRate: totalSessions > 0 ? punctualSessions / totalSessions : 0,
-      cameraUsageRate: totalSessions > 0 ? cameraOnSessions / totalSessions : 0
+      cameraUsageRate: totalSessions > 0 ? cameraOnSessions / totalSessions : 0,
     };
   }
 
-  private static getUniqueSessionCount(participations: StudentParticipation[]): number {
-    const uniqueSessions = new Set(participations.map(p => p.courseSessionId));
+  private static getUniqueSessionCount(
+    participations: StudentParticipation[],
+  ): number {
+    const uniqueSessions = new Set(
+      participations.map((p) => p.courseSessionId),
+    );
     return uniqueSessions.size;
   }
 
   private static calculateAnalysisConfidence(
     participations: StudentParticipation[],
-    examResults: StudentExamResult[]
+    examResults: StudentExamResult[],
   ): number {
     // Base la confiance sur la quantité de données disponibles
     const participationScore = Math.min(1, participations.length / 20); // 20 participations = confiance max
@@ -374,12 +440,18 @@ export class StudentProfileService {
     return (participationScore + examScore) / 2;
   }
 
-  private static async getRelatedProfileIds(studentId: string, periodId: string): Promise<string[]> {
+  private static async getRelatedProfileIds(
+    studentId: string,
+    periodId: string,
+  ): Promise<string[]> {
     // TODO: Implement actual database query
     return [];
   }
 
-  private static async getComparisonBaseline(studentId: string, periodId: string): Promise<string | null> {
+  private static async getComparisonBaseline(
+    studentId: string,
+    periodId: string,
+  ): Promise<string | null> {
     // TODO: Implement actual baseline calculation (profil moyen de la classe)
     return null;
   }
@@ -388,20 +460,22 @@ export class StudentProfileService {
     return `profile-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
   }
 
-  private static async getProfileById(profileId: string): Promise<StudentProfile> {
+  private static async getProfileById(
+    profileId: string,
+  ): Promise<StudentProfile> {
     // TODO: Implement actual database query
     // Pour l'instant, retourner un profil mocké
     return {
       id: profileId,
-      createdBy: 'system',
-      studentId: 'student-1',
-      academicPeriodId: 'period-1',
+      createdBy: "system",
+      studentId: "student-1",
+      academicPeriodId: "period-1",
       features: {},
       evidenceRefs: {},
-      status: 'generated',
+      status: "generated",
       generatedAt: new Date(),
       updatedAt: new Date(),
-      review: (notes: string) => console.log('Review:', notes)
+      review: (notes: string) => console.log("Review:", notes),
     };
   }
 
@@ -410,7 +484,10 @@ export class StudentProfileService {
     return `PDF report for profile ${profile.id} would be generated here`;
   }
 
-  private static getMockedProfilesForStudent(studentId: string, periodId?: string): StudentProfile[] {
+  private static getMockedProfilesForStudent(
+    studentId: string,
+    periodId?: string,
+  ): StudentProfile[] {
     // TODO: Replace with actual mock data
     return [];
   }

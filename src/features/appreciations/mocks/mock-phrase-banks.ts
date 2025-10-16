@@ -14,7 +14,7 @@ export const MOCK_PHRASE_BANKS: PhraseBank[] = [
           "pose des questions pertinentes pour approfondir sa compréhension",
           "montre une belle aisance à l'oral",
           "s'exprime avec confiance malgré les difficultés",
-          "fait preuve d'initiative dans les activités de groupe"
+          "fait preuve d'initiative dans les activités de groupe",
         ],
         comprehension: [
           "comprend les documents audio et vidéo proposés",
@@ -22,7 +22,7 @@ export const MOCK_PHRASE_BANKS: PhraseBank[] = [
           "démontre une bonne compréhension globale",
           "identifie les informations essentielles",
           "analyse avec pertinence les supports proposés",
-          "fait preuve de finesse dans l'interprétation"
+          "fait preuve de finesse dans l'interprétation",
         ],
         expression: [
           "s'exprime de manière claire et structurée",
@@ -30,7 +30,7 @@ export const MOCK_PHRASE_BANKS: PhraseBank[] = [
           "maîtrise les structures grammaticales de base",
           "développe des idées avec cohérence",
           "fait preuve de créativité dans ses productions",
-          "adapte son registre selon la situation"
+          "adapte son registre selon la situation",
         ],
         methodology: [
           "organise efficacement son travail personnel",
@@ -38,8 +38,8 @@ export const MOCK_PHRASE_BANKS: PhraseBank[] = [
           "révise régulièrement le vocabulaire et les structures",
           "prend des notes de manière autonome",
           "applique les conseils donnés pour progresser",
-          "fait preuve de rigueur dans ses apprentissages"
-        ]
+          "fait preuve de rigueur dans ses apprentissages",
+        ],
       },
       improvementAreas: [
         "gagnerait à enrichir son vocabulaire actif",
@@ -49,7 +49,7 @@ export const MOCK_PHRASE_BANKS: PhraseBank[] = [
         "pourrait s'impliquer davantage à l'oral",
         "devrait réviser plus régulièrement",
         "gagnerait en fluidité avec plus de pratique",
-        "peut améliorer la cohérence de ses productions écrites"
+        "peut améliorer la cohérence de ses productions écrites",
       ],
       encouragements: [
         "les progrès sont encourageants",
@@ -59,7 +59,7 @@ export const MOCK_PHRASE_BANKS: PhraseBank[] = [
         "fait preuve de persévérance",
         "développe progressivement ses compétences",
         "la progression est notable",
-        "les efforts consentis sont appréciables"
+        "les efforts consentis sont appréciables",
       ],
       objectives: [
         "consolider les acquis pour le trimestre suivant",
@@ -68,8 +68,8 @@ export const MOCK_PHRASE_BANKS: PhraseBank[] = [
         "améliorer la fluidité de lecture",
         "perfectionner la méthodologie de travail",
         "renforcer la confiance en soi à l'oral",
-        "développer l'esprit critique en analyse de documents"
-      ]
+        "développer l'esprit critique en analyse de documents",
+      ],
     },
     createdAt: new Date("2025-08-15"),
     updatedAt: new Date("2025-09-06"),
@@ -87,7 +87,7 @@ export const MOCK_PHRASE_BANKS: PhraseBank[] = [
           "établit des liens pertinents entre langue et technologie",
           "analyse avec précision les documents techniques",
           "utilise appropriément la terminologie professionnelle",
-          "démontre une solide culture technologique"
+          "démontre une solide culture technologique",
         ],
         linguisticSkills: [
           "s'exprime avec aisance dans le contexte professionnel",
@@ -95,7 +95,7 @@ export const MOCK_PHRASE_BANKS: PhraseBank[] = [
           "maîtrise les structures spécifiques à la communication professionnelle",
           "comprend les nuances du registre technique",
           "développe ses compétences de communication interculturelle",
-          "fait preuve de précision dans ses explications"
+          "fait preuve de précision dans ses explications",
         ],
         methodology: [
           "organise ses recherches de manière méthodique",
@@ -103,7 +103,7 @@ export const MOCK_PHRASE_BANKS: PhraseBank[] = [
           "structure ses présentations techniques",
           "applique une démarche scientifique rigoureuse",
           "développe son esprit d'analyse et de synthèse",
-          "fait preuve d'autonomie dans ses apprentissages"
+          "fait preuve d'autonomie dans ses apprentissages",
         ],
         collaboration: [
           "travaille efficacement en équipe sur les projets",
@@ -111,8 +111,8 @@ export const MOCK_PHRASE_BANKS: PhraseBank[] = [
           "contribue de manière constructive aux débats",
           "fait preuve de leadership dans les activités de groupe",
           "sait écouter et intégrer les apports de ses pairs",
-          "développe ses compétences de négociation"
-        ]
+          "développe ses compétences de négociation",
+        ],
       },
       improvementAreas: [
         "peut enrichir son vocabulaire technique spécialisé",
@@ -122,7 +122,7 @@ export const MOCK_PHRASE_BANKS: PhraseBank[] = [
         "devrait approfondir sa culture du domaine technique",
         "peut améliorer la précision de ses analyses",
         "gagnerait en aisance dans les débats techniques",
-        "devrait renforcer ses compétences méthodologiques"
+        "devrait renforcer ses compétences méthodologiques",
       ],
       encouragements: [
         "montre un réel intérêt pour la dimension technologique",
@@ -131,7 +131,7 @@ export const MOCK_PHRASE_BANKS: PhraseBank[] = [
         "fait preuve de curiosité intellectuelle",
         "s'investit avec sérieux dans cette matière exigeante",
         "démontre une bonne capacité d'adaptation",
-        "développe progressivement son expertise"
+        "développe progressivement son expertise",
       ],
       objectives: [
         "approfondir la maîtrise du vocabulaire technique",
@@ -139,8 +139,8 @@ export const MOCK_PHRASE_BANKS: PhraseBank[] = [
         "améliorer les compétences de présentation orale",
         "renforcer l'analyse critique de documents techniques",
         "consolider la méthodologie de projet",
-        "développer la culture du domaine technologique"
-      ]
+        "développer la culture du domaine technologique",
+      ],
     },
     createdAt: new Date("2025-08-15"),
     updatedAt: new Date("2025-09-06"),
@@ -158,7 +158,7 @@ export const MOCK_PHRASE_BANKS: PhraseBank[] = [
           "démontre de la persévérance face aux difficultés",
           "manifeste de la curiosité et de l'intérêt",
           "fait preuve de sérieux et de régularité",
-          "développe progressivement son autonomie"
+          "développe progressivement son autonomie",
         ],
         socialSkills: [
           "s'intègre parfaitement dans le groupe classe",
@@ -166,7 +166,7 @@ export const MOCK_PHRASE_BANKS: PhraseBank[] = [
           "fait preuve de respect et d'écoute",
           "aide volontiers ses camarades",
           "contribue positivement au climat de classe",
-          "développe ses compétences relationnelles"
+          "développe ses compétences relationnelles",
         ],
         progression: [
           "progresse de manière régulière et constante",
@@ -174,8 +174,8 @@ export const MOCK_PHRASE_BANKS: PhraseBank[] = [
           "consolide progressivement ses acquis",
           "développe ses compétences avec détermination",
           "améliore continuellement ses performances",
-          "fait preuve d'une progression encourageante"
-        ]
+          "fait preuve d'une progression encourageante",
+        ],
       },
       improvementAreas: [
         "peut développer davantage sa confiance en soi",
@@ -185,7 +185,7 @@ export const MOCK_PHRASE_BANKS: PhraseBank[] = [
         "peut développer sa participation active",
         "gagnerait en autonomie dans ses apprentissages",
         "pourrait améliorer sa gestion du temps",
-        "devrait renforcer sa motivation personnelle"
+        "devrait renforcer sa motivation personnelle",
       ],
       encouragements: [
         "continue tes efforts, ils portent leurs fruits",
@@ -195,12 +195,12 @@ export const MOCK_PHRASE_BANKS: PhraseBank[] = [
         "développe un potentiel prometteur",
         "les progrès réalisés sont significatifs",
         "l'investissement personnel est notable",
-        "démontre une évolution positive constante"
-      ]
+        "démontre une évolution positive constante",
+      ],
     },
     createdAt: new Date("2025-08-15"),
     updatedAt: new Date("2025-09-06"),
-  }
+  },
 ];
 
 // Helper functions
@@ -210,7 +210,7 @@ export const getPhraseBankById = (id: string): PhraseBank | undefined => {
 
 export const getPhraseBanksBySubject = (subjectId: string): PhraseBank[] => {
   return MOCK_PHRASE_BANKS.filter(
-    (bank) => bank.subjectId === subjectId || bank.scope === "general"
+    (bank) => bank.subjectId === subjectId || bank.scope === "general",
   );
 };
 
@@ -222,7 +222,9 @@ export const getGeneralPhraseBank = (): PhraseBank | undefined => {
   return MOCK_PHRASE_BANKS.find((bank) => bank.scope === "general");
 };
 
-export const getAllAvailablePhrases = (subjectId?: string): Record<string, string[]> => {
+export const getAllAvailablePhrases = (
+  subjectId?: string,
+): Record<string, string[]> => {
   const relevantBanks = subjectId
     ? getPhraseBanksBySubject(subjectId)
     : MOCK_PHRASE_BANKS;
@@ -232,7 +234,7 @@ export const getAllAvailablePhrases = (subjectId?: string): Record<string, strin
   relevantBanks.forEach((bank) => {
     const entries = bank.entries as Record<string, any>;
     Object.keys(entries).forEach((category) => {
-      if (typeof entries[category] === 'object') {
+      if (typeof entries[category] === "object") {
         if (Array.isArray(entries[category])) {
           if (!allPhrases[category]) {
             allPhrases[category] = [];

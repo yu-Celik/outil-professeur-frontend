@@ -93,7 +93,5 @@ export const getParticipationsForSession = (
 export const getParticipationsForAnalysis = (
   studentId: string,
 ): StudentParticipation[] => {
-  return MOCK_STUDENT_PARTICIPATION.filter(
-    (p) => p.studentId === studentId,
-  );
+  return MOCK_STUDENT_PARTICIPATION.filter((p) => p.studentId === studentId);
 };

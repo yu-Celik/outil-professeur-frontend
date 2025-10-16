@@ -32,9 +32,12 @@ import {
   Star,
   Download,
   Plus,
-  ArrowUp
+  ArrowUp,
 } from "lucide-react";
-import { useAppreciationGeneration, useStyleGuides } from "@/features/appreciations";
+import {
+  useAppreciationGeneration,
+  useStyleGuides,
+} from "@/features/appreciations";
 import { MOCK_STUDENTS } from "@/features/students/mocks";
 import { MOCK_SUBJECTS } from "@/features/gestion/mocks";
 import { MOCK_ACADEMIC_PERIODS } from "@/features/gestion/mocks";
@@ -65,15 +68,16 @@ const SUBJECT_GENERAL_VALUE = "__subject-general" as const;
 export function ChatAppreciationInterface({
   teacherId = "KsmNtVf4zwqO3VV3SQJqPrRlQBA1fFyR",
   className = "",
-  onAppreciationGenerated
+  onAppreciationGenerated,
 }: ChatAppreciationInterfaceProps) {
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       id: "welcome-msg",
       type: "assistant",
-      content: "Bonjour ! Je suis votre assistant IA pour la génération d'appréciations. Décrivez-moi ce que vous souhaitez créer ou utilisez les boutons rapides ci-dessous.",
-      timestamp: new Date()
-    }
+      content:
+        "Bonjour ! Je suis votre assistant IA pour la génération d'appréciations. Décrivez-moi ce que vous souhaitez créer ou utilisez les boutons rapides ci-dessous.",
+      timestamp: new Date(),
+    },
   ]);
   const [currentMessage, setCurrentMessage] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
@@ -108,10 +112,10 @@ export function ChatAppreciationInterface({
       id: `user-${Date.now()}`,
       type: "user",
       content: currentMessage,
-      timestamp: new Date()
+      timestamp: new Date(),
     };
 
-    setMessages(prev => [...prev, userMessage]);
+    setMessages((prev) => [...prev, userMessage]);
     setCurrentMessage("");
     setIsGenerating(true);
 
@@ -124,14 +128,15 @@ export function ChatAppreciationInterface({
       const styleId = parsedContext.styleId || selectedStyleId;
 
       if (studentId && styleId) {
-        const student = MOCK_STUDENTS.find(s => s.id === studentId);
+        const student = MOCK_STUDENTS.find((s) => s.id === studentId);
         const result = await generateAppreciationFromChat({
           studentId,
           styleId,
           subjectId: parsedContext.subjectId || selectedSubjectId,
           periodId: parsedContext.periodId || selectedPeriodId,
           customMessage: currentMessage,
-          customInstructions: parsedContext.customInstructions || customInstructions
+          customInstructions:
+            parsedContext.customInstructions || customInstructions,
         });
 
         if (result && student) {
@@ -143,38 +148,56 @@ export function ChatAppreciationInterface({
             appreciation: {
               content: result.content,
               studentName: student.fullName(),
-              subject: selectedSubjectId ? MOCK_SUBJECTS.find(s => s.id === selectedSubjectId)?.name : undefined,
-              period: selectedPeriodId ? MOCK_ACADEMIC_PERIODS.find(p => p.id === selectedPeriodId)?.name : undefined,
-              style: styleGuides.find(s => s.id === styleId)?.name || "Standard"
-            }
+              subject: selectedSubjectId
+                ? MOCK_SUBJECTS.find((s) => s.id === selectedSubjectId)?.name
+                : undefined,
+              period: selectedPeriodId
+                ? MOCK_ACADEMIC_PERIODS.find((p) => p.id === selectedPeriodId)
+                    ?.name
+                : undefined,
+              style:
+                styleGuides.find((s) => s.id === styleId)?.name || "Standard",
+            },
           };
 
-          setMessages(prev => [...prev, assistantMessage]);
+          setMessages((prev) => [...prev, assistantMessage]);
           onAppreciationGenerated?.(result.content);
         } else {
-          setMessages(prev => [...prev, {
-            id: `assistant-error-${Date.now()}`,
-            type: "assistant",
-            content: "Je n'ai pas pu générer l'appréciation. Vérifiez que vous avez sélectionné un élève et un style.",
-            timestamp: new Date()
-          }]);
+          setMessages((prev) => [
+            ...prev,
+            {
+              id: `assistant-error-${Date.now()}`,
+              type: "assistant",
+              content:
+                "Je n'ai pas pu générer l'appréciation. Vérifiez que vous avez sélectionné un élève et un style.",
+              timestamp: new Date(),
+            },
+          ]);
         }
       } else {
         // Provide guidance
-        setMessages(prev => [...prev, {
-          id: `assistant-guidance-${Date.now()}`,
-          type: "assistant",
-          content: "Pour générer une appréciation, j'ai besoin au minimum d'un élève et d'un style. Utilisez les paramètres dans le panneau latéral ou mentionnez-les dans votre message.",
-          timestamp: new Date()
-        }]);
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: `assistant-guidance-${Date.now()}`,
+            type: "assistant",
+            content:
+              "Pour générer une appréciation, j'ai besoin au minimum d'un élève et d'un style. Utilisez les paramètres dans le panneau latéral ou mentionnez-les dans votre message.",
+            timestamp: new Date(),
+          },
+        ]);
       }
     } catch (error) {
-      setMessages(prev => [...prev, {
-        id: `assistant-error-${Date.now()}`,
-        type: "assistant",
-        content: "Une erreur s'est produite lors de la génération. Veuillez réessayer.",
-        timestamp: new Date()
-      }]);
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: `assistant-error-${Date.now()}`,
+          type: "assistant",
+          content:
+            "Une erreur s'est produite lors de la génération. Veuillez réessayer.",
+          timestamp: new Date(),
+        },
+      ]);
     } finally {
       setIsGenerating(false);
     }
@@ -188,7 +211,7 @@ export function ChatAppreciationInterface({
     customMessage: string;
     customInstructions?: string;
   }) => {
-    const student = MOCK_STUDENTS.find(s => s.id === params.studentId);
+    const student = MOCK_STUDENTS.find((s) => s.id === params.studentId);
     if (!student) return null;
 
     const request: GenerationRequest = {
@@ -209,15 +232,15 @@ export function ChatAppreciationInterface({
         strengths: student.strengths,
         improvementAreas: student.improvementAxes,
         behaviorNotes: ["engaged", "collaborative"],
-        customInstructions: `${params.customInstructions || ""}\n\nMessage de l'enseignant : ${params.customMessage}`
+        customInstructions: `${params.customInstructions || ""}\n\nMessage de l'enseignant : ${params.customMessage}`,
       },
       generationParams: {
         includeStrengths: true,
         includeImprovements: true,
         includeEncouragement: true,
-        focusAreas: ["participation", "comprehension", "expression"]
+        focusAreas: ["participation", "comprehension", "expression"],
       },
-      language: "fr"
+      language: "fr",
     };
 
     return generateAppreciation(request);
@@ -228,22 +251,23 @@ export function ChatAppreciationInterface({
     const context: any = {};
 
     // Look for student names
-    const student = MOCK_STUDENTS.find(s =>
-      message.toLowerCase().includes(s.firstName.toLowerCase()) ||
-      message.toLowerCase().includes(s.lastName.toLowerCase()) ||
-      message.toLowerCase().includes(s.fullName().toLowerCase())
+    const student = MOCK_STUDENTS.find(
+      (s) =>
+        message.toLowerCase().includes(s.firstName.toLowerCase()) ||
+        message.toLowerCase().includes(s.lastName.toLowerCase()) ||
+        message.toLowerCase().includes(s.fullName().toLowerCase()),
     );
     if (student) context.studentId = student.id;
 
     // Look for subjects
-    const subject = MOCK_SUBJECTS.find(s =>
-      message.toLowerCase().includes(s.name.toLowerCase())
+    const subject = MOCK_SUBJECTS.find((s) =>
+      message.toLowerCase().includes(s.name.toLowerCase()),
     );
     if (subject) context.subjectId = subject.id;
 
     // Look for periods
-    const period = MOCK_ACADEMIC_PERIODS.find(p =>
-      message.toLowerCase().includes(p.name.toLowerCase())
+    const period = MOCK_ACADEMIC_PERIODS.find((p) =>
+      message.toLowerCase().includes(p.name.toLowerCase()),
     );
     if (period) context.periodId = period.id;
 
@@ -255,7 +279,7 @@ export function ChatAppreciationInterface({
       "add-student": "Ajouter un élève pour une appréciation",
       "add-subject": "Spécifier la matière",
       "add-period": "Choisir la période académique",
-      "select-style": "Modifier le style d'écriture"
+      "select-style": "Modifier le style d'écriture",
     };
 
     const message = quickMessages[action as keyof typeof quickMessages];
@@ -276,10 +300,12 @@ export function ChatAppreciationInterface({
     navigator.clipboard.writeText(text);
   };
 
-  const selectedStudent = MOCK_STUDENTS.find(s => s.id === selectedStudentId);
-  const selectedSubject = MOCK_SUBJECTS.find(s => s.id === selectedSubjectId);
-  const selectedPeriod = MOCK_ACADEMIC_PERIODS.find(p => p.id === selectedPeriodId);
-  const selectedStyle = styleGuides.find(s => s.id === selectedStyleId);
+  const selectedStudent = MOCK_STUDENTS.find((s) => s.id === selectedStudentId);
+  const selectedSubject = MOCK_SUBJECTS.find((s) => s.id === selectedSubjectId);
+  const selectedPeriod = MOCK_ACADEMIC_PERIODS.find(
+    (p) => p.id === selectedPeriodId,
+  );
+  const selectedStyle = styleGuides.find((s) => s.id === selectedStyleId);
 
   return (
     <div className={`flex flex-col h-[600px] ${className}`}>
@@ -288,7 +314,9 @@ export function ChatAppreciationInterface({
         <div className="flex items-center gap-3">
           <MessageSquare className="h-5 w-5 text-primary" />
           <div>
-            <h3 className="font-semibold">Chat IA - Génération d'appréciations</h3>
+            <h3 className="font-semibold">
+              Chat IA - Génération d'appréciations
+            </h3>
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               {selectedStudent && (
                 <Badge variant="secondary" className="text-xs">
@@ -332,12 +360,15 @@ export function ChatAppreciationInterface({
             <div className="space-y-4 mt-6">
               <div>
                 <label className="text-sm font-medium">Élève</label>
-                <Select value={selectedStudentId} onValueChange={setSelectedStudentId}>
+                <Select
+                  value={selectedStudentId}
+                  onValueChange={setSelectedStudentId}
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Sélectionner un élève" />
                   </SelectTrigger>
                   <SelectContent>
-                    {MOCK_STUDENTS.slice(0, 10).map(student => (
+                    {MOCK_STUDENTS.slice(0, 10).map((student) => (
                       <SelectItem key={student.id} value={student.id}>
                         {student.fullName()}
                       </SelectItem>
@@ -347,7 +378,9 @@ export function ChatAppreciationInterface({
               </div>
 
               <div>
-                <label className="text-sm font-medium">Matière (optionnel)</label>
+                <label className="text-sm font-medium">
+                  Matière (optionnel)
+                </label>
                 <Select
                   value={selectedSubjectId || SUBJECT_GENERAL_VALUE}
                   onValueChange={(value) => {
@@ -362,8 +395,10 @@ export function ChatAppreciationInterface({
                     <SelectValue placeholder="Général ou par matière" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value={SUBJECT_GENERAL_VALUE}>Appréciation générale</SelectItem>
-                    {MOCK_SUBJECTS.map(subject => (
+                    <SelectItem value={SUBJECT_GENERAL_VALUE}>
+                      Appréciation générale
+                    </SelectItem>
+                    {MOCK_SUBJECTS.map((subject) => (
                       <SelectItem key={subject.id} value={subject.id}>
                         {subject.name}
                       </SelectItem>
@@ -374,12 +409,15 @@ export function ChatAppreciationInterface({
 
               <div>
                 <label className="text-sm font-medium">Période</label>
-                <Select value={selectedPeriodId} onValueChange={setSelectedPeriodId}>
+                <Select
+                  value={selectedPeriodId}
+                  onValueChange={setSelectedPeriodId}
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Sélectionner une période" />
                   </SelectTrigger>
                   <SelectContent>
-                    {MOCK_ACADEMIC_PERIODS.map(period => (
+                    {MOCK_ACADEMIC_PERIODS.map((period) => (
                       <SelectItem key={period.id} value={period.id}>
                         {period.name}
                       </SelectItem>
@@ -390,12 +428,15 @@ export function ChatAppreciationInterface({
 
               <div>
                 <label className="text-sm font-medium">Style</label>
-                <Select value={selectedStyleId} onValueChange={setSelectedStyleId}>
+                <Select
+                  value={selectedStyleId}
+                  onValueChange={setSelectedStyleId}
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Choisir un style" />
                   </SelectTrigger>
                   <SelectContent>
-                    {styleGuides.map(guide => (
+                    {styleGuides.map((guide) => (
                       <SelectItem key={guide.id} value={guide.id}>
                         {guide.name}
                         <Badge variant="outline" className="ml-2 text-xs">
@@ -434,13 +475,17 @@ export function ChatAppreciationInterface({
                     <div className="flex items-center justify-between mb-2">
                       <div className="flex items-center gap-2">
                         <Sparkles className="h-4 w-4 text-primary" />
-                        <span className="font-medium text-sm">Appréciation générée</span>
+                        <span className="font-medium text-sm">
+                          Appréciation générée
+                        </span>
                       </div>
                       <div className="flex gap-1">
                         <Button
                           size="sm"
                           variant="ghost"
-                          onClick={() => copyToClipboard(message.appreciation!.content)}
+                          onClick={() =>
+                            copyToClipboard(message.appreciation!.content)
+                          }
                         >
                           <Copy className="h-3 w-3" />
                         </Button>
@@ -487,7 +532,10 @@ export function ChatAppreciationInterface({
               )}
 
               <p className="text-xs opacity-70 mt-1">
-                {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                {message.timestamp.toLocaleTimeString([], {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })}
               </p>
             </div>
           </div>

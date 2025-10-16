@@ -360,8 +360,7 @@ export function Calendar({
                           </div>
                         </div>
                         <Badge className={getEventStatusColor(event)}>
-                          {event.courseSession.status === "done" &&
-                            "Terminé"}
+                          {event.courseSession.status === "done" && "Terminé"}
                           {event.courseSession.status === "in_progress" &&
                             "En cours"}
                           {event.courseSession.status === "planned" &&

@@ -344,8 +344,8 @@ export function TimeSlotsManagement({ teacherId }: TimeSlotsManagementProps) {
             editingTimeSlot={editingSlot}
             existingTimeSlots={timeSlots}
             calculateDuration={calculateDuration}
-            checkConflicts={(data, excludeId) => 
-              checkConflicts(data, excludeId).map(slot => slot.name)
+            checkConflicts={(data, excludeId) =>
+              checkConflicts(data, excludeId).map((slot) => slot.name)
             }
           />
         </DialogContent>

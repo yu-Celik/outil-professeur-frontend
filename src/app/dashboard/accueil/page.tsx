@@ -5,8 +5,8 @@ import { ChatAI } from "@/components/organisms/chat-ai";
 import { ClassesStudentsCard } from "@/components/organisms/classes-students-card";
 import { OnboardingBanner } from "@/components/organisms/onboarding-banner";
 import { useDashboardData } from "@/features/accueil";
-import { useSetPageTitle } from "@/shared/hooks";
 import { useUserSession } from "@/features/settings";
+import { useSetPageTitle } from "@/shared/hooks";
 
 export default function AccueilPage() {
   useSetPageTitle("Tableau de bord");

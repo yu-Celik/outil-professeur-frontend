@@ -1,7 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/molecules/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/molecules/card";
 import { Button } from "@/components/atoms/button";
 import { Badge } from "@/components/atoms/badge";
 import {
@@ -18,12 +23,15 @@ import {
   Eye,
   Grid3x3,
   Target,
-  Scale
+  Scale,
 } from "lucide-react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import type { Rubric } from "@/types/uml-entities";
-import type { RubricSection, RubricConstraints } from "@/features/evaluations/mocks";
+import type {
+  RubricSection,
+  RubricConstraints,
+} from "@/features/evaluations/mocks";
 
 export interface RubricCardProps {
   rubric: Rubric;
@@ -50,7 +58,7 @@ export function RubricCard({
   const sectionsCount = Object.keys(sections).length;
   const totalCriteria = Object.values(sections).reduce(
     (sum, section) => sum + section.criteria.length,
-    0
+    0,
   );
 
   const handleEdit = () => {
@@ -60,7 +68,11 @@ export function RubricCard({
 
   const handleDelete = () => {
     setIsActionsOpen(false);
-    if (window.confirm(`Êtes-vous sûr de vouloir supprimer la grille "${rubric.name}" ?`)) {
+    if (
+      window.confirm(
+        `Êtes-vous sûr de vouloir supprimer la grille "${rubric.name}" ?`,
+      )
+    ) {
       onDelete?.(rubric.id);
     }
   };
@@ -93,8 +105,7 @@ export function RubricCard({
                 {totalCriteria} critère{totalCriteria > 1 ? "s" : ""}
               </div>
               <div className="flex items-center gap-1">
-                <Scale className="h-4 w-4" />
-                /{constraints.maxTotalPoints} pts
+                <Scale className="h-4 w-4" />/{constraints.maxTotalPoints} pts
               </div>
             </div>
           </div>
@@ -138,25 +149,32 @@ export function RubricCard({
       <CardContent className="pt-0">
         {/* Sections aperçu */}
         <div className="space-y-2 mb-4">
-          {Object.values(sections).slice(0, 3).map((section) => (
-            <div key={section.id} className="flex items-center justify-between">
-              <span className="text-sm text-foreground truncate flex-1 mr-2">
-                {section.name}
-              </span>
-              <div className="flex items-center gap-2">
-                <Badge variant="outline" className="text-xs px-1.5 py-0.5">
-                  {section.weight}%
-                </Badge>
-                <span className="text-xs text-muted-foreground">
-                  {section.criteria.length} critère{section.criteria.length > 1 ? "s" : ""}
+          {Object.values(sections)
+            .slice(0, 3)
+            .map((section) => (
+              <div
+                key={section.id}
+                className="flex items-center justify-between"
+              >
+                <span className="text-sm text-foreground truncate flex-1 mr-2">
+                  {section.name}
                 </span>
+                <div className="flex items-center gap-2">
+                  <Badge variant="outline" className="text-xs px-1.5 py-0.5">
+                    {section.weight}%
+                  </Badge>
+                  <span className="text-xs text-muted-foreground">
+                    {section.criteria.length} critère
+                    {section.criteria.length > 1 ? "s" : ""}
+                  </span>
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
 
           {sectionsCount > 3 && (
             <div className="text-xs text-muted-foreground text-center py-1">
-              +{sectionsCount - 3} section{sectionsCount - 3 > 1 ? "s" : ""} de plus
+              +{sectionsCount - 3} section{sectionsCount - 3 > 1 ? "s" : ""} de
+              plus
             </div>
           )}
         </div>

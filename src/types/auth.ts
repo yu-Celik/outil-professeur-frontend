@@ -35,43 +35,41 @@ export interface AuthError {
  */
 export interface SessionTokenMetadata {
   /** ISO 8601 timestamp when access token expires */
-  access_token_expires_at: string
+  access_token_expires_at: string;
   /** ISO 8601 timestamp when refresh token was issued */
-  refresh_token_issued_at: string
+  refresh_token_issued_at: string;
   /** ISO 8601 timestamp when refresh token expires */
-  refresh_token_expires_at: string
+  refresh_token_expires_at: string;
   /** ISO 8601 timestamp when refresh token was last used (optional) */
-  refresh_token_last_used_at?: string | null
-  /** Refresh token value (required for logout and refresh endpoints) */
-  refresh_token: string
+  refresh_token_last_used_at?: string | null;
 }
 
 /**
  * Login response from backend with session metadata
  */
 export interface LoginResponse {
-  message: string
+  message: string;
   user: {
-    id: string
-    email: string
-    display_name: string
-  }
+    id: string;
+    email: string;
+    display_name: string;
+  };
   /** Session metadata for token refresh management */
-  session: SessionTokenMetadata
+  session: SessionTokenMetadata;
 }
 
 /**
  * Register response from backend with session metadata
  */
 export interface RegisterResponse {
-  message: string
+  message: string;
   user: {
-    id: string
-    email: string
-    display_name: string
-  }
+    id: string;
+    email: string;
+    display_name: string;
+  };
   /** Session metadata for token refresh management */
-  session: SessionTokenMetadata
+  session: SessionTokenMetadata;
 }
 
 /**
@@ -80,22 +78,22 @@ export interface RegisterResponse {
  * Also returns updated user info
  */
 export interface RefreshResponse {
-  message: string
+  message: string;
   /** Updated user info */
   user: {
-    id: string
-    email: string
-    display_name: string
-  }
+    id: string;
+    email: string;
+    display_name: string;
+  };
   /** Updated session metadata with new expiration times */
-  session: SessionTokenMetadata
+  session: SessionTokenMetadata;
 }
 
 /**
  * Logout response from backend
  */
 export interface LogoutResponse {
-  message: string
+  message: string;
 }
 
 /**
@@ -104,15 +102,15 @@ export interface LogoutResponse {
  */
 export interface ProblemDetails {
   /** HTTP status code */
-  status: number
+  status: number;
   /** Short, human-readable summary of the problem */
-  title: string
+  title: string;
   /** Human-readable explanation specific to this occurrence */
-  detail: string
+  detail: string;
   /** URI reference that identifies the specific occurrence */
-  instance?: string
+  instance?: string;
   /** URI reference that identifies the problem type */
-  type?: string
+  type?: string;
   /** Additional error code for client-side handling */
-  code?: string
+  code?: string;
 }

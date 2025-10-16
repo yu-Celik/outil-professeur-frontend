@@ -9,16 +9,25 @@ import type { Student, Class } from "@/types/uml-entities";
 
 export function useStudentsManagement(externalSelectedClassId?: string | null) {
   const { user } = useUserSession();
-  const [internalSelectedClassId, setInternalSelectedClassId] = useState<string | null>(null);
+  const [internalSelectedClassId, setInternalSelectedClassId] = useState<
+    string | null
+  >(null);
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
-  
+
   // Utiliser l'ID de classe externe ou interne
-  const selectedClassId = externalSelectedClassId !== undefined ? externalSelectedClassId : internalSelectedClassId;
+  const selectedClassId =
+    externalSelectedClassId !== undefined
+      ? externalSelectedClassId
+      : internalSelectedClassId;
 
   const currentTeacherId = user?.id || "KsmNtVf4zwqO3VV3SQJqPrRlQBA1fFyR";
-  
+
   // Récupérer les données des assignments et classes
-  const { assignments, rights, loading: assignmentsLoading } = useTeachingAssignments(currentTeacherId);
+  const {
+    assignments,
+    rights,
+    loading: assignmentsLoading,
+  } = useTeachingAssignments(currentTeacherId);
   const classes = rights.getAuthorizedClasses();
   const { getClassColorWithText } = useClassColors(currentTeacherId);
 
@@ -66,7 +75,9 @@ export function useStudentsManagement(externalSelectedClassId?: string | null) {
 
     const isCurrentSelectionValid =
       selectedStudent?.currentClassId === selectedClassId &&
-      studentsOfSelectedClass.some((student) => student.id === selectedStudent.id);
+      studentsOfSelectedClass.some(
+        (student) => student.id === selectedStudent.id,
+      );
 
     if (!isCurrentSelectionValid) {
       setSelectedStudent(studentsOfSelectedClass[0]);
@@ -89,10 +100,10 @@ export function useStudentsManagement(externalSelectedClassId?: string | null) {
     classes,
     studentsOfSelectedClass,
     assignmentsLoading,
-    
+
     // Fonctions utilitaires
     getClassColorWithText,
-    
+
     // Gestionnaires d'événements
     handleClassSelect,
     handleStudentClick,

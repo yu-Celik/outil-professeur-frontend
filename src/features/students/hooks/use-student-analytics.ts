@@ -1,9 +1,24 @@
 "use client";
 
 import { useState, useCallback, useEffect, useMemo } from "react";
-import type { StudentParticipation, StudentExamResult, Exam } from "@/types/uml-entities";
-import { BehavioralAnalysisService, type BehavioralFeatures, type BehavioralTrends, type BehavioralAlert, type Recommendation } from "../services/behavioral-analysis-service";
-import { AcademicAnalysisService, type SubjectPerformances, type AcademicProgress, type AcademicRisk } from "../services/academic-analysis-service";
+import type {
+  StudentParticipation,
+  StudentExamResult,
+  Exam,
+} from "@/types/uml-entities";
+import {
+  BehavioralAnalysisService,
+  type BehavioralFeatures,
+  type BehavioralTrends,
+  type BehavioralAlert,
+  type Recommendation,
+} from "../services/behavioral-analysis-service";
+import {
+  AcademicAnalysisService,
+  type SubjectPerformances,
+  type AcademicProgress,
+  type AcademicRisk,
+} from "../services/academic-analysis-service";
 
 export interface UseStudentAnalyticsProps {
   studentId: string;
@@ -54,24 +69,33 @@ export function useStudentAnalytics({
   studentId,
   academicPeriodId,
 }: UseStudentAnalyticsProps): UseStudentAnalyticsReturn {
-
   // États des analyses
-  const [behavioralAnalysis, setBehavioralAnalysis] = useState<BehavioralFeatures | null>(null);
-  const [behavioralTrends, setBehavioralTrends] = useState<BehavioralTrends | null>(null);
-  const [behavioralAlerts, setBehavioralAlerts] = useState<BehavioralAlert[]>([]);
+  const [behavioralAnalysis, setBehavioralAnalysis] =
+    useState<BehavioralFeatures | null>(null);
+  const [behavioralTrends, setBehavioralTrends] =
+    useState<BehavioralTrends | null>(null);
+  const [behavioralAlerts, setBehavioralAlerts] = useState<BehavioralAlert[]>(
+    [],
+  );
 
-  const [academicAnalysis, setAcademicAnalysis] = useState<SubjectPerformances | null>(null);
-  const [academicProgress, setAcademicProgress] = useState<AcademicProgress | null>(null);
+  const [academicAnalysis, setAcademicAnalysis] =
+    useState<SubjectPerformances | null>(null);
+  const [academicProgress, setAcademicProgress] =
+    useState<AcademicProgress | null>(null);
   const [academicRisks, setAcademicRisks] = useState<AcademicRisk[]>([]);
 
   const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
   const [lastAnalyzedAt, setLastAnalyzedAt] = useState<Date | null>(null);
 
   // Données sources (à charger depuis les mocks/API)
-  const [participations, setParticipations] = useState<StudentParticipation[]>([]);
+  const [participations, setParticipations] = useState<StudentParticipation[]>(
+    [],
+  );
   const [examResults, setExamResults] = useState<StudentExamResult[]>([]);
   const [exams, setExams] = useState<Exam[]>([]);
-  const [subjects, setSubjects] = useState<Array<{ id: string; name: string }>>([]);
+  const [subjects, setSubjects] = useState<Array<{ id: string; name: string }>>(
+    [],
+  );
 
   // État d'erreur et de loading
   const [isLoading, setIsLoading] = useState(false);
@@ -80,7 +104,7 @@ export function useStudentAnalytics({
   // Calcul de la qualité des données
   const dataQuality = useMemo(() => {
     const participationCount = participations.length;
-    const examCount = examResults.filter(r => !r.isAbsent).length;
+    const examCount = examResults.filter((r) => !r.isAbsent).length;
 
     // Score de confiance basé sur la quantité de données
     const participationScore = Math.min(1, participationCount / 15); // 15 participations = score optimal
@@ -94,7 +118,7 @@ export function useStudentAnalytics({
       participationCount,
       examCount,
       confidenceScore: Math.round(confidenceScore * 100) / 100,
-      hasEnoughData
+      hasEnoughData,
     };
   }, [participations, examResults]);
 
@@ -106,12 +130,16 @@ export function useStudentAnalytics({
   const loadSourceData = useCallback(async () => {
     try {
       // Charger les participations depuis les mocks
-      const { getParticipationsForAnalysis } = await import("@/features/students/mocks/mock-student-participation");
+      const { getParticipationsForAnalysis } = await import(
+        "@/features/students/mocks/mock-student-participation"
+      );
       const participationsData = getParticipationsForAnalysis(studentId);
       setParticipations(participationsData);
 
       // Charger les résultats d'examens
-      const { getStudentExamResults } = await import("@/features/evaluations/mocks");
+      const { getStudentExamResults } = await import(
+        "@/features/evaluations/mocks"
+      );
       const studentExamResults = getStudentExamResults(studentId);
       setExamResults(studentExamResults);
 
@@ -136,9 +164,8 @@ export function useStudentAnalytics({
         }
       }
       setSubjects(relatedSubjects);
-
     } catch (err) {
-      console.error('Error loading source data:', err);
+      console.error("Error loading source data:", err);
     }
   }, [studentId, academicPeriodId]);
 
@@ -155,20 +182,26 @@ export function useStudentAnalytics({
       }
 
       // Analyse des patterns comportementaux
-      const analysis = BehavioralAnalysisService.analyzeBehavioralPatterns(participations);
+      const analysis =
+        BehavioralAnalysisService.analyzeBehavioralPatterns(participations);
       setBehavioralAnalysis(analysis);
 
       // Calcul des tendances
-      const trends = BehavioralAnalysisService.calculateBehavioralTrends(participations);
+      const trends =
+        BehavioralAnalysisService.calculateBehavioralTrends(participations);
       setBehavioralTrends(trends);
 
       // Détection des alertes
-      const alerts = BehavioralAnalysisService.detectBehavioralAlerts(participations);
+      const alerts =
+        BehavioralAnalysisService.detectBehavioralAlerts(participations);
       setBehavioralAlerts(alerts);
 
       setLastAnalyzedAt(new Date());
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Erreur lors de l'analyse comportementale";
+      const errorMessage =
+        err instanceof Error
+          ? err.message
+          : "Erreur lors de l'analyse comportementale";
       setError(errorMessage);
       console.error("Behavioral analysis error:", err);
     } finally {
@@ -189,20 +222,32 @@ export function useStudentAnalytics({
       }
 
       // Analyse des performances par matière
-      const analysis = AcademicAnalysisService.analyzeSubjectPerformances(examResults, exams, subjects);
+      const analysis = AcademicAnalysisService.analyzeSubjectPerformances(
+        examResults,
+        exams,
+        subjects,
+      );
       setAcademicAnalysis(analysis);
 
       // Calcul de la progression académique
-      const progress = AcademicAnalysisService.calculateAcademicProgress(examResults);
+      const progress =
+        AcademicAnalysisService.calculateAcademicProgress(examResults);
       setAcademicProgress(progress);
 
       // Détection des risques académiques
-      const risks = AcademicAnalysisService.detectAcademicRisks(examResults, exams, subjects);
+      const risks = AcademicAnalysisService.detectAcademicRisks(
+        examResults,
+        exams,
+        subjects,
+      );
       setAcademicRisks(risks);
 
       setLastAnalyzedAt(new Date());
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Erreur lors de l'analyse académique";
+      const errorMessage =
+        err instanceof Error
+          ? err.message
+          : "Erreur lors de l'analyse académique";
       setError(errorMessage);
       console.error("Academic analysis error:", err);
     } finally {
@@ -217,13 +262,16 @@ export function useStudentAnalytics({
     try {
       // Analyse comportementale
       if (participations.length > 0) {
-        const analysis = BehavioralAnalysisService.analyzeBehavioralPatterns(participations);
+        const analysis =
+          BehavioralAnalysisService.analyzeBehavioralPatterns(participations);
         setBehavioralAnalysis(analysis);
 
-        const trends = BehavioralAnalysisService.calculateBehavioralTrends(participations);
+        const trends =
+          BehavioralAnalysisService.calculateBehavioralTrends(participations);
         setBehavioralTrends(trends);
 
-        const alerts = BehavioralAnalysisService.detectBehavioralAlerts(participations);
+        const alerts =
+          BehavioralAnalysisService.detectBehavioralAlerts(participations);
         setBehavioralAlerts(alerts);
       } else {
         setBehavioralAnalysis(null);
@@ -233,13 +281,22 @@ export function useStudentAnalytics({
 
       // Analyse académique
       if (examResults.length > 0) {
-        const analysis = AcademicAnalysisService.analyzeSubjectPerformances(examResults, exams, subjects);
+        const analysis = AcademicAnalysisService.analyzeSubjectPerformances(
+          examResults,
+          exams,
+          subjects,
+        );
         setAcademicAnalysis(analysis);
 
-        const progress = AcademicAnalysisService.calculateAcademicProgress(examResults);
+        const progress =
+          AcademicAnalysisService.calculateAcademicProgress(examResults);
         setAcademicProgress(progress);
 
-        const risks = AcademicAnalysisService.detectAcademicRisks(examResults, exams, subjects);
+        const risks = AcademicAnalysisService.detectAcademicRisks(
+          examResults,
+          exams,
+          subjects,
+        );
         setAcademicRisks(risks);
       } else {
         setAcademicAnalysis(null);
@@ -249,7 +306,8 @@ export function useStudentAnalytics({
 
       setLastAnalyzedAt(new Date());
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Erreur lors de l'analyse globale";
+      const errorMessage =
+        err instanceof Error ? err.message : "Erreur lors de l'analyse globale";
       setError(errorMessage);
       console.error("Global analysis error:", err);
     } finally {
@@ -257,19 +315,27 @@ export function useStudentAnalytics({
     }
   }, [participations, examResults, exams, subjects]);
 
-  const generateRecommendations = useCallback(async (): Promise<Recommendation[]> => {
+  const generateRecommendations = useCallback(async (): Promise<
+    Recommendation[]
+  > => {
     try {
       const allRecommendations: Recommendation[] = [];
 
       // Recommandations comportementales
       if (behavioralAnalysis) {
-        const behavioralRecs = BehavioralAnalysisService.generateBehavioralRecommendations(behavioralAnalysis);
+        const behavioralRecs =
+          BehavioralAnalysisService.generateBehavioralRecommendations(
+            behavioralAnalysis,
+          );
         allRecommendations.push(...behavioralRecs);
       }
 
       // Recommandations académiques
       if (academicAnalysis) {
-        const academicRecs = AcademicAnalysisService.generateAcademicRecommendations(academicAnalysis);
+        const academicRecs =
+          AcademicAnalysisService.generateAcademicRecommendations(
+            academicAnalysis,
+          );
         allRecommendations.push(...academicRecs);
       }
 
