@@ -1,0 +1,38 @@
+# Soutenance CDA Workflow Template Configuration
+name: "soutenance-cda"
+description: "Guider l'utilisateur dans la création du document de soutenance CDA en collectant toutes les informations nécessaires de manière structurée."
+author: "Yusuf"
+
+# Critical variables load from config_source
+config_source: "{project-root}/bmad/bmm/config.yaml"
+output_folder: "{config_source}:output_folder"
+user_name: "{config_source}:user_name"
+date: system-generated
+
+# Module path and component files
+installed_path: "{project-root}/bmad/bmm/workflows/soutenance-cda"
+template: "{installed_path}/template.md"
+instructions: "{installed_path}/instructions.md"
+validation: "{installed_path}/checklist.md"
+
+# Output configuration
+default_output_file: "{output_folder}/soutenance-cda-{{date}}.md"
+
+# Web Bundle Configuration
+web_bundle:
+  name: "soutenance-cda"
+  description: "Guider l'utilisateur dans la création du document de soutenance CDA en collectant toutes les informations nécessaires de manière structurée."
+  author: "Yusuf"
+
+  # Core files (bmad/-relative paths)
+  instructions: "bmad/bmm/workflows/soutenance-cda/instructions.md"
+  template: "bmad/bmm/workflows/soutenance-cda/template.md"
+  validation: "bmad/bmm/workflows/soutenance-cda/checklist.md"
+
+  # Complete file list - CRITICAL!
+  web_bundle_files:
+    - "bmad/bmm/workflows/soutenance-cda/workflow.yaml"
+    - "bmad/bmm/workflows/soutenance-cda/instructions.md"
+    - "bmad/bmm/workflows/soutenance-cda/template.md"
+    - "bmad/bmm/workflows/soutenance-cda/checklist.md"
+    - "bmad/bmm/workflows/soutenance-cda/README.md"

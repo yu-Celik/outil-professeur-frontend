@@ -1,6 +1,21 @@
 {
   "permissions": {
-    "allow": ["Bash(mkdir:*)", "Bash(mv:*)", "Bash(rmdir:*)"],
+    "allow": [
+      "Bash(mkdir:*)",
+      "Bash(mv:*)",
+      "Bash(rmdir:*)",
+      "Bash(curl:*)",
+      "Read(//home/yucel/Codebases/souz-backend/crates/souz-api/src/**)",
+      "Read(//tmp/**)",
+      "Read(//home/yucel/Codebases/souz-backend/docs/stories/**)",
+      "Bash(cat:*)",
+      "Bash(for path in \"/swagger-ui/api-doc\" \"/api-doc\" \"/v1/api-docs/openapi.json\" \"/docs/openapi.json\")",
+      "Bash(do echo \"Testing: $path\")",
+      "Bash(done)",
+      "Bash(npm run lint)",
+      "Bash(npx tsc:*)",
+      "Bash(ls:*)"
+    ],
     "deny": [],
     "ask": []
   }

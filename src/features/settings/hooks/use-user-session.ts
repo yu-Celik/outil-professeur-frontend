@@ -1,21 +1,20 @@
 "use client";
 
-import { useSession } from "@/lib/auth-client";
+import { useAuth } from "@/features/auth/contexts/auth-context";
 import type { User } from "@/types/auth";
 
 export function useUserSession() {
-  const { data: session, isPending } = useSession();
+  const { user, loading } = useAuth();
 
-  const user = session?.user;
   const isAuthenticated = !!user;
-  const isLoading = isPending;
+  const isLoading = loading;
 
   const userData: User | null = user
     ? {
         id: user.id,
-        name: user.name || "User",
+        name: user.display_name || "User",
         email: user.email || "",
-        avatar: user.image || "/avatars/default.jpg",
+        avatar: "/avatars/default.jpg", // Default avatar for now
       }
     : null;
 
@@ -23,6 +22,6 @@ export function useUserSession() {
     user: userData,
     isAuthenticated,
     isLoading,
-    session,
+    session: user ? { user } : null, // Compatibility with old interface
   };
 }

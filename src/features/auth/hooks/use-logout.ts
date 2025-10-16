@@ -1,23 +1,17 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { authClient } from "@/lib/auth-client";
-import { useAsyncOperation } from "@/shared/hooks";
+import { useAuth } from "../contexts/auth-context";
 
 export function useLogout() {
-  const router = useRouter();
-  const { isLoading, error, execute } = useAsyncOperation();
+  const { logout } = useAuth();
 
   const handleLogout = async () => {
-    await execute(async () => {
-      await authClient.signOut();
-      router.push("/login");
-    });
+    await logout();
+    // Force full page refresh to clear all state and let middleware handle redirect
+    window.location.href = "/login";
   };
 
   return {
     handleLogout,
-    isLoading,
-    error,
   };
 }
