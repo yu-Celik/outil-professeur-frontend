@@ -1,15 +1,21 @@
 "use client";
 
-import { use } from "react";
+import { use, useState } from "react";
 import { AuthorizationGuard } from "@/components/molecules/authorization-guard";
 import { ParticipationHistoryCard } from "@/components/organisms/participation-history-card";
 import { StudentDetailsGrid } from "@/components/organisms/student-details-grid";
 import { StudentHeaderCard } from "@/components/organisms/student-header-card";
 import { StudentMetricsCards } from "@/components/organisms/student-metrics-cards";
 import { StudentProfileSummary } from "@/components/organisms/student-profile-summary";
+import { StudentObservationsTimeline } from "@/components/organisms/student-observations-timeline";
+import { StudentObservationDialog } from "@/components/organisms/student-observation-dialog";
 import { useNotationSystem } from "@/features/evaluations";
 import { useStudentProfile } from "@/features/students";
 import { useTeachingAssignments } from "@/features/gestion";
+import type {
+  ObservationFormData,
+  StudentObservation,
+} from "@/features/students/types/observation-types";
 
 interface StudentProfilePageProps {
   params: Promise<{ id: string }>;
@@ -28,10 +34,46 @@ export default function StudentProfilePage({
     currentPeriod,
     currentProfile,
     recentParticipations,
+    loading: profileLoading,
+    error: profileError,
+    observations,
+    createObservation,
+    updateObservation,
+    removeObservation,
+    isWatchlisted,
+    toggleWatchlist,
   } = useStudentProfile(id);
+
+  // Observation dialog state
+  const [observationDialogOpen, setObservationDialogOpen] = useState(false);
+  const [editingObservation, setEditingObservation] = useState<
+    StudentObservation | undefined
+  >(undefined);
 
   const handleValidateProfile = () => {
     currentProfile?.review("Profil validé par l'enseignant");
+  };
+
+  const handleAddObservation = () => {
+    setEditingObservation(undefined);
+    setObservationDialogOpen(true);
+  };
+
+  const handleEditObservation = (observation: StudentObservation) => {
+    setEditingObservation(observation);
+    setObservationDialogOpen(true);
+  };
+
+  const handleSaveObservation = async (formData: ObservationFormData) => {
+    if (editingObservation) {
+      await updateObservation(editingObservation.id, formData.content);
+    } else {
+      await createObservation(formData);
+    }
+  };
+
+  const handleDeleteObservation = async (observationId: string) => {
+    await removeObservation(observationId);
   };
 
   // Calculer les statistiques
@@ -40,16 +82,43 @@ export default function StudentProfilePage({
     (p) => p.isPresent,
   ).length;
 
-  if (rightsLoading) {
+  if (rightsLoading || profileLoading) {
     return (
       <div className="flex items-center justify-center p-12">
         <div className="text-center">
           <div className="text-lg font-medium">
-            Vérification des autorisations...
+            {rightsLoading
+              ? "Vérification des autorisations..."
+              : "Chargement du profil..."}
           </div>
           <div className="text-sm text-muted-foreground mt-2">
             Chargement en cours
           </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (profileError) {
+    return (
+      <div className="flex items-center justify-center p-12">
+        <div className="text-center">
+          <div className="text-lg font-medium text-destructive">
+            Erreur de chargement
+          </div>
+          <div className="text-sm text-muted-foreground mt-2">
+            {profileError}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!student) {
+    return (
+      <div className="flex items-center justify-center p-12">
+        <div className="text-center">
+          <div className="text-lg font-medium">Élève introuvable</div>
         </div>
       </div>
     );
@@ -78,6 +147,8 @@ export default function StudentProfilePage({
             student.id,
             student.currentClassId,
           )}
+          isWatchlisted={isWatchlisted}
+          onToggleWatchlist={toggleWatchlist}
         />
 
         {/* Métriques calculées */}
@@ -97,6 +168,15 @@ export default function StudentProfilePage({
           studentId={id}
         />
 
+        {/* Observations enseignante */}
+        <StudentObservationsTimeline
+          observations={observations}
+          onAdd={handleAddObservation}
+          onEdit={handleEditObservation}
+          onDelete={handleDeleteObservation}
+          isLoading={profileLoading}
+        />
+
         {/* Profil généré et actions */}
         <StudentProfileSummary
           currentProfile={currentProfile}
@@ -108,6 +188,15 @@ export default function StudentProfilePage({
           onValidateProfile={handleValidateProfile}
         />
       </div>
+
+      {/* Observation Dialog */}
+      <StudentObservationDialog
+        open={observationDialogOpen}
+        onOpenChange={setObservationDialogOpen}
+        onSave={handleSaveObservation}
+        observation={editingObservation}
+        studentName={student.fullName()}
+      />
     </AuthorizationGuard>
   );
 }

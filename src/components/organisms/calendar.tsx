@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  BookOpen,
   Calendar as CalendarIcon,
   ChevronLeft,
   ChevronRight,
@@ -16,13 +15,13 @@ import Link from "next/link";
 import { useState } from "react";
 import { Badge } from "@/components/atoms/badge";
 import { Button } from "@/components/atoms/button";
-import { Card, CardContent, CardHeader } from "@/components/molecules/card";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
 } from "@/components/atoms/dialog";
+import { Card, CardContent, CardHeader } from "@/components/molecules/card";
 import { SessionForm } from "@/components/molecules/session-form";
 import { type CalendarEvent, useCalendar } from "@/features/calendar";
 
@@ -446,17 +445,17 @@ export function Calendar({
               setShowSessionForm(false);
               setSessionFormDate(null);
             }}
-            onSave={(session) => {
-              addSession(session);
+            onSave={async (session) => {
+              const created = await addSession(session);
               setShowSessionForm(false);
               setSessionFormDate(null);
+              return created;
             }}
             initialDate={sessionFormDate || undefined}
             subjects={subjects}
             classes={classes}
             timeSlots={timeSlots}
             teacherId={teacherId}
-            schoolYearId="year-2025"
             standalone={false}
           />
         </DialogContent>

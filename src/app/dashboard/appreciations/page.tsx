@@ -1,8 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { BookOpen, ListChecks, Sparkles, Target, Users } from "lucide-react";
+import { Sparkles, Target, FileEdit } from "lucide-react";
 import { Badge } from "@/components/atoms/badge";
+import { Button } from "@/components/atoms/button";
 import {
   Dialog,
   DialogContent,
@@ -28,6 +29,8 @@ import {
 } from "@/components/organisms/appreciation-preview-stack";
 import { PhraseBankManagement } from "@/components/organisms/phrase-bank-management";
 import { StyleGuideManagement } from "@/components/organisms/style-guide-management";
+import { AppreciationReviewWorkspace } from "@/components/organisms/appreciation-review-workspace";
+import { TrimesterAppreciationModal } from "@/components/organisms/trimester-appreciation-modal";
 import { useClassSelection } from "@/contexts/class-selection-context";
 import {
   useAppreciationGeneration,
@@ -73,6 +76,7 @@ export default function AppreciationsPage() {
     applyFilters,
     clearFilters,
     generateAppreciation,
+    generateTrimesterAppreciations,
     regenerateAppreciation,
     updateAppreciationContent,
     validateAppreciation,
@@ -80,7 +84,7 @@ export default function AppreciationsPage() {
     deleteAppreciation,
     getAppreciationsByStudent,
     generationLoading,
-    getStats,
+    bulkGenerationProgress,
   } = useAppreciationGeneration();
 
   const { styleGuides, loading: styleLoading } = useStyleGuides();
@@ -115,10 +119,18 @@ export default function AppreciationsPage() {
   );
   const [isStyleManagerOpen, setIsStyleManagerOpen] = useState(false);
   const [isPhraseManagerOpen, setIsPhraseManagerOpen] = useState(false);
+  const [isTrimesterModalOpen, setIsTrimesterModalOpen] = useState(false);
   const [bulkProgress, setBulkProgress] = useState<BulkProgressState | null>(
     null,
   );
   const [localGenerating, setLocalGenerating] = useState(false);
+  const [isRevisionMode, setIsRevisionMode] = useState(false);
+
+  // Trimester generation states
+  const [selectedTrimesterClassIds, setSelectedTrimesterClassIds] = useState<string[]>([]);
+  const [trimesterPeriodId, setTrimesterPeriodId] = useState<string | undefined>();
+  const [trimesterStyleId, setTrimesterStyleId] = useState<string | undefined>();
+  const [trimesterLengthId, setTrimesterLengthId] = useState<string>("standard");
 
   const {
     studentsOptions,
@@ -130,7 +142,6 @@ export default function AppreciationsPage() {
     subjectLabelMap,
     periodLabelMap,
     styleLabelMap,
-    totalStudents,
   } = useMemo(() => {
     const classStudents = selectedClassId
       ? getStudentsByClass(selectedClassId)
@@ -196,17 +207,25 @@ export default function AppreciationsPage() {
       styleLabelMap: new Map(
         styles.map((style) => [style.id, style.label] as const),
       ),
-      totalStudents: classStudents.length,
     };
   }, [classes, phraseBanks, selectedClassId, selectedStudentId, styleGuides]);
-
-  const appreciationStats = useMemo(() => getStats(), [getStats]);
 
   useEffect(() => {
     if (!selectedStyleId && styleGuides.length > 0) {
       setSelectedStyleId(styleGuides[0].id);
     }
   }, [selectedStyleId, styleGuides]);
+
+  // Auto-select formal style guide for trimester appreciations
+  useEffect(() => {
+    if (!trimesterStyleId && styleGuides.length > 0) {
+      // Find "Formel - Bulletin" or similar formal style
+      const formalStyle = styleGuides.find(
+        (style) => style.name.toLowerCase().includes("formel") || style.tone === "professionnel"
+      );
+      setTrimesterStyleId(formalStyle?.id || styleGuides[0].id);
+    }
+  }, [trimesterStyleId, styleGuides]);
 
   useEffect(() => {
     if (mode === "bulk" && selectedStudentId) {
@@ -438,7 +457,7 @@ export default function AppreciationsPage() {
               value:
                 bestResult && !bestResult.isAbsent
                   ? `${bestResult.pointsObtained} pts`
-                  : bestResult && bestResult.isAbsent
+                  : bestResult?.isAbsent
                     ? "Absent"
                     : "-",
               helperText: bestResult
@@ -691,6 +710,105 @@ export default function AppreciationsPage() {
     [],
   );
 
+  // Prepare data for revision workspace
+  const revisionStudents = useMemo(() => {
+    return studentsOptions
+      .map((student) => {
+        const studentAppreciation = allAppreciations.find(
+          (app) => app.studentId === student.id && app.status !== "archived",
+        );
+        return {
+          id: student.id,
+          name: student.label,
+          appreciationId: studentAppreciation?.id,
+          isValidated: studentAppreciation?.status === "validated",
+        };
+      })
+      .filter((s) => s.appreciationId); // Only students with appreciations
+  }, [studentsOptions, allAppreciations]);
+
+  const buildStatsForStudent = useCallback(
+    (studentId: string) => {
+      const sections = buildContextSections(studentId);
+      return sections
+        .filter((s) => s.id !== "history") // Exclude history from stats panel
+        .map((section) => ({
+          id: section.id,
+          title: section.title,
+          metrics: section.metrics || [],
+        }));
+    },
+    [buildContextSections],
+  );
+
+  // Prepare class options for trimester modal
+  const classOptions = useMemo(() => {
+    return classes.map((cls) => ({
+      id: cls.id,
+      label: cls.classCode || cls.name,
+      studentCount: getStudentsByClass(cls.id).length,
+    }));
+  }, [classes]);
+
+  // Prepare period options with dates for trimester modal
+  const trimesterPeriodOptions = useMemo(() => {
+    return MOCK_ACADEMIC_PERIODS.filter((period) =>
+      period.name.toLowerCase().includes("trimestre")
+    ).map((period) => ({
+      id: period.id,
+      label: period.name,
+      startDate: period.startDate,
+      endDate: period.endDate,
+    }));
+  }, []);
+
+  // Prepare style guide options for trimester modal
+  const trimesterStyleOptions = useMemo(() => {
+    return styleGuides.map((style) => ({
+      id: style.id,
+      label: style.name,
+      tone: style.tone,
+    }));
+  }, [styleGuides]);
+
+  // Handler for trimester generation using dedicated hook method
+  const handleTrimesterGeneration = useCallback(async () => {
+    if (!trimesterPeriodId || !trimesterStyleId || selectedTrimesterClassIds.length === 0) {
+      return;
+    }
+
+    try {
+      setLocalGenerating(true);
+
+      // Use the dedicated trimester generation method from hook
+      const generated = await generateTrimesterAppreciations({
+        classIds: selectedTrimesterClassIds,
+        periodId: trimesterPeriodId,
+        styleGuideId: trimesterStyleId,
+        lengthOption: trimesterLengthId as "short" | "standard" | "long",
+        onProgress: (current, total, studentName) => {
+          setBulkProgress({ current, total, studentName });
+        },
+      });
+
+      // Set preview IDs and switch to revision mode
+      if (generated.length > 0) {
+        setPreviewIds(generated.map((app) => app.id));
+        setIsTrimesterModalOpen(false);
+        setIsRevisionMode(true);
+      }
+    } finally {
+      setBulkProgress(null);
+      setLocalGenerating(false);
+    }
+  }, [
+    trimesterPeriodId,
+    trimesterStyleId,
+    trimesterLengthId,
+    selectedTrimesterClassIds,
+    generateTrimesterAppreciations,
+  ]);
+
   if (assignmentsLoading) {
     return (
       <div className="flex h-full items-center justify-center">
@@ -716,7 +834,46 @@ export default function AppreciationsPage() {
     );
   }
 
-  const selectedClass = classes.find((cls) => cls.id === selectedClassId);
+  // Show revision workspace if in revision mode
+  if (isRevisionMode && revisionStudents.length > 0) {
+    return (
+      <div className="flex flex-col min-h-0 -m-4 md:-m-6 h-[calc(100vh-var(--header-height)-1rem)] overflow-hidden">
+        {/* Header with back button */}
+        <div className="flex items-center justify-between p-4 border-b border-border bg-muted/30 flex-shrink-0">
+          <div className="flex items-center gap-3">
+            <FileEdit className="h-5 w-5 text-primary" />
+            <div>
+              <h2 className="text-lg font-semibold">Mode Révision</h2>
+              <p className="text-sm text-muted-foreground">
+                {revisionStudents.length} rapport(s) à réviser
+              </p>
+            </div>
+          </div>
+          <Button variant="outline" onClick={() => setIsRevisionMode(false)}>
+            Retour à la génération
+          </Button>
+        </div>
+
+        {/* Revision workspace */}
+        <div className="flex-1 min-h-0">
+          <AppreciationReviewWorkspace
+            students={revisionStudents}
+            appreciations={allAppreciations}
+            onValidate={validateAppreciation}
+            onUpdateContent={updateAppreciationContent}
+            buildStats={buildStatsForStudent}
+            isSaving={generationLoading}
+            getSubjectLabel={(subjectId) =>
+              subjectId ? subjectLabelMap.get(subjectId) : undefined
+            }
+            getPeriodLabel={(periodId) =>
+              periodId ? periodLabelMap.get(periodId) : undefined
+            }
+          />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col min-h-0 -m-4 md:-m-6 h-[calc(100vh-var(--header-height)-1rem)] overflow-hidden">
@@ -809,40 +966,63 @@ export default function AppreciationsPage() {
         </div>
       </div>
 
-      <AppreciationGenerationBar
-        mode={mode}
-        onModeChange={setMode}
-        studentId={selectedStudentId}
-        studentIds={selectedStudentIds}
-        onSelectStudent={setSelectedStudentId}
-        onToggleStudent={(studentId) => {
-          setSelectedStudentIds((prev) =>
-            prev.includes(studentId)
-              ? prev.filter((id) => id !== studentId)
-              : [...prev, studentId],
-          );
-        }}
-        subjectId={selectedSubjectId}
-        periodId={selectedPeriodId}
-        styleId={selectedStyleId}
-        phraseBankId={selectedPhraseBankId}
-        instructions={customInstructions}
-        onSubjectChange={setSelectedSubjectId}
-        onPeriodChange={setSelectedPeriodId}
-        onStyleChange={setSelectedStyleId}
-        onPhraseBankChange={setSelectedPhraseBankId}
-        onInstructionsChange={setCustomInstructions}
-        onGenerate={handleGenerate}
-        canGenerate={canGenerate}
-        isGenerating={generationDisabled}
-        students={studentsOptions}
-        subjects={subjectOptions}
-        periods={periodOptions}
-        styles={styleOptions}
-        phraseBanks={phraseBankOptions}
-        onOpenStyleManager={() => setIsStyleManagerOpen(true)}
-        onOpenPhraseBankManager={() => setIsPhraseManagerOpen(true)}
-      />
+      <div className="flex items-center gap-2 border-t border-border bg-background">
+        {revisionStudents.length > 0 && (
+          <div className="p-2 border-r border-border">
+            <Button
+              variant={isRevisionMode ? "default" : "outline"}
+              size="sm"
+              onClick={() => setIsRevisionMode(!isRevisionMode)}
+              className="gap-2"
+            >
+              <FileEdit className="h-4 w-4" />
+              Mode Révision
+              {revisionStudents.length > 0 && (
+                <Badge variant="secondary" className="ml-1">
+                  {revisionStudents.length}
+                </Badge>
+              )}
+            </Button>
+          </div>
+        )}
+        <div className="flex-1">
+          <AppreciationGenerationBar
+            mode={mode}
+            onModeChange={setMode}
+            studentId={selectedStudentId}
+            studentIds={selectedStudentIds}
+            onSelectStudent={setSelectedStudentId}
+            onToggleStudent={(studentId) => {
+              setSelectedStudentIds((prev) =>
+                prev.includes(studentId)
+                  ? prev.filter((id) => id !== studentId)
+                  : [...prev, studentId],
+              );
+            }}
+            subjectId={selectedSubjectId}
+            periodId={selectedPeriodId}
+            styleId={selectedStyleId}
+            phraseBankId={selectedPhraseBankId}
+            instructions={customInstructions}
+            onSubjectChange={setSelectedSubjectId}
+            onPeriodChange={setSelectedPeriodId}
+            onStyleChange={setSelectedStyleId}
+            onPhraseBankChange={setSelectedPhraseBankId}
+            onInstructionsChange={setCustomInstructions}
+            onGenerate={handleGenerate}
+            onOpenTrimesterModal={() => setIsTrimesterModalOpen(true)}
+            canGenerate={canGenerate}
+            isGenerating={generationDisabled}
+            students={studentsOptions}
+            subjects={subjectOptions}
+            periods={periodOptions}
+            styles={styleOptions}
+            phraseBanks={phraseBankOptions}
+            onOpenStyleManager={() => setIsStyleManagerOpen(true)}
+            onOpenPhraseBankManager={() => setIsPhraseManagerOpen(true)}
+          />
+        </div>
+      </div>
 
       <Dialog open={isStyleManagerOpen} onOpenChange={setIsStyleManagerOpen}>
         <DialogContent className="max-w-4xl">
@@ -861,6 +1041,40 @@ export default function AppreciationsPage() {
           <PhraseBankManagement />
         </DialogContent>
       </Dialog>
+
+      <TrimesterAppreciationModal
+        open={isTrimesterModalOpen}
+        onOpenChange={setIsTrimesterModalOpen}
+        classes={classOptions}
+        periods={trimesterPeriodOptions}
+        styleGuides={trimesterStyleOptions}
+        selectedClassIds={selectedTrimesterClassIds}
+        selectedPeriodId={trimesterPeriodId}
+        selectedStyleGuideId={trimesterStyleId}
+        selectedLengthId={trimesterLengthId}
+        onClassToggle={(classId) => {
+          setSelectedTrimesterClassIds((prev) =>
+            prev.includes(classId)
+              ? prev.filter((id) => id !== classId)
+              : [...prev, classId]
+          );
+        }}
+        onPeriodChange={setTrimesterPeriodId}
+        onStyleGuideChange={setTrimesterStyleId}
+        onLengthChange={setTrimesterLengthId}
+        onGenerate={handleTrimesterGeneration}
+        onOpenStyleManager={() => setIsStyleManagerOpen(true)}
+        isGenerating={localGenerating}
+        progress={
+          bulkProgress
+            ? {
+                current: bulkProgress.current,
+                total: bulkProgress.total,
+                currentStudentName: bulkProgress.studentName,
+              }
+            : undefined
+        }
+      />
     </div>
   );
 }

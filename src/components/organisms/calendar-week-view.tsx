@@ -2,11 +2,12 @@
 
 import { CalendarEventCard } from "@/components/molecules/calendar-event-card";
 import { Card, CardContent } from "@/components/molecules/card";
+import type { CalendarEvent } from "@/features/calendar/hooks/use-calendar";
 import type { CourseSession, TimeSlot } from "@/types/uml-entities";
 
 interface WeekDay {
   date: Date;
-  events: any[];
+  events: CalendarEvent[];
   isToday: boolean;
 }
 
@@ -19,7 +20,11 @@ interface CalendarWeekViewProps {
   onManageAttendance?: (sessionId: string) => void;
   onMove?: (session: CourseSession) => void;
   onCancel?: (session: CourseSession) => void;
-  onCreateMakeupSession?: (date: Date, timeSlotId: string) => void;
+  onCreateSession?: (params: {
+    date: Date;
+    timeSlotId: string;
+    type: "normal" | "makeup";
+  }) => void;
 }
 
 export function CalendarWeekView({
@@ -31,7 +36,7 @@ export function CalendarWeekView({
   onManageAttendance,
   onMove,
   onCancel,
-  onCreateMakeupSession,
+  onCreateSession,
 }: CalendarWeekViewProps) {
   const now = new Date();
   const currentTime = now.getHours() * 60 + now.getMinutes(); // En minutes depuis minuit
@@ -135,13 +140,15 @@ export function CalendarWeekView({
                     const isPastDay = day.date < now && !day.isToday;
                     const isDayPastTime = day.isToday && isPast;
 
-                    const handleEmptyCellClick = () => {
-                      if (
-                        onCreateMakeupSession &&
-                        !(isPastDay || isDayPastTime)
-                      ) {
-                        onCreateMakeupSession(day.date, timeSlot.id);
+                    const triggerSessionCreation = () => {
+                      if (!onCreateSession || isPastDay || isDayPastTime) {
+                        return;
                       }
+                      onCreateSession({
+                        date: day.date,
+                        timeSlotId: timeSlot.id,
+                        type: "normal",
+                      });
                     };
 
                     return dayEvents.length > 0 ? (
@@ -178,9 +185,9 @@ export function CalendarWeekView({
                         })}
                       </div>
                     ) : (
-                      <div
+                      <button
                         key={`${timeSlot.id}-${dayIndex}`}
-                        className={`min-h-24 p-2 border-r border-muted/50 group relative ${
+                        className={`min-h-24 p-2 w-full text-left border-r border-muted/50 group relative ${
                           day.isToday && isCurrent
                             ? "bg-orange-100 border-l-4 border-l-primary ring-1 ring-primary/20"
                             : day.isToday
@@ -189,17 +196,20 @@ export function CalendarWeekView({
                                 ? "bg-muted/10"
                                 : "bg-background hover:bg-muted/5 cursor-pointer"
                         }`}
-                        onClick={handleEmptyCellClick}
+                        type="button"
+                        disabled={isPastDay || isDayPastTime}
+                        aria-label={`Créer une session le ${day.date.toLocaleDateString("fr-FR")} sur le créneau ${timeSlot.name}`}
+                        onClick={triggerSessionCreation}
                       >
                         {/* Indicateur de clic pour les cellules vides (seulement futures) */}
                         {!(isPastDay || isDayPastTime) && (
                           <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                             <div className="text-xs text-muted-foreground bg-background/80 px-2 py-1 rounded border">
-                              + Rattrapage
+                              + Nouvelle session
                             </div>
                           </div>
                         )}
-                      </div>
+                      </button>
                     );
                   })}
                 </div>

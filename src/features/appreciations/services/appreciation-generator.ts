@@ -39,6 +39,8 @@ export interface GenerationParameters {
   targetLength?: number;
   emphasizeProgress?: boolean;
   includeSpecificExamples?: boolean;
+  formal?: boolean; // For trimester bulletin formal structure
+  structureType?: "biweekly_report" | "trimester_bulletin" | "subject_comment";
 }
 
 export interface GenerationResult {

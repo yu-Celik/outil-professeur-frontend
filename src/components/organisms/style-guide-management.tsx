@@ -64,11 +64,14 @@ export function StyleGuideManagement({
 
   const {
     styleGuides,
+    defaultGuide,
     loading,
     error,
     createStyleGuide,
     updateStyleGuide,
     deleteStyleGuide,
+    duplicateStyleGuide,
+    setDefaultStyleGuide,
     getAllTones,
     getAllRegisters,
     getAllLengths,
@@ -117,18 +120,12 @@ export function StyleGuideManagement({
     }
   };
 
-  const handleDuplicateGuide = async (guide: StyleGuide) => {
-    const duplicateData: CreateStyleGuideData = {
-      name: `${guide.name} (Copie)`,
-      tone: guide.tone,
-      register: guide.register,
-      length: guide.length,
-      person: guide.person,
-      variability: guide.variability,
-      bannedPhrases: [...guide.bannedPhrases],
-      preferredPhrases: [...guide.preferredPhrases],
-    };
-    await createStyleGuide(duplicateData);
+  const handleDuplicateGuide = async (guideId: string) => {
+    await duplicateStyleGuide(guideId);
+  };
+
+  const handleSetDefault = async (guideId: string) => {
+    await setDefaultStyleGuide(guideId);
   };
 
   if (loading) {
@@ -252,7 +249,14 @@ export function StyleGuideManagement({
             <CardHeader className="pb-3">
               <div className="flex items-start justify-between">
                 <div className="flex-1">
-                  <CardTitle className="text-lg">{guide.name}</CardTitle>
+                  <div className="flex items-center gap-2">
+                    <CardTitle className="text-lg">{guide.name}</CardTitle>
+                    {defaultGuide?.id === guide.id && (
+                      <Badge variant="default" className="text-xs">
+                        Par défaut
+                      </Badge>
+                    )}
+                  </div>
                   <div className="flex items-center gap-2 mt-2">
                     <Badge variant="secondary" className="text-xs">
                       {guide.tone}
@@ -282,8 +286,9 @@ export function StyleGuideManagement({
                       variant="ghost"
                       onClick={(e) => {
                         e.stopPropagation();
-                        handleDuplicateGuide(guide);
+                        handleDuplicateGuide(guide.id);
                       }}
+                      title="Dupliquer"
                     >
                       <Copy className="h-4 w-4" />
                     </Button>
@@ -325,6 +330,19 @@ export function StyleGuideManagement({
                     {guide.updatedAt.toLocaleDateString()}
                   </p>
                 </div>
+                {showActions && defaultGuide?.id !== guide.id && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full mt-2"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleSetDefault(guide.id);
+                    }}
+                  >
+                    Définir par défaut
+                  </Button>
+                )}
               </div>
             </CardContent>
           </Card>

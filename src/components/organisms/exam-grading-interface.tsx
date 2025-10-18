@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { Card } from "@/components/atoms/card";
 import { Button } from "@/components/atoms/button";
 import { Input } from "@/components/atoms/input";
@@ -28,6 +28,7 @@ import {
   Download,
   FileText,
   BarChart3,
+  Loader2,
 } from "lucide-react";
 import {
   useExamManagement,
@@ -39,9 +40,18 @@ import {
   type RubricEvaluationData,
 } from "@/features/evaluations";
 import { RubricGradingInterface } from "@/components/organisms/rubric-grading-interface";
-import { MOCK_STUDENTS } from "@/features/students/mocks";
+import {
+  fetchStudentsForClass,
+  fetchExamResults,
+  saveExamResultsBatch,
+  fetchExamStats,
+  convertGradeDataToApiFormat,
+  convertApiResultToEntity,
+  type ExamStatsResponse,
+} from "@/features/evaluations/api/exam-grading-service";
 import type { Exam, Student, StudentExamResult } from "@/types/uml-entities";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 export interface ExamGradingInterfaceProps {
   exam: Exam;
@@ -66,49 +76,98 @@ export function ExamGradingInterface({
     {},
   );
   const [isSaving, setIsSaving] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [showExportDialog, setShowExportDialog] = useState(false);
+  const [classStudents, setClassStudents] = useState<Student[]>([]);
+  const [examResults, setExamResults] = useState<StudentExamResult[]>([]);
+  const [statistics, setStatistics] = useState<ExamStatsResponse | null>(null);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const autoSaveTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   const { getRubric } = useRubricManagement();
   const examRubric = exam.rubricId ? getRubric(exam.rubricId) : null;
 
-  const {
-    getResultsForExam,
-    addExamResult,
-    updateExamResult,
-    getExamStatistics,
-  } = useExamManagement();
   const { notationSystems, formatGrade, validateGrade } = useNotationSystem();
-
-  const examResults = getResultsForExam(exam.id);
-  const statistics = getExamStatistics(exam.id);
   const notationSystem = notationSystems.find(
     (ns) => ns.id === exam.notationSystemId,
   );
 
-  // Récupérer les étudiants de la classe
-  const classStudents = MOCK_STUDENTS.filter(
-    (student) => student.currentClassId === exam.classId,
-  );
-
-  // Initialiser les données de notation
+  // Load students and existing results from API
   useEffect(() => {
-    const initialData: Record<string, StudentExamResultFormData> = {};
+    const loadData = async () => {
+      setIsLoading(true);
+      try {
+        // Fetch students for this exam's class
+        const students = await fetchStudentsForClass(exam.classId);
+        setClassStudents(students);
 
-    classStudents.forEach((student) => {
-      const existingResult = examResults.find(
-        (result) => result.studentId === student.id,
-      );
+        // Fetch existing results
+        const resultsResponse = await fetchExamResults(exam.id);
+        const convertedResults = resultsResponse.items.map((r) =>
+          convertApiResultToEntity(r, exam.createdBy),
+        );
+        setExamResults(convertedResults);
 
-      initialData[student.id] = {
-        studentId: student.id,
-        pointsObtained: existingResult?.pointsObtained || 0,
-        isAbsent: existingResult?.isAbsent || false,
-        comments: existingResult?.comments || "",
-      };
-    });
+        // Initialize grade data
+        const initialData: Record<string, StudentExamResultFormData> = {};
+        students.forEach((student) => {
+          const existingResult = convertedResults.find(
+            (result) => result.studentId === student.id,
+          );
 
-    setGradeData(initialData);
-  }, [examResults, classStudents]);
+          initialData[student.id] = {
+            studentId: student.id,
+            pointsObtained: existingResult?.pointsObtained || 0,
+            isAbsent: existingResult?.isAbsent || false,
+            comments: existingResult?.comments || "",
+          };
+        });
+        setGradeData(initialData);
+
+        // Load statistics
+        await loadStatistics();
+      } catch (error) {
+        console.error("Error loading exam grading data:", error);
+        toast.error("Impossible de charger les données de l'examen.");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadData();
+  }, [exam.id, exam.classId, exam.createdBy]);
+
+  // Load statistics
+  const loadStatistics = useCallback(async () => {
+    try {
+      const stats = await fetchExamStats(exam.id);
+      setStatistics(stats);
+    } catch (error) {
+      console.error("Error loading statistics:", error);
+    }
+  }, [exam.id]);
+
+  // Auto-save setup - triggers every 10 seconds if there are unsaved changes
+  useEffect(() => {
+    if (hasUnsavedChanges && !isSaving) {
+      // Clear existing timer
+      if (autoSaveTimerRef.current) {
+        clearTimeout(autoSaveTimerRef.current);
+      }
+
+      // Set new timer for 10 seconds
+      autoSaveTimerRef.current = setTimeout(() => {
+        handleSaveAll(true); // true = auto-save mode
+      }, 10000);
+    }
+
+    // Cleanup on unmount
+    return () => {
+      if (autoSaveTimerRef.current) {
+        clearTimeout(autoSaveTimerRef.current);
+      }
+    };
+  }, [hasUnsavedChanges, isSaving]);
 
   const handleGradeChange = (
     studentId: string,
@@ -122,42 +181,43 @@ export function ExamGradingInterface({
         [field]: value,
       },
     }));
+    setHasUnsavedChanges(true);
   };
 
-  const handleSaveGrade = async (studentId: string) => {
-    const data = gradeData[studentId];
-    if (!data) return;
+  const handleSaveAll = async (isAutoSave = false) => {
+    if (isSaving) return;
 
     setIsSaving(true);
     try {
-      const existingResult = examResults.find(
-        (result) => result.studentId === studentId,
+      // Convert all grade data to API format
+      const items = Object.values(gradeData).map((data) =>
+        convertGradeDataToApiFormat(data),
       );
 
-      if (existingResult) {
-        await updateExamResult(existingResult.id, data);
-      } else {
-        await addExamResult(exam.id, data);
+      // Save batch
+      const response = await saveExamResultsBatch(exam.id, items);
+
+      // Show success toast
+      if (!isAutoSave) {
+        toast.success(`${response.updated_count} résultat(s) enregistré(s)`);
       }
 
-      console.log(`Note sauvegardée pour l'étudiant ${studentId}`);
-    } catch (error) {
-      console.error("Erreur lors de la sauvegarde:", error);
-    } finally {
-      setIsSaving(false);
-    }
-  };
+      // Mark as saved
+      setHasUnsavedChanges(false);
 
-  const handleSaveAll = async () => {
-    setIsSaving(true);
-    try {
-      const promises = Object.keys(gradeData).map((studentId) =>
-        handleSaveGrade(studentId),
+      // Refresh statistics after save
+      await loadStatistics();
+
+      // Clear auto-save timer
+      if (autoSaveTimerRef.current) {
+        clearTimeout(autoSaveTimerRef.current);
+        autoSaveTimerRef.current = null;
+      }
+    } catch (error: any) {
+      console.error("Error saving exam results:", error);
+      toast.error(
+        error.message || "Une erreur est survenue lors de la sauvegarde",
       );
-      await Promise.all(promises);
-      console.log("Toutes les notes ont été sauvegardées");
-    } catch (error) {
-      console.error("Erreur lors de la sauvegarde générale:", error);
     } finally {
       setIsSaving(false);
     }
@@ -219,6 +279,20 @@ export function ExamGradingInterface({
     return "pending";
   };
 
+  // Calculate progress (X/Y students graded)
+  const getProgressStats = () => {
+    const total = classStudents.length;
+    const graded = Object.values(gradeData).filter(
+      (data) => !data.isAbsent && data.pointsObtained > 0,
+    ).length;
+    const absent = Object.values(gradeData).filter(
+      (data) => data.isAbsent,
+    ).length;
+    return { total, graded, absent };
+  };
+
+  const progressStats = getProgressStats();
+
   const getStatusIcon = (status: string) => {
     switch (status) {
       case "graded":
@@ -243,6 +317,22 @@ export function ExamGradingInterface({
     }
   };
 
+  // Show loading state
+  if (isLoading) {
+    return (
+      <div className={cn("space-y-6", className)}>
+        <Card className="p-6">
+          <div className="flex items-center justify-center py-12">
+            <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
+            <span className="ml-3 text-muted-foreground">
+              Chargement des données...
+            </span>
+          </div>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className={cn("space-y-6", className)}>
       {/* En-tête de l'examen */}
@@ -264,15 +354,63 @@ export function ExamGradingInterface({
               <Download className="w-4 h-4 mr-2" />
               Exporter
             </Button>
-            <Button onClick={handleSaveAll} disabled={isSaving}>
-              <Save className="w-4 h-4 mr-2" />
-              {isSaving ? "Sauvegarde..." : "Tout sauvegarder"}
+            <Button
+              onClick={() => handleSaveAll(false)}
+              disabled={isSaving || !hasUnsavedChanges}
+            >
+              {isSaving ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Sauvegarde...
+                </>
+              ) : (
+                <>
+                  <Save className="w-4 h-4 mr-2" />
+                  Tout sauvegarder
+                </>
+              )}
             </Button>
           </div>
         </div>
 
+        {/* Progress indicator */}
+        <div className="mb-4 p-3 bg-muted/50 rounded-lg">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <CheckCircle className="w-4 h-4 text-chart-3" />
+              <span className="text-sm font-medium">
+                Progression: {progressStats.graded}/{progressStats.total} élèves
+                saisis
+              </span>
+              {progressStats.absent > 0 && (
+                <Badge variant="outline" className="ml-2">
+                  {progressStats.absent} absent(s)
+                </Badge>
+              )}
+            </div>
+            {hasUnsavedChanges && (
+              <Badge variant="secondary" className="animate-pulse">
+                Non sauvegardé
+              </Badge>
+            )}
+          </div>
+        </div>
+
         {/* Statistiques rapides */}
-        <ExamStatisticsCards statistics={statistics} />
+        {statistics && (
+          <ExamStatisticsCards
+            statistics={{
+              totalStudents: statistics.total_students,
+              submittedCount: statistics.submitted_count,
+              absentCount: statistics.absent_count,
+              averageGrade: statistics.avg_points,
+              medianGrade: statistics.median_points,
+              minGrade: statistics.min_points,
+              maxGrade: statistics.max_points,
+              passRate: statistics.pass_rate,
+            }}
+          />
+        )}
       </Card>
 
       {/* Interface de correction */}
@@ -371,7 +509,7 @@ export function ExamGradingInterface({
                         </div>
 
                         <Button
-                          onClick={() => handleSaveGrade(selectedStudentId)}
+                          onClick={() => handleSaveAll(false)}
                           disabled={isSaving}
                         >
                           <Save className="w-4 h-4 mr-2" />

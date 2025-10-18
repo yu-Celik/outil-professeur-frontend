@@ -1,10 +1,11 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { MOCK_CLASSES, MOCK_SUBJECTS } from "@/features/gestion/mocks";
+import { useWeeklySessions } from "@/features/calendar";
+import { useCourseSessionsApi } from "@/features/calendar/api/use-course-sessions-api";
 import { MOCK_TIME_SLOTS } from "@/features/calendar/mocks";
 import { useTeachingAssignments } from "@/features/gestion";
-import { useWeeklySessions } from "@/features/calendar";
+import { MOCK_CLASSES, MOCK_SUBJECTS } from "@/features/gestion/mocks";
 import {
   getSessionStatusColor,
   getSessionStatusLabel,
@@ -19,7 +20,6 @@ import {
   combineDateAndTime,
   formatDateFR,
   getWeekStart,
-  isDateInWeek,
   isSameDay,
   isToday,
 } from "@/utils/date-utils";
@@ -54,16 +54,46 @@ export interface CalendarWeek {
 /**
  * Hook pour gérer le calendrier d'observation des séances
  * Utilise les sessions générées depuis les templates hebdomadaires récurrents
+ * Intègre l'API avec fallback sur les données mock
  */
 export function useCalendar(teacherId: string) {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [loading, setLoading] = useState(true);
   const [dynamicSessions, setDynamicSessions] = useState<CourseSession[]>([]);
+  const isDevelopment = process.env.NODE_ENV !== "production";
 
   const { rights, assignments } = useTeachingAssignments(teacherId);
 
   // Utiliser les sessions générées depuis les templates hebdomadaires
   const weeklySessionsHook = useWeeklySessions(teacherId);
+
+  // API integration - fetch sessions from backend
+  const monthStart = new Date(
+    currentDate.getFullYear(),
+    currentDate.getMonth(),
+    1,
+  );
+  const monthEnd = new Date(
+    currentDate.getFullYear(),
+    currentDate.getMonth() + 1,
+    0,
+  );
+
+  const courseSessionsApi = useCourseSessionsApi({
+    from: monthStart.toISOString().split("T")[0],
+    to: monthEnd.toISOString().split("T")[0],
+    autoFetch: true,
+  });
+
+  const {
+    sessions: apiSessions,
+    loading: apiSessionsLoading,
+    error: apiError,
+    refresh: refreshSessions,
+    createSession: createCourseSession,
+    updateSession: updateCourseSession,
+    deleteSession: deleteCourseSession,
+  } = courseSessionsApi;
 
   // Données statiques
   const subjects = MOCK_SUBJECTS;
@@ -73,7 +103,7 @@ export function useCalendar(teacherId: string) {
   // Synchroniser la date courante avec le hook des sessions hebdomadaires
   useEffect(() => {
     weeklySessionsHook.navigateToWeek(currentDate);
-  }, [currentDate]);
+  }, [currentDate, weeklySessionsHook.navigateToWeek]);
 
   useEffect(() => {
     setLoading(false);
@@ -84,16 +114,24 @@ export function useCalendar(teacherId: string) {
     const events: CalendarEvent[] = [];
     const processedSessionIds = new Set<string>();
 
-    // Utiliser directement allSessions qui contient toutes les sessions sur une période étendue
-    const allSessionsInMonth = weeklySessionsHook.allSessions.filter(
-      (session) => {
+    // Utiliser les sessions API si disponibles, sinon fallback sur les sessions mock
+    let sessionsSource: CourseSession[] = [];
+
+    if (apiSessions.length > 0 && !apiError) {
+      // API sessions disponibles
+      sessionsSource = apiSessions;
+    } else {
+      // Fallback: Utiliser les sessions générées depuis les templates
+      sessionsSource = weeklySessionsHook.allSessions.filter((session) => {
         const sessionDate = new Date(session.sessionDate);
         return (
           sessionDate.getFullYear() === currentDate.getFullYear() &&
           sessionDate.getMonth() === currentDate.getMonth()
         );
-      },
-    );
+      });
+    }
+
+    const allSessionsInMonth = sessionsSource;
 
     // Traiter toutes les sessions du mois (templates + déplacées) en évitant les doublons
     allSessionsInMonth.forEach((session) => {
@@ -107,7 +145,7 @@ export function useCalendar(teacherId: string) {
       const timeSlot = timeSlots.find((t) => t.id === session.timeSlotId);
 
       if (!subject || !classEntity || !timeSlot) {
-        return null;
+        return;
       }
 
       // Calculer startAt et endAt à partir de sessionDate + timeSlot
@@ -141,6 +179,8 @@ export function useCalendar(teacherId: string) {
     return events;
   }, [
     currentDate,
+    apiSessions,
+    apiError,
     weeklySessionsHook.allSessions,
     subjects,
     classes,
@@ -232,6 +272,30 @@ export function useCalendar(teacherId: string) {
     return days;
   };
 
+  // Statistiques des sessions (intégré depuis use-calendar-sessions)
+  const stats = useMemo(() => {
+    const completed = calendarEvents.filter(
+      (e) => e.courseSession.status === "done",
+    ).length;
+    const inProgress = calendarEvents.filter(
+      (e) => e.courseSession.status === "in_progress",
+    ).length;
+    const planned = calendarEvents.filter(
+      (e) => e.courseSession.status === "planned",
+    ).length;
+    const cancelled = calendarEvents.filter(
+      (e) => e.courseSession.status === "cancelled",
+    ).length;
+
+    return {
+      completed,
+      inProgress,
+      planned,
+      cancelled,
+      total: calendarEvents.length,
+    };
+  }, [calendarEvents]);
+
   // Navigation hebdomadaire
   const navigateWeek = useCallback((direction: "prev" | "next") => {
     setCurrentDate((prev) => {
@@ -288,129 +352,98 @@ export function useCalendar(teacherId: string) {
 
   // Fonction pour ajouter une session ponctuelle
   const addSession = useCallback(
-    (sessionData: Partial<CourseSession>) => {
-      // Validation des champs requis
+    async (sessionData: Partial<CourseSession>) => {
       if (
         !sessionData.classId ||
         !sessionData.subjectId ||
         !sessionData.timeSlotId ||
         !sessionData.sessionDate
       ) {
-        console.error("Session incomplète - champs manquants:", sessionData);
-        return;
+        throw new Error(
+          "Session incomplète - champs manquants pour la création API",
+        );
       }
 
-      // Créer la nouvelle session avec un ID unique
-      const newSession: CourseSession = {
-        id: `session-${Date.now()}`,
-        createdBy: teacherId,
-        classId: sessionData.classId,
-        subjectId: sessionData.subjectId,
-        timeSlotId: sessionData.timeSlotId,
-        sessionDate: sessionData.sessionDate,
-        status: sessionData.status || "planned",
-        objectives: sessionData.objectives || null,
-        content: sessionData.content || null,
-        homeworkAssigned: sessionData.homeworkAssigned || null,
-        isMakeup: sessionData.isMakeup || false,
-        isMoved: sessionData.isMoved ?? false,
-        notes: sessionData.notes || null,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        // Méthodes requises par l'interface (implémentation basique)
-        reschedule: () => {},
-        takeAttendance: () => {},
-        summary: () => `${sessionData.subjectId} - ${sessionData.classId}`,
-      };
+      const created = await createCourseSession(sessionData);
+      await refreshSessions();
 
-      // Ajouter la session à l'état local pour mise à jour immediate de l'UI
-      setDynamicSessions((prev) => [...prev, newSession]);
+      if (isDevelopment) {
+        console.info(
+          "[useCalendar] Session créée via API:",
+          created.id,
+          created.sessionDate,
+        );
+      }
 
-      console.log("Nouvelle session créée et ajoutée à l'UI:", newSession);
+      return created;
     },
-    [teacherId],
+    [createCourseSession, refreshSessions, isDevelopment],
   );
 
   // Fonction pour annuler une session
   const cancelSession = useCallback(
-    (sessionId: string) => {
-      console.log(`Annulation de la session ${sessionId}`);
+    async (sessionId: string) => {
+      if (isDevelopment) {
+        console.log(`Annulation de la session ${sessionId}`);
+      }
 
-      // Mettre à jour les sessions générées par templates
-      weeklySessionsHook.updateSessionStatus(sessionId, "cancelled");
+      try {
+        // Call API to update session status to cancelled
+        await updateCourseSession(sessionId, { status: "cancelled" });
 
-      // Mettre à jour les sessions dynamiques locales
-      setDynamicSessions((prev) =>
-        prev.map((session) =>
-          session.id === sessionId
-            ? {
-                ...session,
-                status: "cancelled" as const,
-                updatedAt: new Date(),
-              }
-            : session,
-        ),
-      );
+        // Refresh sessions from API
+        await refreshSessions();
 
-      console.log(`Session ${sessionId} annulée avec succès`);
+        if (isDevelopment) {
+          console.log(`Session ${sessionId} annulée avec succès via API`);
+        }
+      } catch (error) {
+        if (isDevelopment) {
+          console.error(
+            `Erreur lors de l'annulation de la session ${sessionId}:`,
+            error,
+          );
+        }
+        throw error; // Re-throw to let caller handle the error
+      }
     },
-    [weeklySessionsHook],
+    [updateCourseSession, refreshSessions, isDevelopment],
   );
 
   // Fonction pour déplacer une session
   const moveSession = useCallback(
-    (sessionId: string, updates: Partial<CourseSession>) => {
-      console.log(`Déplacement de la session ${sessionId}`, updates);
-
-      // Si on a sessionDate et timeSlotId, utiliser la nouvelle méthode de déplacement
-      if (updates.sessionDate && updates.timeSlotId) {
-        const newDate = new Date(updates.sessionDate);
-
-        // Trouver la session originale pour obtenir sa date
-        const originalSession =
-          weeklySessionsHook.weekSessions.find((s) => s.id === sessionId) ||
-          dynamicSessions.find((s) => s.id === sessionId);
-
-        if (originalSession) {
-          const originalDate = new Date(originalSession.sessionDate);
-
-          // Utiliser la fonction moveSession du hook weekly sessions
-          if (weeklySessionsHook.moveSession) {
-            weeklySessionsHook.moveSession(
-              sessionId,
-              newDate,
-              updates.timeSlotId,
-              originalDate,
-            );
-          }
-        }
-      } else {
-        // Fallback vers l'ancienne méthode
-        weeklySessionsHook.updateSession(sessionId, updates);
+    async (sessionId: string, updates: Partial<CourseSession>) => {
+      if (isDevelopment) {
+        console.log(`Déplacement de la session ${sessionId}`, updates);
       }
 
-      // Mettre à jour les sessions dynamiques locales
-      setDynamicSessions((prev) =>
-        prev.map((session) =>
-          session.id === sessionId
-            ? {
-                ...session,
-                ...updates,
-                updatedAt: new Date(),
-              }
-            : session,
-        ),
-      );
+      try {
+        // Call API to update the session
+        await updateCourseSession(sessionId, updates);
 
-      console.log(`Session ${sessionId} déplacée avec succès`);
+        // Refresh sessions from API
+        await refreshSessions();
+
+        if (isDevelopment) {
+          console.log(`Session ${sessionId} déplacée avec succès via API`);
+        }
+      } catch (error) {
+        if (isDevelopment) {
+          console.error(
+            `Erreur lors du déplacement de la session ${sessionId}:`,
+            error,
+          );
+        }
+        throw error; // Re-throw to let caller handle the error
+      }
     },
-    [weeklySessionsHook, dynamicSessions],
+    [updateCourseSession, refreshSessions, isDevelopment],
   );
 
   return {
     // État
     currentDate,
-    loading,
+    loading: loading || apiSessionsLoading,
     calendarEvents,
     calendarWeeks,
     monthYear,
@@ -423,6 +456,20 @@ export function useCalendar(teacherId: string) {
     weeklySessionsHook,
     getCurrentWeek,
 
+    // Statistiques
+    stats,
+
+    // API
+    api: {
+      sessions: apiSessions,
+      loading: apiSessionsLoading,
+      error: apiError,
+      refresh: refreshSessions,
+      createSession: createCourseSession,
+      updateSession: updateCourseSession,
+      deleteSession: deleteCourseSession,
+    },
+
     // Navigation
     navigateWeek,
     navigateMonth,
@@ -430,7 +477,7 @@ export function useCalendar(teacherId: string) {
     navigateToJanuary2025,
     navigateToAugust2025,
 
-    // Actions
+    // Actions (local mock actions)
     addSession,
     cancelSession,
     moveSession,

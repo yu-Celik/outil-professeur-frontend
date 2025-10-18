@@ -19,6 +19,7 @@ export interface AsyncOperationResult<T> extends AsyncOperationState {
 export function useAsyncOperation<T = void>(): AsyncOperationResult<T> {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const isDevelopment = process.env.NODE_ENV !== "production";
 
   const execute = useCallback(
     async (operation: () => Promise<T>): Promise<T> => {
@@ -34,13 +35,15 @@ export function useAsyncOperation<T = void>(): AsyncOperationResult<T> {
             ? err.message
             : "Une erreur inattendue s'est produite";
         setError(errorMessage);
-        console.error("Async operation error:", err);
+        if (isDevelopment) {
+          console.error("Async operation error:", err);
+        }
         throw err;
       } finally {
         setIsLoading(false);
       }
     },
-    [],
+    [isDevelopment],
   );
 
   const reset = useCallback(() => {

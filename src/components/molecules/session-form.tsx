@@ -9,12 +9,10 @@ import {
   Users,
   X,
 } from "lucide-react";
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Button } from "@/components/atoms/button";
 import { Input } from "@/components/atoms/input";
 import { Label } from "@/components/atoms/label";
-import { Textarea } from "@/components/atoms/textarea";
-import { Card, CardContent, CardHeader } from "@/components/molecules/card";
 import {
   Select,
   SelectContent,
@@ -22,7 +20,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/atoms/select";
+import { Textarea } from "@/components/atoms/textarea";
+import { Card, CardContent, CardHeader } from "@/components/molecules/card";
 import { useTeachingAssignments } from "@/features/gestion";
+import { useAsyncOperation } from "@/shared/hooks";
 import type {
   Class,
   CourseSession,
@@ -32,14 +33,15 @@ import type {
 
 interface SessionFormProps {
   onClose: () => void;
-  onSave: (session: Partial<CourseSession>) => void;
+  onSave: (
+    session: Partial<CourseSession>,
+  ) => Promise<CourseSession | undefined>;
   initialDate?: Date;
   initialTimeSlotId?: string;
   subjects: Subject[];
   classes: Class[];
   timeSlots: TimeSlot[];
   teacherId?: string;
-  schoolYearId?: string;
   sessionType?: "normal" | "makeup";
   standalone?: boolean; // Pour afficher avec Card ou juste le contenu
 }
@@ -53,24 +55,46 @@ export function SessionForm({
   classes,
   timeSlots,
   teacherId = "KsmNtVf4zwqO3VV3SQJqPrRlQBA1fFyR",
-  schoolYearId = "year-2025",
   sessionType = "normal",
   standalone = true,
 }: SessionFormProps) {
   const { rights } = useTeachingAssignments(teacherId);
 
-  const [formData, setFormData] = useState({
-    subjectId: "",
-    classId: "",
-    timeSlotId: initialTimeSlotId || "",
-    sessionDate: initialDate ? initialDate.toISOString().split("T")[0] : "",
-    objectives: "",
-    content: "",
-    homeworkAssigned: "",
-    notes: "",
-  });
+  const getInitialFormData = useCallback(
+    () => ({
+      subjectId: "",
+      classId: "",
+      timeSlotId: initialTimeSlotId || "",
+      sessionDate: initialDate ? initialDate.toISOString().split("T")[0] : "",
+      objectives: "",
+      content: "",
+      homeworkAssigned: "",
+      notes: "",
+    }),
+    [initialDate, initialTimeSlotId],
+  );
 
+  const [formData, setFormData] = useState(getInitialFormData);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const {
+    isLoading,
+    error: submissionError,
+    execute,
+    reset: resetOperation,
+  } = useAsyncOperation<CourseSession | undefined>();
+
+  useEffect(() => {
+    setFormData(getInitialFormData());
+    setErrors({});
+    resetOperation();
+  }, [getInitialFormData, resetOperation]);
+
+  const handleCancel = () => {
+    setFormData(getInitialFormData());
+    setErrors({});
+    resetOperation();
+    onClose();
+  };
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
@@ -79,13 +103,19 @@ export function SessionForm({
     if (!formData.classId) newErrors.classId = "Classe requise";
     if (!formData.timeSlotId) newErrors.timeSlotId = "Créneau horaire requis";
     if (!formData.sessionDate) newErrors.sessionDate = "Date requise";
+    const selectedSlot = timeSlots.find(
+      (slot) => slot.id === formData.timeSlotId,
+    );
+    if (selectedSlot?.isBreak) {
+      newErrors.timeSlotId = "Ce créneau est indisponible";
+    }
     // Tous les champs textuels sont maintenant optionnels dans l'UML
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!validateForm()) return;
@@ -105,13 +135,24 @@ export function SessionForm({
       status: "planned",
     };
 
-    onSave(newSession);
+    try {
+      await execute(async () => {
+        await onSave(newSession);
+      });
+      setFormData(getInitialFormData());
+      setErrors({});
+    } catch {
+      // Les erreurs sont gérées par useAsyncOperation (affichage + état)
+    }
   };
 
   const handleInputChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
     if (errors[field]) {
       setErrors((prev) => ({ ...prev, [field]: "" }));
+    }
+    if (submissionError) {
+      resetOperation();
     }
   };
 
@@ -139,6 +180,9 @@ export function SessionForm({
     if (errors.subjectId) {
       setErrors((prev) => ({ ...prev, subjectId: "" }));
     }
+    if (submissionError) {
+      resetOperation();
+    }
   };
 
   const handleClassChange = (classId: string) => {
@@ -164,6 +208,9 @@ export function SessionForm({
 
     if (errors.classId) {
       setErrors((prev) => ({ ...prev, classId: "" }));
+    }
+    if (submissionError) {
+      resetOperation();
     }
   };
 
@@ -303,8 +350,14 @@ export function SessionForm({
             </SelectTrigger>
             <SelectContent>
               {timeSlots.map((slot) => (
-                <SelectItem key={slot.id} value={slot.id}>
+                <SelectItem
+                  key={slot.id}
+                  value={slot.id}
+                  disabled={slot.isBreak}
+                  className={slot.isBreak ? "text-muted-foreground" : ""}
+                >
                   {slot.name} ({slot.startTime} - {slot.endTime})
+                  {slot.isBreak ? " — Pause" : ""}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -443,14 +496,25 @@ export function SessionForm({
         </div>
       )}
 
+      {submissionError && (
+        <p className="text-destructive text-sm" role="alert">
+          {submissionError}
+        </p>
+      )}
+
       {/* Actions */}
       <div className="flex justify-end gap-3 pt-4">
-        <Button type="button" variant="outline" onClick={onClose}>
+        <Button
+          type="button"
+          variant="outline"
+          onClick={handleCancel}
+          disabled={isLoading}
+        >
           Annuler
         </Button>
-        <Button type="submit" className="gap-2">
+        <Button type="submit" className="gap-2" disabled={isLoading}>
           <Save className="h-4 w-4" />
-          Créer la session
+          {isLoading ? "Création..." : "Créer la session"}
         </Button>
       </div>
     </form>
@@ -474,7 +538,12 @@ export function SessionForm({
                   : "Nouvelle session de cours"}
               </h2>
             </div>
-            <Button variant="ghost" size="sm" onClick={onClose}>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleCancel}
+              disabled={isLoading}
+            >
               <X className="h-4 w-4" />
             </Button>
           </div>

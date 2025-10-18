@@ -24,7 +24,10 @@ export default function EvaluationsPage() {
 
   const { selectedClassId, currentTeacherId, assignmentsLoading } =
     useClassSelection();
-  const { refresh, getExamById } = useExamManagement(currentTeacherId);
+  const { refresh, getExamById } = useExamManagement(
+    currentTeacherId,
+    selectedClassId,
+  );
 
   const handleCreateExam = () => {
     setEditingExam(null);

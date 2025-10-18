@@ -16,8 +16,9 @@
 4. [Database Schema](#database-schema)
 5. [API Endpoints](#api-endpoints)
 6. [Frontend Components](#frontend-components)
-7. [Implementation Guide](#implementation-guide)
-8. [Testing Approach](#testing-approach)
+7. [Stratégie UI & Intégration API](#stratégie-ui--intégration-api)
+8. [Implementation Guide](#implementation-guide)
+9. [Testing Approach](#testing-approach)
 
 ---
 
@@ -161,9 +162,9 @@ Correction et saisie notes accélérée avec insights immédiats. Détection pro
 │   ├── use-grade-management.ts      # Grade entry and calculations
 │   ├── use-notation-system.ts       # Grading systems
 │   └── use-rubric-management.ts     # Rubrics (future)
-├── mocks/
-│   ├── mock-exams.ts
-│   ├── mock-exam-results.ts
+├── api/
+│   ├── exams-client.ts              # Wrappers around /exams endpoints
+│   ├── exam-results-client.ts       # Calls /exams/{id}/results & /exams/{id}/stats
 │   └── index.ts
 ├── services/
 │   └── notation-system-service.ts   # Grade calculations
@@ -179,15 +180,14 @@ Correction et saisie notes accélérée avec insights immédiats. Détection pro
 ├── hooks/
 │   ├── use-student-analytics.ts                 # Analytics hooks
 │   └── use-student-profile-generation.ts        # Profile generation
-├── mocks/
-│   ├── mock-students.ts
-│   ├── mock-student-participation.ts
-│   ├── mock-student-profiles.ts
+├── api/
+│   ├── students-client.ts                      # Calls /students, /students/{id}/*
+│   ├── attendance-client.ts                    # Calls /sessions/{session_id}/attendance
 │   └── index.ts
 ├── services/
-│   ├── behavioral-analysis-service.ts           # Behavioral patterns
-│   ├── academic-analysis-service.ts             # Academic performance
-│   └── student-profile-service.ts               # Profile orchestration
+│   ├── behavioral-analysis-service.ts          # Behavioral patterns
+│   ├── academic-analysis-service.ts            # Academic performance
+│   └── student-profile-service.ts              # Profile orchestration
 └── index.ts
 ```
 
@@ -534,975 +534,77 @@ export function useStudentAnalytics(studentId: string, dateRange: DateRange) {
 
 ## Frontend Components
 
-### Organisms (To Create)
+### Organismes & molécules existants à réutiliser
+- `ExamsList`, `ExamFormDialog`, `ExamGradingPage`, `ExamDetailedStatistics`, `ExamExportDialog` (`@/components/organisms`) — gestion examens + statistiques
+- `ExamGradingInterface`, `NotationSystemConfig` (`@/components/organisms`) — grille de correction + paramétrage barèmes
+- `StudentMetricsCards`, `StudentAnalysisPanel`, `StudentEvaluationsPanel`, `StudentProfilePanel`, `StudentProfileSummary`, `StudentEvaluationForm` (`@/components/organisms`) — analytics et profils élèves
+- `DataTable`, `Card`, `Badge`, `Dialog` (`@/components`) — socle UI existant
 
-#### `exam-management-panel`
-**Purpose:** List and manage exams
-**Props:**
-```typescript
-interface ExamManagementPanelProps {
-  classId?: string
-  subjectId?: string
-  onExamClick: (exam: Exam) => void
-}
-```
+### Pages Next.js concernées
+- `src/app/dashboard/evaluations/page.tsx` — liste examens, création, accès correction
+- `src/app/dashboard/mes-eleves/[id]/page.tsx` — profil élève (analytics)
+- `src/app/dashboard/students/[id]/page.tsx` — profils détaillés (si activé)
 
-#### `exam-form`
-**Purpose:** Create/edit exam
-**Props:**
-```typescript
-interface ExamFormProps {
-  exam?: Exam
-  onSave: (data: ExamInput) => Promise<void>
-  onClose: () => void
-}
-```
+### Hooks existants à brancher à l'API
+- `useExamManagement`, `useGradeManagement`, `useNotationSystem`, `useExamFilters` (`@/features/evaluations`)
+- `useStudentAnalytics`, `useStudentProfile`, `useStudentProfileGeneration`, `useStudentEvaluation` (`@/features/students`)
+- `useClassSelection` (`@/contexts/class-selection-context`) pour filtrage classe/matière
+- `useAsyncOperation`, `useModal`, `useCRUDOperations` (`@/shared/hooks`)
 
-#### `grade-entry-form`
-**Purpose:** Batch grade entry (CRITICAL)
-**Props:**
-```typescript
-interface GradeEntryFormProps {
-  examId: string
-  students: Student[]
-  results: StudentExamResult[]
-  maxPoints: number
-  onSave: (results: StudentExamResultInput[]) => Promise<void>
-}
-```
+---
 
-**Key Features:**
-- Real-time validation (points ≤ max)
-- Auto-save every 10s
-- Progress indicator
-- Absent checkbox disables points input
-- Comment field for each student
+## Stratégie UI & Intégration API
 
-#### `exam-statistics-panel`
-**Purpose:** Display exam statistics
-**Props:**
-```typescript
-interface ExamStatisticsPanelProps {
-  stats: ExamStatistics
-  students: Array<{ name: string, points: number }>
-}
-```
+1. **Brancher la gestion des examens sur Souz API**  
+   - `GET/POST/PATCH/DELETE /exams` pour le cycle de vie examen
+   - `GET /exams/{id}` + `GET /exams/{id}/results` pour alimenter la page de correction
+   - `PUT /exams/{id}/results` (payload `ExamResultsUpsertRequest`) pour la saisie groupée et les commentaires
+   - `GET /exams/{id}/stats` pour nourrir `ExamDetailedStatistics`
 
-**Components:**
-- Metrics cards (average, median, min, max)
-- Distribution histogram (Recharts)
-- Students at risk list
+2. **Synchroniser analytics élèves**  
+   - `GET /students/{id}/profile` pour le résumé complet + `GET /students/{id}/attendance-rate` et `GET /students/{id}/participation-average` pour les KPI
+   - `GET /students/{id}/results` pour l'historique des notes et `GET /sessions/{session_id}/attendance` lorsque le détail session est nécessaire
+   - Agréger ces réponses dans `useStudentAnalytics` afin d'alimenter cartes, graphiques et alertes
 
-#### `student-profile-card`
-**Purpose:** Comprehensive student profile
-**Props:**
-```typescript
-interface StudentProfileCardProps {
-  student: Student
-  analytics: StudentAnalytics
-  participations: StudentParticipation[]
-  examResults: StudentExamResult[]
-}
-```
+3. **Utiliser l’API comme seule source de vérité**  
+   - Tous les appels passent par `fetchAPI` et les clients d’API dédiés pour écrire/lire via Souz
+   - `NotationSystemService` et `AcademicAnalysisService` exploitent uniquement les données renvoyées par l’API (aucune donnée locale persistée)
 
-**Sections:**
-- Header (name, photo, class)
-- Attendance rate with trend chart
-- Participation trend chart
-- Behavior distribution pie chart
-- Academic results table + line chart
-- Behavioral analysis text
-- Observations timeline
+4. **Maintenir le contexte classe**  
+   - `useClassSelection` fournit `selectedClassId`/`currentTeacherId` → filtrer `GET /exams?class_id=` et `GET /students`
+   - Les pages doivent refléter le badge classe active dans header
 
-#### `student-analytics-section`
-**Purpose:** Analytics visualizations
-**Props:**
-```typescript
-interface StudentAnalyticsSectionProps {
-  analytics: StudentAnalytics
-}
-```
-
-#### `student-performance-chart`
-**Purpose:** Grade evolution line chart
-**Props:**
-```typescript
-interface StudentPerformanceChartProps {
-  results: StudentExamResult[]
-  exams: Exam[]
-}
-```
-
-#### `alerts-widget`
-**Purpose:** Dashboard alerts panel
-**Props:**
-```typescript
-interface AlertsWidgetProps {
-  alerts: Alert[]
-  onAlertClick: (studentId: string) => void
-}
-```
+5. **Auto-save & validations**  
+   - Dans `ExamGradingPage`, déclencher un auto-save 10s vers l'endpoint batch, avec toasts et rollback en cas d'erreur
+   - Vérifier cohérence barèmes via `NotationSystemService` avant envoi
 
 ---
 
 ## Implementation Guide
 
-### Phase 1: Exam Management (Days 1-3)
-
-**Step 1: Create Evaluations Feature Module**
-```bash
-mkdir -p src/features/evaluations/hooks
-mkdir -p src/features/evaluations/services
-mkdir -p src/features/evaluations/mocks
-```
-
-**Step 2: Implement Exam Management Hook**
-
-`/src/features/evaluations/hooks/use-exam-management.ts`:
-```typescript
-import { useState, useEffect } from 'react'
-import { Exam } from '@/types/uml-entities'
-import { fetchAPI } from '@/lib/api'
-
-export function useExamManagement(classId?: string, subjectId?: string) {
-  const [exams, setExams] = useState<Exam[]>([])
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    loadExams()
-  }, [classId, subjectId])
-
-  const loadExams = async () => {
-    setLoading(true)
-    try {
-      const params = new URLSearchParams()
-      if (classId) params.append('class_id', classId)
-      if (subjectId) params.append('subject_id', subjectId)
-
-      const data = await fetchAPI<Exam[]>(`/exams?${params}`)
-      setExams(data)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const createExam = async (data: ExamInput) => {
-    const exam = await fetchAPI<Exam>('/exams', {
-      method: 'POST',
-      body: JSON.stringify(data)
-    })
-    setExams(prev => [...prev, exam])
-    return exam
-  }
-
-  const updateExam = async (id: string, data: Partial<Exam>) => {
-    const exam = await fetchAPI<Exam>(`/exams/${id}`, {
-      method: 'PUT',
-      body: JSON.stringify(data)
-    })
-    setExams(prev => prev.map(e => e.id === id ? exam : e))
-    return exam
-  }
-
-  const deleteExam = async (id: string) => {
-    await fetchAPI(`/exams/${id}`, { method: 'DELETE' })
-    setExams(prev => prev.filter(e => e.id !== id))
-  }
-
-  return {
-    exams,
-    loading,
-    createExam,
-    updateExam,
-    deleteExam,
-    refresh: loadExams
-  }
-}
-```
-
-**Step 3: Create Exam Form Component**
-
-`/src/components/organisms/exam-form/exam-form.tsx`:
-```typescript
-'use client'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { z } from 'zod'
-
-const examSchema = z.object({
-  title: z.string().min(3, "Titre requis (min 3 caractères)"),
-  examDate: z.date(),
-  classId: z.string(),
-  subjectId: z.string(),
-  maxPoints: z.number().positive("Points maximum > 0"),
-  coefficient: z.number().positive("Coefficient > 0"),
-  examType: z.enum(['quiz', 'homework', 'oral', 'project']),
-  isPublished: z.boolean(),
-})
-
-export function ExamForm({ exam, onSave, onClose }: ExamFormProps) {
-  const form = useForm({
-    resolver: zodResolver(examSchema),
-    defaultValues: exam || {
-      coefficient: 1,
-      isPublished: false
-    }
-  })
-
-  return (
-    <Dialog open onOpenChange={onClose}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>{exam ? 'Modifier' : 'Nouvel'} Examen</DialogTitle>
-        </DialogHeader>
-        <form onSubmit={form.handleSubmit(onSave)}>
-          <Input {...form.register('title')} label="Titre" />
-          <DatePicker name="examDate" label="Date" control={form.control} />
-          <Select {...form.register('classId')} label="Classe">
-            {/* Options */}
-          </Select>
-          <Input type="number" {...form.register('maxPoints')} label="Points maximum" />
-          <Input type="number" {...form.register('coefficient')} label="Coefficient" />
-          <Select {...form.register('examType')} label="Type">
-            <option value="quiz">Contrôle</option>
-            <option value="homework">Devoir maison</option>
-            <option value="oral">Oral</option>
-            <option value="project">Projet</option>
-          </Select>
-          <Checkbox {...form.register('isPublished')} label="Publié" />
-
-          <DialogFooter>
-            <Button type="submit">Enregistrer</Button>
-          </DialogFooter>
-        </form>
-      </DialogContent>
-    </Dialog>
-  )
-}
-```
-
-### Phase 2: Grade Entry System (Days 4-6)
-
-**Step 1: Create Grade Entry Form (CRITICAL)**
-
-`/src/components/organisms/grade-entry-form/grade-entry-form.tsx`:
-```typescript
-'use client'
-import { useState, useEffect } from 'react'
-
-export function GradeEntryForm({
-  examId,
-  students,
-  results: initialResults,
-  maxPoints,
-  onSave
-}: GradeEntryFormProps) {
-  const [results, setResults] = useState<StudentExamResultInput[]>(
-    students.map(student => ({
-      studentId: student.id,
-      points: initialResults.find(r => r.studentId === student.id)?.points || 0,
-      comment: initialResults.find(r => r.studentId === student.id)?.comment || '',
-      isAbsent: initialResults.find(r => r.studentId === student.id)?.isAbsent || false
-    }))
-  )
-
-  const [progress, setProgress] = useState(0)
-  const [isSaving, setIsSaving] = useState(false)
-
-  // Calculate progress
-  useEffect(() => {
-    const filled = results.filter(r => r.points > 0 || r.isAbsent).length
-    setProgress((filled / students.length) * 100)
-  }, [results, students.length])
-
-  // Auto-save every 10 seconds
-  useEffect(() => {
-    const interval = setInterval(async () => {
-      if (results.length > 0) {
-        setIsSaving(true)
-        try {
-          await onSave(results)
-        } finally {
-          setIsSaving(false)
-        }
-      }
-    }, 10000)
-
-    return () => clearInterval(interval)
-  }, [results, onSave])
-
-  const updateResult = (studentId: string, updates: Partial<StudentExamResultInput>) => {
-    setResults(prev =>
-      prev.map(r =>
-        r.studentId === studentId ? { ...r, ...updates } : r
-      )
-    )
-  }
-
-  return (
-    <div className="space-y-4">
-      {/* Progress indicator */}
-      <div className="flex items-center justify-between">
-        <Progress value={progress} className="w-1/2" />
-        <span>{Math.round(progress)}% saisi ({results.filter(r => r.points > 0 || r.isAbsent).length}/{students.length})</span>
-        {isSaving && <span className="text-sm">Sauvegarde auto...</span>}
-      </div>
-
-      {/* Grade entry table */}
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Élève</TableHead>
-            <TableHead>Points (/{maxPoints})</TableHead>
-            <TableHead>Absent</TableHead>
-            <TableHead>Commentaire</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {students.map((student, index) => {
-            const result = results.find(r => r.studentId === student.id)!
-
-            return (
-              <TableRow key={student.id}>
-                <TableCell>{student.fullName()}</TableCell>
-                <TableCell>
-                  <Input
-                    type="number"
-                    min={0}
-                    max={maxPoints}
-                    value={result.points}
-                    disabled={result.isAbsent}
-                    onChange={(e) => {
-                      const points = parseFloat(e.target.value)
-                      if (points > maxPoints) {
-                        // Show error
-                        return
-                      }
-                      updateResult(student.id, { points })
-                    }}
-                    className="w-20"
-                  />
-                </TableCell>
-                <TableCell>
-                  <Checkbox
-                    checked={result.isAbsent}
-                    onCheckedChange={(checked) => {
-                      updateResult(student.id, {
-                        isAbsent: checked,
-                        points: checked ? 0 : result.points
-                      })
-                    }}
-                  />
-                </TableCell>
-                <TableCell>
-                  <Textarea
-                    value={result.comment}
-                    onChange={(e) => updateResult(student.id, { comment: e.target.value })}
-                    placeholder="Commentaire optionnel"
-                    className="min-h-[60px]"
-                  />
-                </TableCell>
-              </TableRow>
-            )
-          })}
-        </TableBody>
-      </Table>
-
-      {/* Save button */}
-      <Button onClick={async () => {
-        await onSave(results)
-        // Navigate to statistics
-      }}>
-        Enregistrer et calculer statistiques
-      </Button>
-    </div>
-  )
-}
-```
-
-### Phase 3: Statistics & Analytics (Days 7-10)
-
-**Step 1: Implement Notation System Service**
-
-`/src/features/evaluations/services/notation-system-service.ts`:
-```typescript
-import { NotationSystem } from '@/types/uml-entities'
-
-export class NotationSystemService {
-  calculateGrade(
-    points: number,
-    maxPoints: number,
-    system: NotationSystem
-  ): string {
-    const percentage = (points / maxPoints) * 100
-
-    switch (system.type) {
-      case 'points':
-        return `${points}/${maxPoints}`
-
-      case 'percentage':
-        return `${percentage.toFixed(1)}%`
-
-      case 'letter':
-        if (percentage >= 90) return 'A'
-        if (percentage >= 80) return 'B'
-        if (percentage >= 70) return 'C'
-        if (percentage >= 60) return 'D'
-        return 'F'
-
-      case 'competency':
-        if (percentage >= 75) return 'Acquis'
-        if (percentage >= 50) return 'En cours'
-        return 'Non acquis'
-
-      default:
-        return `${points}/${maxPoints}`
-    }
-  }
-
-  calculateStatistics(results: StudentExamResult[]): ExamStatistics {
-    const validResults = results.filter(r => !r.isAbsent)
-    const points = validResults.map(r => r.points)
-
-    if (points.length === 0) {
-      return {
-        average: 0,
-        median: 0,
-        min: 0,
-        max: 0,
-        stdDev: 0,
-        distribution: {},
-        passingRate: 0,
-        absentCount: results.filter(r => r.isAbsent).length
-      }
-    }
-
-    const average = points.reduce((sum, p) => sum + p, 0) / points.length
-    const sorted = [...points].sort((a, b) => a - b)
-    const median = sorted[Math.floor(sorted.length / 2)]
-    const min = sorted[0]
-    const max = sorted[sorted.length - 1]
-
-    const variance = points.reduce((sum, p) => sum + Math.pow(p - average, 2), 0) / points.length
-    const stdDev = Math.sqrt(variance)
-
-    const distribution = this.calculateDistribution(points)
-    const passingRate = points.filter(p => p >= 10).length / points.length * 100
-
-    return {
-      average,
-      median,
-      min,
-      max,
-      stdDev,
-      distribution,
-      passingRate,
-      absentCount: results.filter(r => r.isAbsent).length
-    }
-  }
-
-  private calculateDistribution(points: number[]): Record<string, number> {
-    const ranges = ['0-5', '5-10', '10-15', '15-20']
-    const distribution: Record<string, number> = {}
-
-    ranges.forEach(range => {
-      const [min, max] = range.split('-').map(Number)
-      distribution[range] = points.filter(p => p >= min && p < max).length
-    })
-
-    return distribution
-  }
-}
-```
-
-**Step 2: Create Exam Statistics Panel**
-
-`/src/components/organisms/exam-statistics-panel/exam-statistics-panel.tsx`:
-```typescript
-'use client'
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
-
-export function ExamStatisticsPanel({ stats, students }: ExamStatisticsPanelProps) {
-  const distributionData = Object.entries(stats.distribution).map(([range, count]) => ({
-    range,
-    count
-  }))
-
-  const studentsAtRisk = students.filter(s => s.points < 8)
-
-  return (
-    <div className="space-y-6">
-      {/* Metrics cards */}
-      <div className="grid grid-cols-4 gap-4">
-        <Card>
-          <CardHeader>
-            <CardTitle>Moyenne</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold">{stats.average.toFixed(2)}</div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Médiane</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold">{stats.median.toFixed(2)}</div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Taux de réussite</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold">{stats.passingRate.toFixed(1)}%</div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Absents</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold">{stats.absentCount}</div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Distribution chart */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Distribution des notes</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={distributionData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="range" />
-              <YAxis />
-              <Tooltip />
-              <Bar dataKey="count" fill="hsl(var(--primary))" />
-            </BarChart>
-          </ResponsiveContainer>
-        </CardContent>
-      </Card>
-
-      {/* Students at risk */}
-      {studentsAtRisk.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Élèves en difficulté (< 8/20)</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ul className="space-y-2">
-              {studentsAtRisk.map(student => (
-                <li key={student.studentId} className="flex justify-between">
-                  <span>{student.name}</span>
-                  <Badge variant="destructive">{student.points}/20</Badge>
-                </li>
-              ))}
-            </ul>
-          </CardContent>
-        </Card>
-      )}
-    </div>
-  )
-}
-```
-
-### Phase 4: Student Analytics (Days 11-13)
-
-**Step 1: Implement Behavioral Analysis Service**
-
-`/src/features/students/services/behavioral-analysis-service.ts`:
-```typescript
-import { StudentParticipation } from '@/types/uml-entities'
-
-export interface BehavioralAnalysis {
-  attendanceRate: number
-  participationTrend: 'up' | 'down' | 'stable'
-  avgParticipation: 'low' | 'medium' | 'high'
-  behaviorScore: number
-  patterns: string[]
-  recommendations: string[]
-}
-
-export class BehavioralAnalysisService {
-  analyzeParticipation(participations: StudentParticipation[]): BehavioralAnalysis {
-    if (participations.length === 0) {
-      return {
-        attendanceRate: 0,
-        participationTrend: 'stable',
-        avgParticipation: 'medium',
-        behaviorScore: 0,
-        patterns: [],
-        recommendations: []
-      }
-    }
-
-    // Attendance rate
-    const present = participations.filter(p => p.isPresent).length
-    const attendanceRate = (present / participations.length) * 100
-
-    // Participation trend
-    const recentParticipation = participations.slice(-5)
-    const participationTrend = this.calculateTrend(recentParticipation)
-
-    // Average participation level
-    const avgParticipation = this.calculateAvgParticipation(participations)
-
-    // Behavior score
-    const behaviorScore = this.calculateBehaviorScore(participations)
-
-    // Detect patterns
-    const patterns = this.detectPatterns(participations)
-
-    // Generate recommendations
-    const recommendations = this.generateRecommendations({
-      attendanceRate,
-      participationTrend,
-      avgParticipation,
-      behaviorScore,
-      patterns
-    })
-
-    return {
-      attendanceRate,
-      participationTrend,
-      avgParticipation,
-      behaviorScore,
-      patterns,
-      recommendations
-    }
-  }
-
-  private calculateTrend(recentParticipation: StudentParticipation[]): 'up' | 'down' | 'stable' {
-    const participationValues = recentParticipation
-      .filter(p => p.participationLevel)
-      .map(p => {
-        switch (p.participationLevel) {
-          case 'low': return 1
-          case 'medium': return 2
-          case 'high': return 3
-          default: return 2
-        }
-      })
-
-    if (participationValues.length < 2) return 'stable'
-
-    const first = participationValues[0]
-    const last = participationValues[participationValues.length - 1]
-
-    if (last > first) return 'up'
-    if (last < first) return 'down'
-    return 'stable'
-  }
-
-  private calculateAvgParticipation(participations: StudentParticipation[]): 'low' | 'medium' | 'high' {
-    const values = participations
-      .filter(p => p.participationLevel)
-      .map(p => {
-        switch (p.participationLevel) {
-          case 'low': return 1
-          case 'medium': return 2
-          case 'high': return 3
-          default: return 2
-        }
-      })
-
-    const avg = values.reduce((sum, v) => sum + v, 0) / values.length
-
-    if (avg < 1.5) return 'low'
-    if (avg > 2.5) return 'high'
-    return 'medium'
-  }
-
-  private calculateBehaviorScore(participations: StudentParticipation[]): number {
-    const behaviors = participations
-      .filter(p => p.behavior)
-      .map(p => {
-        switch (p.behavior) {
-          case 'positive': return 1
-          case 'neutral': return 0
-          case 'negative': return -1
-          default: return 0
-        }
-      })
-
-    if (behaviors.length === 0) return 0
-
-    const sum = behaviors.reduce((sum, b) => sum + b, 0)
-    return (sum / behaviors.length) * 100 // -100 to 100
-  }
-
-  private detectPatterns(participations: StudentParticipation[]): string[] {
-    const patterns: string[] = []
-
-    // Pattern: Repeated absences on specific days
-    const absencesByDay: Record<number, number> = {}
-    participations.forEach(p => {
-      if (!p.isPresent) {
-        const day = new Date(p.createdAt).getDay()
-        absencesByDay[day] = (absencesByDay[day] || 0) + 1
-      }
-    })
-
-    const maxAbsenceDay = Object.entries(absencesByDay).reduce((max, [day, count]) =>
-      count > (max[1] || 0) ? [parseInt(day), count] : max
-    , [0, 0])
-
-    if (maxAbsenceDay[1] >= 3) {
-      const dayNames = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi']
-      patterns.push(`Absences répétées les ${dayNames[maxAbsenceDay[0]]}s`)
-    }
-
-    // Pattern: Declining participation
-    const recentParticipation = participations.slice(-10)
-    const firstHalf = recentParticipation.slice(0, 5)
-    const secondHalf = recentParticipation.slice(5)
-
-    const firstAvg = this.calculateAvgParticipation(firstHalf)
-    const secondAvg = this.calculateAvgParticipation(secondHalf)
-
-    if (firstAvg === 'high' && secondAvg === 'low') {
-      patterns.push('Désengagement progressif détecté')
-    }
-
-    return patterns
-  }
-
-  private generateRecommendations(analysis: Partial<BehavioralAnalysis>): string[] {
-    const recommendations: string[] = []
-
-    if (analysis.attendanceRate && analysis.attendanceRate < 75) {
-      recommendations.push('Contacter les parents concernant les absences fréquentes')
-    }
-
-    if (analysis.avgParticipation === 'low') {
-      recommendations.push('Encourager participation en classe avec questions ciblées')
-    }
-
-    if (analysis.behaviorScore && analysis.behaviorScore < -20) {
-      recommendations.push('Discuter avec élève des comportements observés')
-    }
-
-    if (analysis.patterns?.includes('Désengagement progressif détecté')) {
-      recommendations.push('Intervention rapide recommandée pour éviter décrochage')
-    }
-
-    return recommendations
-  }
-}
-```
-
-**Step 2: Create Student Profile Card**
-
-`/src/components/organisms/student-profile-card/student-profile-card.tsx`:
-```typescript
-'use client'
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
-
-export function StudentProfileCard({
-  student,
-  analytics,
-  participations,
-  examResults
-}: StudentProfileCardProps) {
-  // Prepare charts data
-  const attendanceData = prepareAttendanceData(participations)
-  const gradeData = prepareGradeData(examResults)
-
-  return (
-    <div className="space-y-6">
-      {/* Header */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center gap-4">
-            <Avatar className="h-20 w-20">
-              <AvatarFallback>
-                {student.firstName[0]}{student.lastName[0]}
-              </AvatarFallback>
-            </Avatar>
-            <div>
-              <h2 className="text-2xl font-bold">{student.fullName()}</h2>
-              <p className="text-muted-foreground">Classe: {student.currentClassId}</p>
-              {student.needs && (
-                <Badge variant="outline" className="mt-2">
-                  Besoins particuliers
-                </Badge>
-              )}
-            </div>
-          </div>
-        </CardHeader>
-      </Card>
-
-      {/* Attendance */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Taux de Présence</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="text-4xl font-bold mb-4">
-            {analytics.attendanceRate.toFixed(1)}%
-          </div>
-          <ResponsiveContainer width="100%" height={200}>
-            <LineChart data={attendanceData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="week" />
-              <YAxis />
-              <Tooltip />
-              <Line type="monotone" dataKey="rate" stroke="hsl(var(--primary))" />
-            </LineChart>
-          </ResponsiveContainer>
-        </CardContent>
-      </Card>
-
-      {/* Participation */}
-      <Card>
-        <CardHeader>
-          <CardTitle>
-            Participation
-            {analytics.participationTrend === 'up' && <TrendingUp className="inline ml-2" />}
-            {analytics.participationTrend === 'down' && <TrendingDown className="inline ml-2" />}
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Badge>{analytics.avgParticipation}</Badge>
-        </CardContent>
-      </Card>
-
-      {/* Academic Results */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Résultats Académiques</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <ResponsiveContainer width="100%" height={250}>
-            <LineChart data={gradeData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="exam" />
-              <YAxis domain={[0, 20]} />
-              <Tooltip />
-              <Line type="monotone" dataKey="grade" stroke="hsl(var(--primary))" />
-            </LineChart>
-          </ResponsiveContainer>
-        </CardContent>
-      </Card>
-
-      {/* Behavioral Analysis */}
-      {analytics.patterns.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Analyse Comportementale</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ul className="space-y-2">
-              {analytics.patterns.map((pattern, i) => (
-                <li key={i} className="flex items-start gap-2">
-                  <AlertCircle className="h-5 w-5 text-yellow-500 mt-0.5" />
-                  <span>{pattern}</span>
-                </li>
-              ))}
-            </ul>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Recommendations */}
-      {analytics.recommendations.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Recommandations</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ul className="space-y-2">
-              {analytics.recommendations.map((rec, i) => (
-                <li key={i} className="flex items-start gap-2">
-                  <Lightbulb className="h-5 w-5 text-blue-500 mt-0.5" />
-                  <span>{rec}</span>
-                </li>
-              ))}
-            </ul>
-          </CardContent>
-        </Card>
-      )}
-    </div>
-  )
-}
-```
-
-### Phase 5: Alerts System (Day 14)
-
-**Step 1: Create Alerts Widget**
-
-`/src/components/organisms/alerts-widget/alerts-widget.tsx`:
-```typescript
-'use client'
-
-export function AlertsWidget({ alerts, onAlertClick }: AlertsWidgetProps) {
-  const [isOpen, setIsOpen] = useState(false)
-
-  return (
-    <>
-      <Button
-        variant="outline"
-        onClick={() => setIsOpen(true)}
-        className="relative"
-      >
-        <Bell className="h-5 w-5" />
-        {alerts.length > 0 && (
-          <Badge className="absolute -top-2 -right-2" variant="destructive">
-            {alerts.length}
-          </Badge>
-        )}
-      </Button>
-
-      <Sheet open={isOpen} onOpenChange={setIsOpen}>
-        <SheetContent>
-          <SheetHeader>
-            <SheetTitle>Alertes ({alerts.length})</SheetTitle>
-          </SheetHeader>
-          <div className="mt-6 space-y-4">
-            {alerts.map(alert => (
-              <Card
-                key={alert.id}
-                className="cursor-pointer hover:bg-accent"
-                onClick={() => {
-                  onAlertClick(alert.studentId)
-                  setIsOpen(false)
-                }}
-              >
-                <CardHeader>
-                  <div className="flex items-center gap-2">
-                    {alert.type === 'attendance' && <AlertTriangle className="h-5 w-5 text-orange-500" />}
-                    {alert.type === 'grades' && <TrendingDown className="h-5 w-5 text-red-500" />}
-                    {alert.type === 'participation' && <MessageCircle className="h-5 w-5 text-yellow-500" />}
-                    {alert.type === 'behavior' && <Frown className="h-5 w-5 text-red-600" />}
-                    <span className="font-medium">{alert.studentName}</span>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground">{alert.message}</p>
-                </CardContent>
-              </Card>
-            ))}
-
-            {alerts.length === 0 && (
-              <div className="text-center text-muted-foreground py-8">
-                Aucune alerte
-              </div>
-            )}
-          </div>
-        </SheetContent>
-      </Sheet>
-    </>
-  )
-}
-```
+### Phase 1: Exam Management (Jours 1-3)
+1. Adapter `useExamManagement` pour consommer `GET/POST/PATCH/DELETE /exams` (filtrer par classe/matière).  
+2. Relier `ExamsList` aux données API + rafraîchissement via `refresh()`.  
+3. Brancher `ExamFormDialog` sur `createExam` / `updateExam` (API) avec gestion optimistic + toasts.
+
+### Phase 2: Grade Entry & Notation (Jours 4-6)
+1. Étendre `useGradeManagement` pour charger `GET /exams/{id}/results` + `GET /students?class_id=...`.  
+2. Implémenter `saveResults` → `PUT /exams/{id}/results` (auto-save 10s + bouton enregistrer).  
+3. Connecter `ExamGradingPage` et `ExamGradingInterface` à ces fonctions (aucune nouvelle UI).  
+4. Utiliser `NotationSystemConfig` pour config barèmes via `GET/PUT /notation-systems`.
+
+### Phase 3: Student Analytics (Jours 7-8)
+1. `useStudentAnalytics` → combiner `GET /students/{id}/profile`, `GET /students/{id}/attendance-rate`, `GET /students/{id}/participation-average` et `GET /students/{id}/results`.  
+2. Injecter ces données dans `StudentAnalysisPanel`, `StudentMetricsCards`, `StudentProfilePanel`.  
+3. S'assurer que `StudentEvaluationForm` met à jour les observations via `PUT /exams/{exam_id}/results` (champ `comments`) et, si besoin, `PATCH /students/{id}` pour `needs`/`observations`/`strengths`.
+
+### Phase 4: Reporting & Export (Jour 9)
+1. Connecter `ExamExportDialog` et exports CSV/PDF aux endpoints (`/exams/{id}/export` si dispo, sinon générer côté front).  
+2. Documenter les endpoints manquants (docs/missing-api-endpoints-report.md).  
+3. Vérifier cohérence analytics vs UI dashboard (Accès rapides).
 
 ---
+
 
 ## Testing Approach
 

@@ -16,8 +16,9 @@
 4. [Database Schema](#database-schema)
 5. [API Endpoints](#api-endpoints)
 6. [Frontend Components](#frontend-components)
-7. [Implementation Guide](#implementation-guide)
-8. [Testing Approach](#testing-approach)
+7. [Stratégie UI & Intégration API](#stratégie-ui--intégration-api)
+8. [Implementation Guide](#implementation-guide)
+9. [Testing Approach](#testing-approach)
 
 ---
 
@@ -157,9 +158,8 @@ L'enseignante peut planifier ses cours récurrents en quelques clics. Saisie pos
 │   ├── use-calendar.ts              # Calendar navigation & display
 │   ├── use-timeslots.ts             # Time slot management
 │   └── index.ts
-├── mocks/
-│   ├── mock-time-slots.ts
-│   ├── mock-weekly-templates.ts
+├── api/
+│   ├── calendar-client.ts           # Wrappers around /course-sessions & /weekly-templates
 │   └── index.ts
 └── index.ts
 ```
@@ -171,8 +171,8 @@ L'enseignante peut planifier ses cours récurrents en quelques clics. Saisie pos
 ├── hooks/
 │   ├── use-dashboard-sessions.ts     # Session management hooks
 │   └── index.ts
-├── mocks/
-│   ├── mock-sessions.ts
+├── api/
+│   ├── sessions-client.ts            # Calls /course-sessions & /sessions/{session_id}/attendance
 │   └── index.ts
 └── index.ts
 ```
@@ -478,511 +478,85 @@ export function useWeeklyTemplates() {
   return { generateSessions }
 }
 ```
-
 ---
 
 ## Frontend Components
 
-### Organisms (To Create)
+### Organismes & molécules existantes à privilégier
+- `CalendarWeekView`, `CalendarToolbar`, `CalendarWidget`, `UpcomingCoursesWidget` (`@/components/organisms`) — vues calendrier (hebdo + dashboard)
+- `SessionForm`, `SessionCancelDialog`, `SessionMoveDialog` (`@/components/molecules`) — modales de création/annulation/déplacement
+- `SessionsTimeline`, `SessionsList`, `SessionCardWithMove` (`@/components/organisms`) — timeline chronologique et détail de séance
+- `StudentParticipationAccordion` (`@/components/molecules`) — saisie participations/comportement/caméra
+- `ClassColorPicker` (`@/components/molecules`) — personnalisation des couleurs de classes
 
-#### `calendar-grid`
-**Purpose:** Monthly/weekly calendar view with sessions
-**Props:**
-```typescript
-interface CalendarGridProps {
-  sessions: CourseSession[]
-  view: 'month' | 'week'
-  currentDate: Date
-  onDateChange: (date: Date) => void
-  onSessionClick: (session: CourseSession) => void
-  onDayClick: (date: Date) => void
-}
-```
+### Pages Next.js concernées
+- `src/app/dashboard/calendrier/page.tsx` — orchestration calendrier + modales
+- `src/app/dashboard/sessions/page.tsx` — timeline + saisie participations
+- `src/app/dashboard/accueil/page.tsx` — widgets sessions du jour et calendrier compact
 
-#### `calendar-header`
-**Purpose:** Navigation controls and view toggle
-**Props:**
-```typescript
-interface CalendarHeaderProps {
-  currentDate: Date
-  view: 'month' | 'week'
-  onViewChange: (view: 'month' | 'week') => void
-  onNavigate: (direction: 'prev' | 'next') => void
-}
-```
+### Hooks existants à brancher à l'API
+- `useCalendar`, `useSessionMoves`, `useClassColors` (`@/features/calendar`)
+- `useSessionManagement` (`@/features/sessions`)
+- `useClassSelection` (`@/contexts/class-selection-context`)
+- `useModal`, `useSimpleModal`, `useAsyncOperation`, `useCRUDOperations` (`@/shared/hooks`)
 
-#### `session-card`
-**Purpose:** Session display in calendar cell
-**Props:**
-```typescript
-interface SessionCardProps {
-  session: CourseSession
-  onClick: () => void
-  compact?: boolean
-}
-```
+---
 
-#### `session-modal`
-**Purpose:** Create/edit session dialog
-**Props:**
-```typescript
-interface SessionModalProps {
-  session?: CourseSession
-  initialDate?: Date
-  onSave: (data: CourseSessionInput) => Promise<void>
-  onClose: () => void
-}
-```
+## Stratégie UI & Intégration API
 
-#### `participation-tracker`
-**Purpose:** Batch attendance entry table (CRITICAL COMPONENT)
-**Props:**
-```typescript
-interface ParticipationTrackerProps {
-  sessionId: string
-  students: Student[]
-  participations: StudentParticipation[]
-  onSave: (participations: StudentParticipation[]) => Promise<void>
-  autoSaveInterval?: number // default 10s
-}
-```
+1. **Consommer directement les endpoints Souz**  
+   - `GET/POST/PATCH/DELETE /course-sessions` pour le CRUD (filtrer par `class_id`, `subject_id`, `date`)  
+   - `PATCH /course-sessions/{id}` pour replanifier, mettre à jour le statut ou le créneau ; `DELETE /course-sessions/{id}` pour annuler  
+   - `GET /course-sessions/{id}/attendance` + `PUT /sessions/{session_id}/attendance` pour la consultation et la sauvegarde batch des participations  
+   - `GET/POST /weekly-templates`, `DELETE /weekly-templates/{id}` pour la gestion des templates récurrents  
+   - Tous les appels via `fetchAPI` avec `credentials: 'include'` + gestion d'erreur centralisée
 
-**Key Features:**
-- Keyboard navigation (Tab, Enter)
-- "Mark all present" bulk action
-- Auto-save indicator
-- Inline editing
-- Optimistic UI updates
+2. **Composer avec les organismes existants**  
+   - `CalendarWeekView` reste la vue principale (hebdo) : ne pas recréer de grille personnalisée.  
+   - `SessionsTimeline` + `SessionsList` gèrent navigation et saisie ; brancher les données de `useSessionManagement`.  
+   - `StudentParticipationAccordion` devient le point d'entrée unique pour la saisie ; utiliser ses callbacks pour persister.
 
-#### `weekly-template-form`
-**Purpose:** Create recurring session template
-**Props:**
-```typescript
-interface WeeklyTemplateFormProps {
-  onSave: (template: WeeklyTemplateInput) => Promise<void>
-  onGenerate: (templateId: string, startDate: Date, endDate: Date) => Promise<void>
-}
-```
+3. **Maintenir le contexte classe global**  
+   - `useClassSelection` fournit `selectedClassId` + `currentTeacherId` → passer ces IDs à chaque requête.  
+   - État vide cohérent si aucune classe sélectionnée (comportement déjà présent).
+
+4. **Auto-save & Optimistic UI**  
+   - `useSessionManagement` déclenche un auto-save toutes les 10s (setInterval) → `PUT /sessions/{session_id}/attendance`.  
+   - Utiliser `useAsyncOperation` pour spinner + toast "Sauvegarde automatique" existant.  
+   - Optimistic update dans le hook puis rollback sur erreur.
+
+5. **Instrumentation UX**  
+   - Conserver skeletons `Suspense` existants.  
+   - Loguer `performance.now()` au démarrage/fin de la saisie pour vérifier l'objectif ≤ 2 min.
 
 ---
 
 ## Implementation Guide
 
-### Phase 1: Calendar Infrastructure (Days 1-3)
+### Phase 1: Calendrier connecté (Jours 1-3)
+1. Étendre `useCalendar` pour charger les sessions via `fetchAPI('/course-sessions?class_id=...')`, exposer `refresh`, `createSession`, `updateSession` (PATCH), `deleteSession`.  
+2. Dans `src/app/dashboard/calendrier/page.tsx`, brancher les callbacks (création, reprogrammation, annulation, couleurs) sur ces méthodes.  
+3. Relier `SessionForm`, `SessionCancelDialog`, `SessionMoveDialog` à `POST /course-sessions`, `PATCH /course-sessions/{id}` et `DELETE /course-sessions/{id}`.  
+4. Mettre à jour `CalendarWeekView` pour consommer `calendarEvents` filtrés par `selectedClassId`.
 
-**Step 1: Create Calendar Feature Module**
-```bash
-mkdir -p src/features/calendar/hooks
-mkdir -p src/features/calendar/mocks
-```
+### Phase 2: Timeline & participations (Jours 4-6)
+1. Adapter `useSessionManagement` pour récupérer `GET /course-sessions/{id}` + `GET /sessions/{session_id}/attendance` (ou équivalent si les participations sont injectées dans la réponse).  
+2. Fournir ces données à `SessionsTimeline`/`SessionsList` via props existantes.  
+3. Gérer une file de mutations optimistes côté hook (mise à jour locale + `PUT /sessions/{session_id}/attendance`), déclenchée par `StudentParticipationAccordion`.  
+4. Ajouter un auto-save 10s (+ toast succès/erreur via `useAsyncOperation`).
 
-**Step 2: Implement Calendar Hook**
+### Phase 3: Templates & génération (Jours 7-8)
+1. Implémenter `useWeeklyTemplates` connecté à `GET/POST/DELETE /weekly-templates`.  
+2. Réutiliser un formulaire existant (`SessionForm` en mode template ou composant dédié) alimenté par classes, matières, timeSlots API.  
+3. Générer les sessions via endpoint dédié ou `SessionGenerator` + `POST /course-sessions` en batch.
 
-`/src/features/calendar/hooks/use-calendar.ts`:
-```typescript
-import { useState, useMemo } from 'react'
-import { CourseSession } from '@/types/uml-entities'
-
-export function useCalendar(sessions: CourseSession[]) {
-  const [currentDate, setCurrentDate] = useState(new Date())
-  const [view, setView] = useState<'month' | 'week'>('month')
-
-  const displayedSessions = useMemo(() => {
-    // Filter sessions for current view
-    const startOfView = getStartOfView(currentDate, view)
-    const endOfView = getEndOfView(currentDate, view)
-
-    return sessions.filter(session =>
-      session.sessionDate >= startOfView &&
-      session.sessionDate <= endOfView
-    )
-  }, [sessions, currentDate, view])
-
-  const navigate = (direction: 'prev' | 'next') => {
-    const newDate = new Date(currentDate)
-    if (view === 'month') {
-      newDate.setMonth(newDate.getMonth() + (direction === 'next' ? 1 : -1))
-    } else {
-      newDate.setDate(newDate.getDate() + (direction === 'next' ? 7 : -7))
-    }
-    setCurrentDate(newDate)
-  }
-
-  return {
-    currentDate,
-    view,
-    displayedSessions,
-    setView,
-    navigate
-  }
-}
-```
-
-**Step 3: Create CalendarGrid Component**
-
-`/src/components/organisms/calendar-grid/calendar-grid.tsx`:
-```typescript
-'use client'
-
-export function CalendarGrid({
-  sessions,
-  view,
-  currentDate,
-  onDateChange,
-  onSessionClick,
-  onDayClick
-}: CalendarGridProps) {
-  const days = generateCalendarDays(currentDate, view)
-
-  return (
-    <div className="grid grid-cols-7 gap-2">
-      {/* Header row */}
-      {['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'].map(day => (
-        <div key={day} className="text-center font-medium">
-          {day}
-        </div>
-      ))}
-
-      {/* Calendar cells */}
-      {days.map(day => (
-        <CalendarDay
-          key={day.toISOString()}
-          date={day}
-          sessions={sessions.filter(s => isSameDay(s.sessionDate, day))}
-          onDayClick={onDayClick}
-          onSessionClick={onSessionClick}
-        />
-      ))}
-    </div>
-  )
-}
-```
-
-### Phase 2: Session Management (Days 4-6)
-
-**Step 1: Create Session Modal**
-
-`/src/components/organisms/session-modal/session-modal.tsx`:
-```typescript
-'use client'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { z } from 'zod'
-
-const sessionSchema = z.object({
-  sessionDate: z.date(),
-  timeSlotId: z.string(),
-  teachingAssignmentId: z.string(),
-})
-
-export function SessionModal({ session, initialDate, onSave, onClose }: SessionModalProps) {
-  const form = useForm({
-    resolver: zodResolver(sessionSchema),
-    defaultValues: {
-      sessionDate: initialDate || new Date(),
-      timeSlotId: session?.timeSlotId || '',
-      teachingAssignmentId: session?.teachingAssignmentId || '',
-    }
-  })
-
-  const handleSubmit = async (data: z.infer<typeof sessionSchema>) => {
-    try {
-      await onSave(data)
-      onClose()
-    } catch (error) {
-      // Handle conflict errors
-    }
-  }
-
-  return (
-    <Dialog open onOpenChange={onClose}>
-      <DialogContent>
-        <form onSubmit={form.handleSubmit(handleSubmit)}>
-          {/* Form fields */}
-        </form>
-      </DialogContent>
-    </Dialog>
-  )
-}
-```
-
-**Step 2: Implement Conflict Detection**
-
-`/src/services/session-makeup.ts`:
-```typescript
-export class SessionMakeupService {
-  async detectConflicts(
-    date: Date,
-    timeSlotId: string,
-    teachingAssignmentId: string,
-    existingSessions: CourseSession[]
-  ): Promise<CourseSession | null> {
-    return existingSessions.find(session =>
-      isSameDay(session.sessionDate, date) &&
-      session.timeSlotId === timeSlotId
-    ) || null
-  }
-
-  async findAvailableSlots(
-    date: Date,
-    teachingAssignmentId: string,
-    timeSlots: TimeSlot[],
-    existingSessions: CourseSession[]
-  ): Promise<TimeSlot[]> {
-    return timeSlots.filter(slot =>
-      !slot.isPause &&
-      !this.detectConflicts(date, slot.id, teachingAssignmentId, existingSessions)
-    )
-  }
-}
-```
-
-### Phase 3: Weekly Templates & Generation (Days 7-9)
-
-**Step 1: Implement Session Generator**
-
-`/src/services/session-generator.ts`:
-```typescript
-export class SessionGenerator {
-  generateFromWeeklyTemplate(
-    template: WeeklyTemplate,
-    startDate: Date,
-    endDate: Date
-  ): CourseSession[] {
-    const sessions: CourseSession[] = []
-    let currentDate = new Date(startDate)
-
-    // Find first occurrence of the template's day of week
-    while (currentDate.getDay() !== template.dayOfWeek) {
-      currentDate.setDate(currentDate.getDate() + 1)
-    }
-
-    // Generate sessions weekly until end date
-    while (currentDate <= endDate) {
-      sessions.push({
-        id: generateId(),
-        sessionDate: new Date(currentDate),
-        timeSlotId: template.timeSlotId,
-        teachingAssignmentId: template.teachingAssignmentId,
-        status: 'planned',
-        notes: null,
-        createdAt: new Date(),
-        updatedAt: new Date()
-      })
-
-      currentDate.setDate(currentDate.getDate() + 7) // Next week
-    }
-
-    return sessions
-  }
-}
-```
-
-**Step 2: Create Template Form**
-
-`/src/components/organisms/weekly-template-form/weekly-template-form.tsx`:
-```typescript
-export function WeeklyTemplateForm({ onSave, onGenerate }: WeeklyTemplateFormProps) {
-  const [showGenerator, setShowGenerator] = useState(false)
-
-  return (
-    <div>
-      {/* Template creation form */}
-      <Form onSubmit={handleCreateTemplate}>
-        {/* Fields: name, class, subject, day, time slot */}
-      </Form>
-
-      {showGenerator && (
-        <Card className="mt-4">
-          <CardHeader>Générer sessions depuis ce template</CardHeader>
-          <CardContent>
-            <Form onSubmit={handleGenerate}>
-              <DatePicker label="Date début" name="startDate" />
-              <DatePicker label="Date fin" name="endDate" />
-              <Button type="submit">Générer</Button>
-            </Form>
-          </CardContent>
-        </Card>
-      )}
-    </div>
-  )
-}
-```
-
-### Phase 4: Participation Tracker (CRITICAL - Days 10-12)
-
-**Step 1: Create Participation Tracker Component**
-
-`/src/components/organisms/participation-tracker/participation-tracker.tsx`:
-```typescript
-'use client'
-import { useState, useEffect, useCallback } from 'react'
-
-export function ParticipationTracker({
-  sessionId,
-  students,
-  participations: initialParticipations,
-  onSave,
-  autoSaveInterval = 10000
-}: ParticipationTrackerProps) {
-  const [participations, setParticipations] = useState(initialParticipations)
-  const [isSaving, setIsSaving] = useState(false)
-  const [lastSaved, setLastSaved] = useState<Date>()
-
-  // Bulk action: Mark all present
-  const markAllPresent = useCallback(() => {
-    setParticipations(prev =>
-      prev.map(p => ({ ...p, isPresent: true }))
-    )
-  }, [])
-
-  // Auto-save every 10 seconds
-  useEffect(() => {
-    const interval = setInterval(async () => {
-      if (participations.length > 0) {
-        setIsSaving(true)
-        try {
-          await onSave(participations)
-          setLastSaved(new Date())
-        } finally {
-          setIsSaving(false)
-        }
-      }
-    }, autoSaveInterval)
-
-    return () => clearInterval(interval)
-  }, [participations, onSave, autoSaveInterval])
-
-  // Keyboard navigation
-  const handleKeyDown = (e: React.KeyboardEvent, index: number) => {
-    if (e.key === 'Enter') {
-      // Focus next row
-      const nextInput = document.querySelector(
-        `[data-row="${index + 1}"] input`
-      ) as HTMLInputElement
-      nextInput?.focus()
-    }
-  }
-
-  return (
-    <div className="space-y-4">
-      {/* Toolbar */}
-      <div className="flex items-center justify-between">
-        <Button onClick={markAllPresent}>
-          Marquer tous présents
-        </Button>
-        {isSaving && <span>Sauvegarde automatique...</span>}
-        {lastSaved && (
-          <span className="text-sm text-muted-foreground">
-            Dernière sauvegarde : {formatDistanceToNow(lastSaved)}
-          </span>
-        )}
-      </div>
-
-      {/* Participation table */}
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Élève</TableHead>
-            <TableHead>Présent</TableHead>
-            <TableHead>Participation</TableHead>
-            <TableHead>Comportement</TableHead>
-            <TableHead>Caméra</TableHead>
-            <TableHead>Notes</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {students.map((student, index) => {
-            const participation = participations.find(
-              p => p.studentId === student.id
-            )
-
-            return (
-              <TableRow key={student.id} data-row={index}>
-                <TableCell>{student.fullName()}</TableCell>
-                <TableCell>
-                  <Checkbox
-                    checked={participation?.isPresent}
-                    onCheckedChange={(checked) => {
-                      updateParticipation(student.id, { isPresent: checked })
-                    }}
-                  />
-                </TableCell>
-                <TableCell>
-                  <Select
-                    value={participation?.participationLevel || 'medium'}
-                    onValueChange={(value) => {
-                      updateParticipation(student.id, { participationLevel: value })
-                    }}
-                  >
-                    <SelectOption value="low">Faible</SelectOption>
-                    <SelectOption value="medium">Moyenne</SelectOption>
-                    <SelectOption value="high">Élevée</SelectOption>
-                  </Select>
-                </TableCell>
-                {/* Behavior, Camera, Notes columns */}
-              </TableRow>
-            )
-          })}
-        </TableBody>
-      </Table>
-
-      {/* Save button */}
-      <Button onClick={async () => {
-        await onSave(participations)
-        // Navigate back
-      }}>
-        Enregistrer et fermer
-      </Button>
-    </div>
-  )
-}
-```
-
-**Step 2: Optimize for 2-Minute Target**
-
-Performance optimizations:
-- Debounce input updates
-- Optimistic UI (immediate visual feedback)
-- Keyboard shortcuts (Tab, Enter)
-- Bulk actions (mark all present)
-- Auto-save to prevent data loss
-
-### Phase 5: Integration & Testing (Days 13-14)
-
-**Day 13: Calendar Page Integration**
-```typescript
-// /src/app/dashboard/calendrier/page.tsx
-export default function CalendrierPage() {
-  const { sessions, createSession, updateSession } = useSessions()
-  const { currentDate, view, displayedSessions, setView, navigate } = useCalendar(sessions)
-
-  return (
-    <div>
-      <CalendarHeader
-        currentDate={currentDate}
-        view={view}
-        onViewChange={setView}
-        onNavigate={navigate}
-      />
-      <CalendarGrid
-        sessions={displayedSessions}
-        view={view}
-        currentDate={currentDate}
-        onSessionClick={handleSessionClick}
-        onDayClick={handleDayClick}
-      />
-    </div>
-  )
-}
-```
-
-**Day 14: Performance Testing**
-- Measure time to enter 30 students' attendance
-- Target: ≤ 2 minutes
-- Optimize if needed (reduce animations, optimize re-renders)
+### Phase 4: Finitions & livrables (Jour 9)
+1. Propager les statistiques (taux présence, sessions à venir) vers `CalendarWidget` / `UpcomingCoursesWidget`.  
+2. Consigner endpoints manquants dans `docs/missing-api-endpoints-report.md`.  
+3. Vérifier accessibilité (navigation clavier, focus, toasts).
 
 ---
+
 
 ## Testing Approach
 

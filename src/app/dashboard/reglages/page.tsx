@@ -6,6 +6,7 @@ import { TimeSlotsManagement } from "@/components/organisms/timeslots-management
 import { SubjectsManagement } from "@/components/organisms/subjects-management";
 import { AcademicStructuresManagement } from "@/components/organisms/academic-structures-management";
 import { NotationSystemConfig } from "@/components/organisms/notation-system-config";
+import { WeeklyTemplatesManagement } from "@/components/organisms/weekly-templates-management";
 import { useSetPageTitle } from "@/shared/hooks";
 import { useUserSession } from "@/features/settings";
 
@@ -22,6 +23,7 @@ export default function ReglagesPage() {
     | "preferences"
     | "securite"
     | "notation"
+    | "templates"
   >("profil");
 
   const tabs = [
@@ -29,6 +31,7 @@ export default function ReglagesPage() {
     { id: "creneaux" as const, label: "Créneaux horaires", icon: "🕐" },
     { id: "matieres" as const, label: "Matières", icon: "📚" },
     { id: "structures" as const, label: "Structures académiques", icon: "📅" },
+    { id: "templates" as const, label: "Templates Hebdomadaires", icon: "📆" },
     { id: "couleurs" as const, label: "Couleurs des classes", icon: "🎨" },
     { id: "notation" as const, label: "Systèmes de notation", icon: "📊" },
     { id: "preferences" as const, label: "Préférences", icon: "⚙️" },
@@ -68,6 +71,9 @@ export default function ReglagesPage() {
         )}
         {activeTab === "structures" && (
           <AcademicStructuresManagement teacherId={user?.id} />
+        )}
+        {activeTab === "templates" && (
+          <WeeklyTemplatesManagement teacherId={user?.id} />
         )}
         {activeTab === "couleurs" && (
           <CouleursSettings

@@ -24,6 +24,7 @@ export interface ExamsListProps {
   onCreateExam?: () => void;
   onEditExam?: (examId: string) => void;
   onDeleteExam?: (examId: string) => void;
+  onDuplicateExam?: (examId: string) => void;
   onGradeExam?: (examId: string) => void;
   showFilters?: boolean;
   showStatistics?: boolean;
@@ -45,6 +46,7 @@ export function ExamsList({
   onCreateExam,
   onEditExam,
   onDeleteExam,
+  onDuplicateExam,
   onGradeExam,
   showFilters = true,
   showStatistics = true,
@@ -52,8 +54,14 @@ export function ExamsList({
 }: ExamsListProps) {
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
 
-  const { exams, loading, error, deleteExam, toggleExamPublication } =
-    useExamManagement(teacherId);
+  const {
+    exams,
+    loading,
+    error,
+    deleteExam,
+    duplicateExam,
+    toggleExamPublication,
+  } = useExamManagement(teacherId, selectedClassId);
 
   const {
     filteredExams,
@@ -94,6 +102,15 @@ export function ExamsList({
       await toggleExamPublication(examId);
     } catch (error) {
       console.error("Erreur lors de la publication:", error);
+    }
+  };
+
+  const handleDuplicateExam = async (examId: string) => {
+    try {
+      await duplicateExam(examId);
+      onDuplicateExam?.(examId);
+    } catch (error) {
+      console.error("Erreur lors de la duplication:", error);
     }
   };
 
@@ -265,6 +282,7 @@ export function ExamsList({
                 exam={exam}
                 onEdit={onEditExam}
                 onDelete={handleDeleteExam}
+                onDuplicate={handleDuplicateExam}
                 onGrade={onGradeExam}
                 onTogglePublication={handleTogglePublication}
                 showActions={true}

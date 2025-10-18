@@ -15,6 +15,16 @@ export {
   validateObject,
   hasValidationErrors,
 } from "./use-validation";
+export {
+  useAlertInvalidation,
+  useAlertInvalidationEmitter,
+  alertInvalidationBus,
+} from "./use-alert-invalidation";
+
+export type {
+  AlertInvalidationEvent,
+  AlertInvalidationPayload,
+} from "./use-alert-invalidation";
 
 // Re-export common modal hooks
 export { useSimpleModal } from "./use-modal";

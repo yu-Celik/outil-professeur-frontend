@@ -60,11 +60,16 @@ L'enseignante peut créer et organiser ses classes, inscrire ses élèves, défi
 8. Bouton "Déconnexion" visible dans header, supprime cookie et redirige vers login
 
 **Technical Notes:**
-- **Backend API (Rust - DÉJÀ IMPLÉMENTÉ ✅)**: POST /auth/register, POST /auth/login, GET /auth/me
-- Cookie HttpOnly avec SameSite=Lax (géré par backend Rust)
-- JWT stocké dans cookie `auth_token` (24h expiration)
-- Frontend uniquement: formulaires + fetch() vers backend
-- Pas de "mot de passe oublié" dans MVP (utilisateur unique)
+- **Backend API (Rust - DÉJÀ IMPLÉMENTÉ ✅)** : POST /auth/register, POST /auth/login, POST /auth/refresh, POST /auth/logout, GET /auth/me
+- Deux cookies HttpOnly gérés côté Rust :
+  - `auth_token` (JWT d'accès ~90 min) — SameSite=None; Secure en prod
+  - `refresh_token` (opaque 7 jours) — rotation à chaque refresh/logout
+- Frontend n'expose jamais les tokens : seules les métadonnées d'expiration sont conservées en localStorage pour planifier l'auto-refresh
+- Intercepteurs axios déclenchent `/auth/refresh` 2 min avant expiration ou sur 401, en s'appuyant uniquement sur les cookies
+- `/auth/logout` est toujours appelé en POST JSON `{}` ; la réponse expire les deux cookies même en cas d'erreur
+- `credentials: 'include'` obligatoire sur toutes les requêtes vers Souz API
+- Variable `NEXT_PUBLIC_ENABLE_CSRF_HEADER` (désactivée par défaut) permet d'ajouter `X-CSRF-Token` si le backend ouvre le CORS
+- Pas de "mot de passe oublié" dans le MVP (enseignante unique)
 
 ---
 
@@ -188,9 +193,9 @@ L'enseignante peut créer et organiser ses classes, inscrire ses élèves, défi
 ├── hooks/
 │   ├── use-teaching-assignments.ts    # Teaching assignment management
 │   └── index.ts
-├── mocks/
-│   ├── mock-teaching-assignments.ts
-│   ├── mock-subjects.ts
+├── api/
+│   ├── teaching-assignments-client.ts # Calls /teaching-assignments & related endpoints
+│   ├── subjects-client.ts             # Calls /subjects endpoints
 │   └── index.ts
 └── index.ts
 ```
@@ -201,8 +206,8 @@ L'enseignante peut créer et organiser ses classes, inscrire ses élèves, défi
 /src/features/auth/
 ├── hooks/
 │   └── use-auth.ts                    # Authentication hooks
-├── mocks/
-│   └── mock-users.ts
+├── api/
+│   └── auth-client.ts                 # Calls /auth/login, /auth/register, /auth/logout, /auth/me
 └── index.ts
 ```
 
@@ -344,18 +349,35 @@ Response: {
   message: "Login successful",
   user: { id: string, email: string, display_name: string }
 }
-Set-Cookie: auth_token=<JWT> (HttpOnly, SameSite=Lax, 24h expiration)
+Set-Cookie:
+  - auth_token=<JWT> (HttpOnly, SameSite=None, Secure, ~90 min)
+  - refresh_token=<opaque> (HttpOnly, SameSite=None, Secure, 7 jours)
+
+POST /auth/refresh
+Request body: {}
+Response: {
+  message: "Tokens rotated successfully",
+  user: { id: string, email: string, display_name: string },
+  session: {
+    access_token_expires_at: string,
+    refresh_token_issued_at: string,
+    refresh_token_expires_at: string,
+    refresh_token_last_used_at?: string | null
+  }
+}
+Set-Cookie: nouveaux auth_token + refresh_token avec durées mises à jour
 
 GET /auth/me
 Response: { id: string, email: string, display_name: string }
-Requires: Cookie auth_token avec JWT valide
+Requires: Cookies auth_token + refresh_token (envoyés automatiquement via credentials)
 
-POST /auth/logout (À IMPLÉMENTER SI NÉCESSAIRE)
-Response: 204 No Content
-Clear-Cookie: auth_token
+POST /auth/logout
+Request body: {}
+Response: { message: "Logout successful" }
+Set-Cookie: `auth_token=; Max-Age=0` et `refresh_token=; Max-Age=0`
 ```
 
-**Frontend doit utiliser `credentials: 'include'` dans tous les fetch()** pour envoyer le cookie automatiquement.
+**Frontend doit utiliser `credentials: 'include'` (ou `axios.withCredentials = true`)** pour que les cookies HttpOnly soient systématiquement envoyés et mis à jour.
 
 ### Students (`/students`)
 
@@ -571,7 +593,7 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'
 export async function fetchAPI(endpoint: string, options: RequestInit = {}) {
   const response = await fetch(`${API_BASE_URL}${endpoint}`, {
     ...options,
-    credentials: 'include', // CRITIQUE: Envoie le cookie auth_token
+    credentials: 'include', // CRITIQUE: Envoie les cookies auth_token / refresh_token
     headers: {
       'Content-Type': 'application/json',
       ...options.headers,
@@ -640,8 +662,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   const logout = async () => {
-    // TODO: Implémenter POST /auth/logout côté Rust si nécessaire
-    document.cookie = 'auth_token=; Max-Age=0; path=/'
+    await fetchAPI('/auth/logout', {
+      method: 'POST',
+      body: JSON.stringify({}),
+    })
     setUser(null)
   }
 
@@ -852,7 +876,7 @@ let app = Router::new()
 - Implement page transitions
 
 **Day 13: Data Seeding**
-- Create seed script with mock data
+- Créer un script de seed initial basé sur les endpoints Souz (import CSV → POST API)
 - Test with realistic dataset (3 classes, 60 students)
 
 **Day 14: Testing & Bug Fixes**

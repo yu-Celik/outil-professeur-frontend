@@ -52,7 +52,10 @@ import {
   ChevronRight,
   MessageSquare,
   BookOpen,
+  Download,
+  Upload,
 } from "lucide-react";
+import { toast } from "sonner";
 import { usePhraseBank } from "@/features/appreciations";
 import { MOCK_SUBJECTS } from "@/features/gestion/mocks";
 import type {
@@ -130,26 +133,59 @@ export function PhraseBankManagement({
 
   // Gestion CRUD
   const handleCreateBank = async (data: CreatePhraseBankData) => {
-    const result = await createPhraseBank(data);
-    if (result) {
-      setIsCreateDialogOpen(false);
-    }
-    return result !== null;
+    toast.promise(
+      async () => {
+        const result = await createPhraseBank(data);
+        if (result) {
+          setIsCreateDialogOpen(false);
+          return result;
+        }
+        throw new Error("Échec de la création");
+      },
+      {
+        loading: "Création de la banque de phrases...",
+        success: "Banque de phrases créée avec succès",
+        error: (err) => `Erreur: ${err.message || "Échec de la création"}`,
+      },
+    );
+    return true;
   };
 
   const handleUpdateBank = async (data: UpdatePhraseBankData) => {
-    const result = await updatePhraseBank(data);
-    if (result) {
-      setEditingBank(null);
-    }
-    return result !== null;
+    toast.promise(
+      async () => {
+        const result = await updatePhraseBank(data);
+        if (result) {
+          setEditingBank(null);
+          return result;
+        }
+        throw new Error("Échec de la mise à jour");
+      },
+      {
+        loading: "Mise à jour de la banque...",
+        success: "Banque de phrases mise à jour",
+        error: (err) => `Erreur: ${err.message || "Échec de la mise à jour"}`,
+      },
+    );
+    return true;
   };
 
   const handleDeleteBank = async (id: string) => {
-    const result = await deletePhraseBank(id);
-    if (result) {
-      setDeletingBankId(null);
-    }
+    toast.promise(
+      async () => {
+        const result = await deletePhraseBank(id);
+        if (result) {
+          setDeletingBankId(null);
+          return true;
+        }
+        throw new Error("Échec de la suppression");
+      },
+      {
+        loading: "Suppression...",
+        success: "Banque de phrases supprimée",
+        error: (err) => `Erreur: ${err.message || "Échec de la suppression"}`,
+      },
+    );
   };
 
   const handleDuplicateBank = async (bank: PhraseBank) => {
@@ -158,7 +194,34 @@ export function PhraseBankManagement({
       subjectId: `${bank.subjectId}-copy`,
       entries: JSON.parse(JSON.stringify(bank.entries)), // Deep copy
     };
-    await createPhraseBank(duplicateData);
+
+    toast.promise(
+      async () => {
+        const result = await createPhraseBank(duplicateData);
+        if (!result) throw new Error("Échec de la duplication");
+        return result;
+      },
+      {
+        loading: "Duplication de la banque...",
+        success: "Banque de phrases dupliquée",
+        error: (err) => `Erreur: ${err.message || "Échec de la duplication"}`,
+      },
+    );
+  };
+
+  // Import/Export handlers (placeholders)
+  const handleImportCSV = () => {
+    toast.info("Fonctionnalité d'import CSV à venir", {
+      description:
+        "L'import de phrases depuis CSV sera disponible prochainement.",
+    });
+  };
+
+  const handleExportCSV = () => {
+    toast.info("Fonctionnalité d'export CSV à venir", {
+      description:
+        "L'export des phrases vers CSV sera disponible prochainement.",
+    });
   };
 
   if (loading) {
@@ -204,23 +267,43 @@ export function PhraseBankManagement({
           </p>
         </div>
         {showActions && (
-          <Dialog
-            open={isCreateDialogOpen}
-            onOpenChange={setIsCreateDialogOpen}
-          >
-            <DialogTrigger asChild>
-              <Button>
-                <Plus className="h-4 w-4 mr-2" />
-                Nouvelle banque
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-2xl">
-              <DialogHeader>
-                <DialogTitle>Créer une banque de phrases</DialogTitle>
-              </DialogHeader>
-              <PhraseBankForm onSubmit={handleCreateBank} />
-            </DialogContent>
-          </Dialog>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleImportCSV}
+              className="gap-2"
+            >
+              <Upload className="h-4 w-4" />
+              Importer CSV
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleExportCSV}
+              className="gap-2"
+            >
+              <Download className="h-4 w-4" />
+              Exporter CSV
+            </Button>
+            <Dialog
+              open={isCreateDialogOpen}
+              onOpenChange={setIsCreateDialogOpen}
+            >
+              <DialogTrigger asChild>
+                <Button>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Nouvelle banque
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-2xl">
+                <DialogHeader>
+                  <DialogTitle>Créer une banque de phrases</DialogTitle>
+                </DialogHeader>
+                <PhraseBankForm onSubmit={handleCreateBank} />
+              </DialogContent>
+            </Dialog>
+          </div>
         )}
       </div>
 

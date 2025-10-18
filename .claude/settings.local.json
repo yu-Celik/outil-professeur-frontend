@@ -14,7 +14,10 @@
       "Bash(done)",
       "Bash(npm run lint)",
       "Bash(npx tsc:*)",
-      "Bash(ls:*)"
+      "Bash(ls:*)",
+      "Bash(npm run lint:*)",
+      "Bash(timeout 30 npm run dev:*)",
+      "Bash(npm run format)"
     ],
     "deny": [],
     "ask": []

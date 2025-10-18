@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import { Sparkles, Users, User, Settings } from "lucide-react";
+import { Sparkles, Users, User, Settings, FileText } from "lucide-react";
 import { Button } from "@/components/atoms/button";
 import { Label } from "@/components/atoms/label";
 import { Textarea } from "@/components/atoms/textarea";
@@ -71,6 +71,7 @@ export interface AppreciationGenerationBarProps {
   onPhraseBankChange: (phraseBankId?: string) => void;
   onInstructionsChange: (instructions: string) => void;
   onGenerate: () => void;
+  onOpenTrimesterModal?: () => void;
   canGenerate: boolean;
   isGenerating: boolean;
   students: StudentOption[];
@@ -100,6 +101,7 @@ export function AppreciationGenerationBar({
   onPhraseBankChange,
   onInstructionsChange,
   onGenerate,
+  onOpenTrimesterModal,
   canGenerate,
   isGenerating,
   students,
@@ -158,14 +160,27 @@ export function AppreciationGenerationBar({
             </Tabs>
           </div>
 
-          <Button
-            onClick={onGenerate}
-            disabled={!canGenerate || isGenerating}
-            className="gap-2"
-          >
-            <Sparkles className="h-4 w-4" />
-            {isGenerating ? "Génération..." : "Générer"}
-          </Button>
+          <div className="flex items-center gap-2">
+            {onOpenTrimesterModal && (
+              <Button
+                onClick={onOpenTrimesterModal}
+                variant="outline"
+                className="gap-2"
+                disabled={isGenerating}
+              >
+                <FileText className="h-4 w-4" />
+                Appréciations trimestrielles
+              </Button>
+            )}
+            <Button
+              onClick={onGenerate}
+              disabled={!canGenerate || isGenerating}
+              className="gap-2"
+            >
+              <Sparkles className="h-4 w-4" />
+              {isGenerating ? "Génération..." : "Générer"}
+            </Button>
+          </div>
         </div>
 
         {/* Contrôles de configuration */}

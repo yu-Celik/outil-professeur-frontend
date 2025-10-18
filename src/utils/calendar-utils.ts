@@ -69,7 +69,11 @@ export function getWeekStart(date: Date): Date {
 /**
  * Vérifie si une date appartient au mois donné
  */
-export function isDateInMonth(date: Date, month: number, year: number): boolean {
+export function isDateInMonth(
+  date: Date,
+  month: number,
+  year: number,
+): boolean {
   return date.getMonth() === month && date.getFullYear() === year;
 }
 

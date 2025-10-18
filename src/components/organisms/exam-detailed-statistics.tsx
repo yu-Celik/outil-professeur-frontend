@@ -1,7 +1,9 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { Card } from "@/components/atoms/card";
 import { Badge } from "@/components/atoms/badge";
+import { Button } from "@/components/atoms/button";
 import { ExamProgressRing } from "@/components/atoms/exam-progress-ring";
 import {
   BarChart3,
@@ -14,11 +16,18 @@ import {
   Clock,
   Calculator,
   Percent,
+  Loader2,
+  RefreshCw,
 } from "lucide-react";
-import { useExamManagement } from "@/features/evaluations";
 import { useNotationSystem } from "@/features/evaluations";
-import type { Exam } from "@/types/uml-entities";
-import { MOCK_STUDENTS } from "@/features/students/mocks";
+import {
+  fetchExamResults,
+  fetchExamStats,
+  fetchStudentsForClass,
+  type ExamStatsResponse,
+} from "@/features/evaluations/api/exam-grading-service";
+import type { Exam, Student, StudentExamResult } from "@/types/uml-entities";
+import { toast } from "sonner";
 
 export interface ExamDetailedStatisticsProps {
   exam: Exam;
@@ -32,35 +41,104 @@ interface GradeDistribution {
   color: string;
 }
 
+interface StrugglingStudent {
+  student: Student;
+  points: number;
+  percentage: number;
+}
+
 export function ExamDetailedStatistics({
   exam,
   className = "",
 }: ExamDetailedStatisticsProps) {
-  const { getResultsForExam, getExamStatistics } = useExamManagement();
+  const [statistics, setStatistics] = useState<ExamStatsResponse | null>(null);
+  const [examResults, setExamResults] = useState<StudentExamResult[]>([]);
+  const [classStudents, setClassStudents] = useState<Student[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const { notationSystems, formatGrade } = useNotationSystem();
 
-  const examResults = getResultsForExam(exam.id);
-  const statistics = getExamStatistics(exam.id);
   const notationSystem = notationSystems.find(
     (ns) => ns.id === exam.notationSystemId,
   );
-  const classStudents = MOCK_STUDENTS.filter(
-    (student) => student.currentClassId === exam.classId,
-  );
+
+  // Load data from API
+  const loadData = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const [statsData, resultsData, studentsData] = await Promise.all([
+        fetchExamStats(exam.id),
+        fetchExamResults(exam.id),
+        fetchStudentsForClass(exam.classId),
+      ]);
+
+      setStatistics(statsData);
+      setExamResults(
+        resultsData.items.map((r) => ({
+          id: r.id,
+          createdBy: exam.createdBy,
+          examId: r.exam_id,
+          studentId: r.student_id,
+          pointsObtained: r.points_obtained,
+          grade: r.points_obtained,
+          gradeDisplay: r.is_absent ? "ABS" : r.points_obtained.toString(),
+          isAbsent: r.is_absent,
+          comments: r.comments || "",
+          markedAt: new Date(r.marked_at),
+          isPassing: function (system) {
+            if (this.isAbsent) return false;
+            const threshold =
+              system.minValue + (system.maxValue - system.minValue) * 0.5;
+            return this.grade >= threshold;
+          },
+          gradeCategory: function (system) {
+            if (this.isAbsent) return "Absent";
+            const percentage =
+              ((this.grade - system.minValue) /
+                (system.maxValue - system.minValue)) *
+              100;
+            if (percentage >= 80) return "Excellent";
+            if (percentage >= 60) return "Bien";
+            if (percentage >= 40) return "Satisfaisant";
+            return "Insuffisant";
+          },
+          percentage: function (examTotalPoints) {
+            if (this.isAbsent || examTotalPoints <= 0) return 0;
+            return (this.pointsObtained / examTotalPoints) * 100;
+          },
+          updateDisplay: function (system, locale) {
+            this.gradeDisplay = this.isAbsent
+              ? "ABS"
+              : system.formatDisplay(this.grade, locale);
+          },
+        })),
+      );
+      setClassStudents(studentsData);
+    } catch (err: any) {
+      console.error("Error loading exam statistics:", err);
+      setError(err.message || "Erreur lors du chargement des statistiques");
+      toast.error("Impossible de charger les statistiques de l'examen.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadData();
+  }, [exam.id, exam.classId]);
+
+  // Retry handler
+  const handleRetry = () => {
+    loadData();
+  };
 
   // Calculs avancés
   const submittedResults = examResults.filter((result) => !result.isAbsent);
   const grades = submittedResults.map((result) => result.pointsObtained);
 
-  // Écart-type
-  const variance =
-    grades.length > 0
-      ? grades.reduce(
-          (acc, grade) => acc + Math.pow(grade - statistics.averageGrade, 2),
-          0,
-        ) / grades.length
-      : 0;
-  const standardDeviation = Math.sqrt(variance);
+  // Écart-type (use API value if available, calculate as fallback)
+  const standardDeviation = statistics?.stddev_points || 0;
 
   // Distribution des notes par tranches
   const getGradeDistribution = (): GradeDistribution[] => {
@@ -105,14 +183,69 @@ export function ExamDetailedStatistics({
       ? sortedGrades[Math.floor(sortedGrades.length * 0.75)]
       : 0;
 
-  // Élèves en difficulté et excellents
-  const strugglingStudents = submittedResults.filter(
-    (result) => result.pointsObtained / exam.totalPoints < 0.5,
-  ).length;
+  // Élèves en difficulté (<8/20 or <40%) et excellents (≥80%)
+  const strugglingStudentsList: StrugglingStudent[] = submittedResults
+    .filter((result) => {
+      const percentage = (result.pointsObtained / exam.totalPoints) * 100;
+      return percentage < 40; // Less than 40% = struggling (equivalent to <8/20)
+    })
+    .map((result) => {
+      const student = classStudents.find((s) => s.id === result.studentId);
+      return {
+        student: student!,
+        points: result.pointsObtained,
+        percentage: (result.pointsObtained / exam.totalPoints) * 100,
+      };
+    })
+    .filter((item) => item.student) // Remove undefined students
+    .sort((a, b) => a.points - b.points); // Sort by points ascending (worst first)
+
+  const strugglingStudents = strugglingStudentsList.length;
 
   const excellentStudents = submittedResults.filter(
     (result) => result.pointsObtained / exam.totalPoints >= 0.8,
   ).length;
+
+  // If loading, show skeleton
+  if (loading) {
+    return (
+      <div className={`space-y-6 ${className}`}>
+        <Card className="p-6">
+          <div className="flex items-center justify-center py-12">
+            <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
+            <span className="ml-3 text-muted-foreground">
+              Chargement des statistiques...
+            </span>
+          </div>
+        </Card>
+      </div>
+    );
+  }
+
+  // If error, show retry button
+  if (error || !statistics) {
+    return (
+      <div className={`space-y-6 ${className}`}>
+        <Card className="p-6">
+          <div className="flex flex-col items-center justify-center py-12 gap-4">
+            <AlertTriangle className="w-12 h-12 text-destructive" />
+            <div className="text-center">
+              <h3 className="text-lg font-semibold mb-2">
+                Erreur de chargement
+              </h3>
+              <p className="text-sm text-muted-foreground mb-4">
+                {error || "Impossible de charger les statistiques"}
+              </p>
+              <Button onClick={handleRetry} variant="outline">
+                <RefreshCw className="w-4 h-4 mr-2" />
+                Recharger les statistiques
+              </Button>
+            </div>
+          </div>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className={`space-y-6 ${className}`}>
@@ -138,14 +271,14 @@ export function ExamDetailedStatistics({
             <div>
               <div className="text-sm text-muted-foreground">Médiane</div>
               <div className="text-lg font-bold">
-                {submittedResults.length > 0
+                {statistics.submitted_count > 0
                   ? notationSystem
                     ? formatGrade(
-                        statistics.medianGrade,
+                        statistics.median_points,
                         notationSystem,
                         "fr-FR",
                       )
-                    : statistics.medianGrade.toFixed(1)
+                    : statistics.median_points.toFixed(1)
                   : "-"}
               </div>
             </div>
@@ -260,9 +393,9 @@ export function ExamDetailedStatistics({
                 <div className="flex justify-between text-sm">
                   <span>Coefficient de variation:</span>
                   <span className="font-medium">
-                    {statistics.averageGrade > 0
+                    {statistics.avg_points > 0
                       ? (
-                          (standardDeviation / statistics.averageGrade) *
+                          (standardDeviation / statistics.avg_points) *
                           100
                         ).toFixed(1) + "%"
                       : "-"}
@@ -305,6 +438,51 @@ export function ExamDetailedStatistics({
             </div>
           )}
         </Card>
+
+        {/* Élèves en difficulté */}
+        {strugglingStudentsList.length > 0 && (
+          <Card className="p-6">
+            <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+              <AlertTriangle className="w-5 h-5 text-orange-600" />
+              Élèves en difficulté ({"<"}40%)
+            </h3>
+
+            <div className="space-y-2">
+              {strugglingStudentsList.map((item) => (
+                <div
+                  key={item.student.id}
+                  className="flex items-center justify-between p-3 bg-orange-50 border border-orange-200 rounded-lg"
+                >
+                  <div className="flex items-center gap-3">
+                    <AlertTriangle className="w-4 h-4 text-orange-600" />
+                    <div>
+                      <div className="font-medium">
+                        {item.student.firstName} {item.student.lastName}
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        {item.student.id}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="font-bold text-orange-900">
+                      {item.points.toFixed(1)} / {exam.totalPoints}
+                    </div>
+                    <div className="text-xs text-orange-700">
+                      {item.percentage.toFixed(1)}%
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-4 p-3 bg-muted/50 rounded-lg text-sm text-muted-foreground">
+              <strong>{strugglingStudentsList.length}</strong> élève
+              {strugglingStudentsList.length > 1 ? "s" : ""} en difficulté (note
+              inférieure à 40%). Un suivi individuel est recommandé.
+            </div>
+          </Card>
+        )}
       </div>
 
       {/* Recommandations pédagogiques */}
@@ -316,7 +494,7 @@ export function ExamDetailedStatistics({
           </h3>
 
           <div className="grid gap-4 md:grid-cols-3">
-            {statistics.passRate < 50 && (
+            {statistics.pass_rate < 50 && (
               <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
                 <div className="flex items-center gap-2 mb-2">
                   <AlertTriangle className="w-4 h-4 text-red-600" />

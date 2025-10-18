@@ -129,43 +129,117 @@ export function useStudentAnalytics({
 
   const loadSourceData = useCallback(async () => {
     try {
-      // Charger les participations depuis les mocks
+      // Charger les participations depuis les mocks (pour maintenant)
+      // TODO: Replace with API call when session participation endpoints are available
       const { getParticipationsForAnalysis } = await import(
         "@/features/students/mocks/mock-student-participation"
       );
       const participationsData = getParticipationsForAnalysis(studentId);
       setParticipations(participationsData);
 
-      // Charger les résultats d'examens
-      const { getStudentExamResults } = await import(
-        "@/features/evaluations/mocks"
-      );
-      const studentExamResults = getStudentExamResults(studentId);
-      setExamResults(studentExamResults);
+      // Charger les résultats d'examens depuis l'API
+      const { studentsClient } = await import("../api/students-client");
+      const { formatDateToISO } = await import("@/utils/date-utils");
 
-      // Charger les examens correspondants
-      const { getExamById } = await import("@/features/evaluations/mocks");
-      const relatedExams: Exam[] = [];
-      for (const result of studentExamResults) {
-        const exam = getExamById(result.examId);
-        if (exam) {
-          relatedExams.push(exam);
-        }
-      }
+      // Get current period dates (fallback to mock period if not provided)
+      const startDate = formatDateToISO(new Date("2024-09-01"));
+      const endDate = formatDateToISO(new Date("2024-12-20"));
+
+      const resultsResponse = await studentsClient.getStudentResults(
+        studentId,
+        {
+          date_from: startDate,
+          date_to: endDate,
+        },
+      );
+
+      // Map API results to StudentExamResult entities
+      const mappedResults: StudentExamResult[] = resultsResponse.items.map(
+        (item) => {
+          const maxPoints = item.max_points ?? 20;
+          const points = item.points_obtained ?? 0;
+          const grade = (points / maxPoints) * 20; // Normalize to /20 scale
+
+          return {
+            id: item.id,
+            createdBy: "system",
+            examId: item.exam_id,
+            studentId: item.student_id,
+            pointsObtained: points,
+            grade: grade,
+            gradeDisplay: `${grade.toFixed(1)}/20`,
+            isAbsent: item.is_absent,
+            comments: item.comments || "",
+            markedAt: item.marked_at ? new Date(item.marked_at) : new Date(),
+            isPassing: () => grade >= 10,
+            gradeCategory: () =>
+              grade >= 16
+                ? "excellent"
+                : grade >= 12
+                  ? "good"
+                  : grade >= 10
+                    ? "average"
+                    : "poor",
+            percentage: (examTotalPoints: number) =>
+              (points / examTotalPoints) * 100,
+            updateDisplay: () => {}, // Not needed for analytics
+          };
+        },
+      );
+
+      setExamResults(mappedResults);
+
+      // Map exams from API results
+      const relatedExams: Exam[] = resultsResponse.items.map((item) => ({
+        id: item.exam_id,
+        createdBy: "system",
+        title: item.exam_title,
+        description: "",
+        classId: "mock-class", // Not provided in the response
+        subjectId: "mock-subject", // Would need to parse or get from elsewhere
+        academicPeriodId: "period-1",
+        notationSystemId: "default-system",
+        examDate: new Date(item.exam_date),
+        examType: "Contrôle",
+        durationMinutes: 60,
+        totalPoints: item.max_points ?? 20,
+        coefficient: item.coefficient ?? 1,
+        instructions: "",
+        rubricId: undefined,
+        isPublished: true,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        publish: () => {},
+        unpublish: () => {},
+        calculateStatistics: () => ({}),
+        addResult: () => ({}) as StudentExamResult,
+      }));
+
       setExams(relatedExams);
 
-      // Charger les matières
-      const { getSubjectById } = await import("@/features/gestion/mocks");
-      const relatedSubjects: Array<{ id: string; name: string }> = [];
-      for (const exam of relatedExams) {
-        const subject = getSubjectById(exam.subjectId);
-        if (subject) {
-          relatedSubjects.push({ id: subject.id, name: subject.name });
+      // Extract unique subjects from results
+      const uniqueSubjects = new Map<string, string>();
+      resultsResponse.items.forEach((item) => {
+        if (item.subject_name) {
+          uniqueSubjects.set(`subject-${item.subject_name}`, item.subject_name);
         }
-      }
+      });
+
+      const relatedSubjects = Array.from(uniqueSubjects.entries()).map(
+        ([id, name]) => ({
+          id,
+          name,
+        }),
+      );
+
       setSubjects(relatedSubjects);
     } catch (err) {
       console.error("Error loading source data:", err);
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Erreur lors du chargement des données",
+      );
     }
   }, [studentId, academicPeriodId]);
 

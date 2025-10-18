@@ -20,7 +20,8 @@ import { tokenManager } from "@/lib/auth/token-manager";
 import { isTokenExpiringSoon, getCsrfToken } from "@/lib/auth/token-storage";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
-const ENABLE_CSRF_HEADER = process.env.NEXT_PUBLIC_ENABLE_CSRF_HEADER === "true";
+const ENABLE_CSRF_HEADER =
+  process.env.NEXT_PUBLIC_ENABLE_CSRF_HEADER === "true";
 
 export class ApiError extends Error {
   constructor(
@@ -257,9 +258,14 @@ export const api = {
 
   // Students endpoints
   students: {
-    list: async (params?: { cursor?: string; limit?: number; q?: string }) => {
+    list: async (params?: {
+      cursor?: string;
+      limit?: number;
+      q?: string;
+      class_id?: string;
+    }) => {
       const response = await axiosInstance.get<{
-        data: any[];
+        items: any[];
         next_cursor: string | null;
       }>("/students", {
         params,
@@ -295,7 +301,7 @@ export const api = {
       school_year_id?: string;
     }) => {
       const response = await axiosInstance.get<{
-        data: any[];
+        items: any[];
         next_cursor: string | null;
       }>("/classes", {
         params,
@@ -337,7 +343,7 @@ export const api = {
       is_active?: boolean;
     }) => {
       const response = await axiosInstance.get<{
-        data: any[];
+        items: any[];
         next_cursor: string | null;
       }>("/school-years", {
         params,
@@ -365,6 +371,230 @@ export const api = {
 
     delete: async (id: string) => {
       await axiosInstance.delete(`/school-years/${id}`);
+    },
+  },
+
+  // Course Sessions endpoints
+  courseSessions: {
+    list: async (params?: {
+      class_id?: string;
+      subject_id?: string;
+      date?: string;
+      from?: string;
+      to?: string;
+      status?: string;
+      cursor?: string;
+      limit?: number;
+    }) => {
+      const response = await axiosInstance.get<{
+        items: any[];
+        next_cursor: string | null;
+      }>("/course-sessions", {
+        params,
+      });
+      return response.data;
+    },
+
+    getById: async (id: string) => {
+      const response = await axiosInstance.get<any>(`/course-sessions/${id}`);
+      return response.data;
+    },
+
+    create: async (data: any) => {
+      const response = await axiosInstance.post<any>("/course-sessions", data);
+      return response.data;
+    },
+
+    update: async (id: string, data: any) => {
+      const response = await axiosInstance.patch<any>(
+        `/course-sessions/${id}`,
+        data,
+      );
+      return response.data;
+    },
+
+    delete: async (id: string) => {
+      await axiosInstance.delete(`/course-sessions/${id}`);
+    },
+  },
+
+  // Weekly Templates endpoints
+  weeklyTemplates: {
+    list: async (params?: {
+      cursor?: string;
+      limit?: number;
+      school_year_id?: string;
+      day_of_week?: number;
+      class_id?: string;
+      subject_id?: string;
+    }) => {
+      const response = await axiosInstance.get<{
+        data: any[];
+        next_cursor: string | null;
+      }>("/weekly-templates", {
+        params,
+      });
+      return response.data;
+    },
+
+    create: async (data: {
+      school_year_id: string;
+      day_of_week: number;
+      time_slot_id: string;
+      class_id: string;
+      subject_id: string;
+      is_active?: boolean;
+    }) => {
+      const response = await axiosInstance.post<any>("/weekly-templates", data);
+      return response.data;
+    },
+
+    delete: async (id: string) => {
+      await axiosInstance.delete(`/weekly-templates/${id}`);
+    },
+  },
+
+  // Exams endpoints
+  exams: {
+    list: async (params?: {
+      cursor?: string;
+      limit?: number;
+      class_id?: string;
+      subject_id?: string;
+      school_year_id?: string;
+      exam_date?: string;
+      from?: string;
+      to?: string;
+      is_published?: boolean;
+    }) => {
+      const response = await axiosInstance.get<{
+        items: any[];
+        next_cursor: string | null;
+      }>("/exams", {
+        params,
+      });
+      return response.data;
+    },
+
+    getById: async (id: string) => {
+      const response = await axiosInstance.get<any>(`/exams/${id}`);
+      return response.data;
+    },
+
+    create: async (data: {
+      title: string;
+      class_id: string;
+      subject_id: string;
+      school_year_id: string;
+      exam_date: string;
+      description?: string;
+      exam_type?: string;
+      duration_minutes?: number;
+      max_points?: number;
+      coefficient?: number;
+      instructions?: string;
+      notation_system_id?: string;
+      rubric_id?: string;
+      is_published?: boolean;
+    }) => {
+      const response = await axiosInstance.post<any>("/exams", data);
+      return response.data;
+    },
+
+    update: async (
+      id: string,
+      data: Partial<{
+        title: string;
+        class_id: string;
+        subject_id: string;
+        school_year_id: string;
+        exam_date: string;
+        description?: string;
+        exam_type?: string;
+        duration_minutes?: number;
+        max_points?: number;
+        coefficient?: number;
+        instructions?: string;
+        notation_system_id?: string;
+        rubric_id?: string;
+        is_published?: boolean;
+      }>,
+    ) => {
+      const response = await axiosInstance.patch<any>(`/exams/${id}`, data);
+      return response.data;
+    },
+
+    delete: async (id: string) => {
+      await axiosInstance.delete(`/exams/${id}`);
+    },
+
+    // Exam Results endpoints
+    getResults: async (
+      examId: string,
+      params?: {
+        cursor?: string;
+        limit?: number;
+      },
+    ) => {
+      const response = await axiosInstance.get<{
+        items: Array<{
+          id: string;
+          exam_id: string;
+          student_id: string;
+          points_obtained: number;
+          is_absent: boolean;
+          comments: string | null;
+          marked_at: string;
+          created_at: string;
+          updated_at: string;
+        }>;
+        next_cursor: string | null;
+      }>(`/exams/${examId}/results`, {
+        params,
+      });
+      return response.data;
+    },
+
+    upsertResults: async (
+      examId: string,
+      data: {
+        items: Array<{
+          student_id: string;
+          points_obtained?: number | null;
+          is_absent: boolean;
+          comments?: string | null;
+        }>;
+      },
+    ) => {
+      const response = await axiosInstance.put<{
+        updated_count: number;
+        items: Array<{
+          id: string;
+          exam_id: string;
+          student_id: string;
+          points_obtained: number;
+          is_absent: boolean;
+          comments: string | null;
+          marked_at: string;
+        }>;
+      }>(`/exams/${examId}/results`, data);
+      return response.data;
+    },
+
+    getStats: async (examId: string) => {
+      const response = await axiosInstance.get<{
+        exam_id: string;
+        total_students: number;
+        submitted_count: number;
+        absent_count: number;
+        avg_points: number;
+        median_points: number;
+        min_points: number;
+        max_points: number;
+        stddev_points: number;
+        pass_rate: number;
+      }>(`/exams/${examId}/stats`);
+      return response.data;
     },
   },
 };

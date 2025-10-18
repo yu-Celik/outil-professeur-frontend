@@ -62,6 +62,8 @@ interface StudentParticipationAccordionProps {
   session: CourseSession;
   isOpen: boolean;
   onToggle: () => void;
+  participation?: StudentParticipation | null;
+  onSave?: (participation: Partial<StudentParticipation>) => Promise<void>;
 }
 
 export function StudentParticipationAccordion({
@@ -69,9 +71,12 @@ export function StudentParticipationAccordion({
   session,
   isOpen,
   onToggle,
+  participation: providedParticipation,
+  onSave,
 }: StudentParticipationAccordionProps) {
-  // Récupérer la vraie participation de l'élève pour cette session
-  const participation = getStudentParticipation(student.id, session.id);
+  // Use provided participation from API or fallback to mock for backward compatibility
+  const participation =
+    providedParticipation ?? getStudentParticipation(student.id, session.id);
 
   const [formState, setFormState] = useState<ParticipationFormState>(() =>
     createFormState(participation),
@@ -88,21 +93,39 @@ export function StudentParticipationAccordion({
     setFormState((previous) => ({ ...previous, [key]: value }));
   };
 
-  const handleSave = () => {
-    if (participation) {
-      participation.isPresent = formState.isPresent;
-      participation.behavior = formState.behavior;
-      participation.participationLevel = formState.participationLevel;
-      participation.homeworkDone = formState.homeworkDone;
-      participation.specificRemarks = formState.specificRemarks;
-      participation.technicalIssues = formState.technicalIssues;
-      participation.cameraEnabled = formState.cameraEnabled;
-    }
+  const handleSave = async () => {
+    const participationData: Partial<StudentParticipation> = {
+      studentId: student.id,
+      courseSessionId: session.id,
+      isPresent: formState.isPresent,
+      behavior: formState.behavior,
+      participationLevel: formState.participationLevel,
+      homeworkDone: formState.homeworkDone,
+      specificRemarks: formState.specificRemarks,
+      technicalIssues: formState.technicalIssues,
+      cameraEnabled: formState.cameraEnabled,
+    };
 
-    console.log(
-      `[sessions] Participation enregistrée pour ${student.id} - ${session.id}`,
-      formState,
-    );
+    if (onSave) {
+      // Use provided callback for API save
+      await onSave(participationData);
+    } else {
+      // Fallback to mock mutation for backward compatibility
+      if (participation) {
+        participation.isPresent = formState.isPresent;
+        participation.behavior = formState.behavior;
+        participation.participationLevel = formState.participationLevel;
+        participation.homeworkDone = formState.homeworkDone;
+        participation.specificRemarks = formState.specificRemarks;
+        participation.technicalIssues = formState.technicalIssues;
+        participation.cameraEnabled = formState.cameraEnabled;
+      }
+
+      console.log(
+        `[sessions] Participation enregistrée pour ${student.id} - ${session.id}`,
+        formState,
+      );
+    }
   };
 
   const handleClear = () => {

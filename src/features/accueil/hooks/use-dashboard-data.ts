@@ -1,9 +1,6 @@
-import { useState } from "react";
-import { MOCK_CLASSES, MOCK_SUBJECTS } from "@/features/gestion/mocks";
-import { MOCK_STUDENTS } from "@/features/students/mocks";
-import { MOCK_TIME_SLOTS } from "@/features/calendar/mocks";
-import { useWeeklySessions } from "@/features/calendar";
-import { combineDateAndTime } from "@/utils/date-utils";
+import { useState, useEffect } from "react";
+import { api } from "@/lib/api";
+import { useAsyncOperation } from "@/shared/hooks";
 
 interface UpcomingCourse {
   id: string;
@@ -28,38 +25,72 @@ interface DashboardStudent {
 }
 
 export function useDashboardData() {
-  // Transformation des données UML en format dashboard
-  const [classes] = useState<DashboardClass[]>(
-    MOCK_CLASSES.map((cls) => ({
-      id: cls.id,
-      name: cls.classCode,
-      studentCount:
-        MOCK_STUDENTS.filter((student) => student.currentClassId === cls.id)
-          .length || 0, // Pas de fallback aléatoire pour éviter les erreurs d'hydratation
-    })),
-  );
+  const [classes, setClasses] = useState<DashboardClass[]>([]);
+  const [students, setStudents] = useState<DashboardStudent[]>([]);
+  const [upcomingCourses] = useState<UpcomingCourse[]>([]);
 
-  const [students] = useState<DashboardStudent[]>(
-    MOCK_STUDENTS.map((student) => {
-      // Trouve la première classe associée
-      const associatedClass = MOCK_CLASSES.find(
-        (cls) => student.currentClassId === cls.id,
+  const {
+    isLoading: classesLoading,
+    error: classesError,
+    execute: loadClasses,
+  } = useAsyncOperation();
+
+  const {
+    isLoading: studentsLoading,
+    error: studentsError,
+    execute: loadStudents,
+  } = useAsyncOperation();
+
+  // Load classes from API
+  useEffect(() => {
+    const fetchClasses = async () => {
+      const response = await api.classes.list();
+
+      // Transform API response to dashboard format
+      const dashboardClasses: DashboardClass[] = response.items.map(
+        (cls: any) => ({
+          id: cls.id,
+          name: cls.class_code,
+          studentCount: 0, // Will be calculated when students are loaded
+        }),
       );
 
-      return {
-        id: student.id,
-        name: `${student.firstName} ${student.lastName}`,
-        class: associatedClass?.classCode || "Non assigné",
-        level: associatedClass?.gradeLabel,
-      };
-    }),
-  );
+      setClasses(dashboardClasses);
+    };
 
-  // Remplacer par des cours générés depuis les templates
-  // TODO: Utiliser useDashboardSessions pour les cours à venir
-  const [upcomingCourses] = useState<UpcomingCourse[]>([
-    // Cours temporaires - maintenant remplacés par le système de templates
-  ]);
+    loadClasses(fetchClasses);
+  }, [loadClasses]);
+
+  // Load students from API
+  useEffect(() => {
+    const fetchStudents = async () => {
+      const response = await api.students.list();
+
+      // Transform API response to dashboard format
+      const dashboardStudents: DashboardStudent[] = response.items.map(
+        (student: any) => ({
+          id: student.id,
+          name: student.full_name,
+          class: student.current_class_id || "Non assigné",
+          level: undefined, // Could be enriched by joining with classes data
+        }),
+      );
+
+      setStudents(dashboardStudents);
+
+      // Update class student counts
+      setClasses((prevClasses) =>
+        prevClasses.map((cls) => ({
+          ...cls,
+          studentCount: dashboardStudents.filter(
+            (s) => s.class === cls.id,
+          ).length,
+        })),
+      );
+    };
+
+    loadStudents(fetchStudents);
+  }, [loadStudents]);
 
   const addNewClass = (className: string) => {
     // Logic to add new class

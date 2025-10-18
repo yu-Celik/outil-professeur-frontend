@@ -1,0 +1,107 @@
+<story-context id="bmad/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>4</epicId>
+    <storyId>3</storyId>
+    <title>Génération Automatique Rapports Bihebdomadaires</title>
+    <status>ContextReadyDraft</status>
+    <generatedAt>2025-10-17</generatedAt>
+    <generator>Manual execution of BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/stories/story-4.3.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA><![CDATA[teacher]]></asA>
+    <iWant><![CDATA[automatically generate biweekly reports for all students in a class]]></iWant>
+    <soThat><![CDATA[progress can be communicated to families in minutes instead of hours]]></soThat>
+    <tasks><![CDATA[
+- [ ] Mettre en place client Souz pour appréciations (AC: 1-4,6-7)
+  - [ ] Créer `src/features/appreciations/api/appreciations-client.ts` avec `list`, `generate`, `validate`, `export` alignés sur `/appreciations*`.
+  - [ ] Gérer la récupération binaire du ZIP et les erreurs API (401/422) lors de l'export.
+- [ ] Orchestrer pipeline bihebdomadaire dans `useAppreciationGeneration` (AC: 3-6,8)
+  - [ ] Brancher les analytics étudiants (présences, participation, résultats) avant appel `generate`.
+  - [ ] Implémenter suivi de progression (current/total/ETA) et mise à jour des statuts via API.
+  - [ ] Mapper les réponses API vers `generated_content` (status draft/final) et rafraîchir l'historique.
+- [ ] Adapter Dashboard & page Appréciations (AC: 1-3,5)
+  - [ ] Ajouter widget/alerte bihebdomadaire sur `/dashboard/accueil` avec CTA vers génération.
+  - [ ] Étendre `AppreciationGenerationInterface` et `AppreciationGenerationBar` pour la configuration classe/période/guide et déclenchement bulk.
+- [ ] Gérer révision, validation et export (AC: 5-7)
+  - [ ] Ajouter liste de rapports générés avec aperçu rapide et édition légère avant validation finale.
+  - [ ] Implémenter validation individuelle/bulk et message de confirmation après export.
+- [ ] Tests & qualification (AC: 1-8)
+  - [ ] Couvrir la checklist « Story 4.3: Biweekly Reports » (déclenchement, progression, temps de génération).
+  - [ ] Documenter résultats et éventuels écarts dans Dev Agent Record / story-context.
+    ]]></tasks>
+  </story>
+
+  <acceptanceCriteria><![CDATA[
+1. Le dashboard signale l'échéance bihebdomadaire et permet d'ouvrir la génération depuis l'alerte ou la page Appréciations.
+2. La modale de configuration sélectionne classe, guide de style (défaut « Informel - Parents ») et période (2 dernières semaines) avant lancement.
+3. L'action « Générer pour tous les élèves » déclenche une génération bulk avec barre de progression et estimation temps restant.
+4. Chaque rapport compile présences, participation, comportement et examens récents avec phrase bank et style guide en ≤10 s/élève.
+5. L'écran de révision liste les rapports générés, permet lecture rapide et édition légère avant validation.
+6. L'utilisateur peut valider individuellement ou en lot, ce qui persiste les statuts via l'API.
+7. L'export batch produit un ZIP de 20 PDF et affiche la confirmation « 20 rapports générés et exportés ».
+8. La génération complète respecte la cible <15 minutes pour 20 élèves avec feedback de progression continu.
+    ]]></acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc path="docs/tech-spec-epic-4-generation-ia.md#L90-L214" title="Tech Spec Epic 4 - Génération IA" section="Story 4.3 & API contract"><![CDATA[Spécifie l'alerte dashboard, la modale de configuration, le délai de génération ≤10s/élève et les endpoints Souz `/appreciations`/`/appreciations/generate` nécessaires pour persister les rapports.]]></doc>
+      <doc path="docs/epics.md#L517-L546" title="Epic 4 Breakdown" section="Story 4.3 Requirements"><![CDATA[Détaille les jalons UX (alerte dashboard, progression 12/20 élèves, export ZIP) et la logique de génération à base d'analytics et de guides de style.]]></doc>
+      <doc path="docs/PRD.md#L460-L479" title="PRD - Weekly Journey" section="Vendredi 16h workflow"><![CDATA[Décrit le scénario produit complet de génération, révision et export en 15 minutes pour 20 élèves.]]></doc>
+      <doc path="docs/database-schema.md#L330-L373" title="Database Schema" section="generated_content table"><![CDATA[Structure de persistance des contenus générés (draft/final, metadata, triggers) à respecter lors des appels Souz.]]></doc>
+      <doc path="docs/solution-architecture.md#L1480-L1504" title="Solution Architecture" section="AppreciationGeneratorService overview"><![CDATA[Explique comment le service compose les rapports à partir du profil étudiant, des phrases contextuelles et du style guide.]]></doc>
+    </docs>
+    <code>
+      <artifact path="src/features/appreciations/hooks/use-appreciation-generation.ts#L1-L200" kind="hook" symbol="useAppreciationGeneration"><![CDATA[Gestion actuelle du bulk generation, filtres et progression via mocks; doit être migré vers le client Souz tout en conservant l'API du hook.]]></artifact>
+      <artifact path="src/components/organisms/appreciation-generation-interface.tsx#L71-L186" kind="component" symbol="AppreciationGenerationInterface"><![CDATA[Interface utilisateur pour la génération individuelle/bulk, y compris sélection classe/période/guide et affichage de la progression.]]></artifact>
+      <artifact path="src/app/dashboard/appreciations/page.tsx#L812-L845" kind="page" symbol="AppreciationsPage"><![CDATA[Orchestre la barre de génération, les panneaux d'aperçu et l'ouverture du gestionnaire de styles/phrases; doit se brancher au nouveau pipeline.]]></artifact>
+      <artifact path="src/features/appreciations/services/appreciation-generator.ts#L1-L200" kind="service" symbol="AppreciationGeneratorService"><![CDATA[Service core de génération IA; nécessite l'injection des analytics réels et la compatibilité avec le backend.]]></artifact>
+      <artifact path="src/features/students/hooks/use-student-analytics.ts#L1-L200" kind="hook" symbol="useStudentAnalytics"><![CDATA[Fournit les analyses comportementales/academiques à incorporer dans les rapports bihebdomadaires.]]></artifact>
+      <artifact path="src/shared/hooks/use-async-operation.ts#L1-L60" kind="hook" symbol="useAsyncOperation"><![CDATA[Pattern standard pour suivre les opérations longues (loading/erreur) à réutiliser pendant la génération bulk.]]></artifact>
+      <artifact path="src/app/dashboard/accueil/page.tsx#L54-L96" kind="page" symbol="AccueilPage"><![CDATA[Destination pour l'alerte dashboard et CTA déclenchant la génération bihebdomadaire.]]></artifact>
+    </code>
+    <dependencies>
+      <ecosystem name="node">
+        <package name="next" version="15.5.0"/>
+        <package name="react" version="19.1.0"/>
+        <package name="axios" version="^1.12.2"/>
+        <package name="zod" version="^4.1.0"/>
+        <package name="@tanstack/react-table" version="^8.21.3"/>
+        <package name="@radix-ui/react-dialog" version="^1.1.15"/>
+        <package name="recharts" version="^2.15.4"/>
+        <package name="sonner" version="^2.0.7"/>
+      </ecosystem>
+      <ecosystem name="dev">
+        <package name="@biomejs/biome" version="2.2.0"/>
+        <package name="tailwindcss" version="^4"/>
+        <package name="typescript" version="^5"/>
+        <package name="playwright" version="(planned, per docs)"/>
+      </ecosystem>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    <constraint>No local persistence: toutes les données doivent passer par Souz API, seuls des caches mémoire temporaires sont autorisés. [docs/tech-spec-epic-4-generation-ia.md#L200-L201]</constraint>
+    <constraint>Préserver l'API publique des hooks/composants (`useAppreciationGeneration`, `AppreciationGenerationInterface`, `AppreciationGenerationBar`) pour éviter les régressions dans le dashboard. [src/features/appreciations/hooks/use-appreciation-generation.ts#L1-L200]</constraint>
+    <constraint>Respecter le schéma `generated_content` (statuts draft/final, metadata) lors des opérations de persistance/validation. [docs/database-schema.md#L330-L373]</constraint>
+    <constraint>Réutiliser le service d'export PDF existant et fournir confirmation utilisateur une fois le ZIP téléchargé. [docs/solution-architecture.md#L1492-L1504]</constraint>
+  </constraints>
+  <interfaces>
+    <interface name="GET /appreciations" kind="REST" path="docs/tech-spec-epic-4-generation-ia.md#L207-L214"><![CDATA[Récupère les rapports générés (paramètres class_id, type, status) pour alimenter historique et révision.]]></interface>
+    <interface name="POST /appreciations/generate" kind="REST" path="docs/tech-spec-epic-4-generation-ia.md#L207-L214"><![CDATA[Génère et persiste un lot d'appréciations en fonction de la classe, période et guide de style sélectionnés.]]></interface>
+    <interface name="POST /appreciations/{id}/validate" kind="REST" path="docs/tech-spec-epic-4-generation-ia.md#L207-L214"><![CDATA[Marque un rapport comme finalisé pour l'export et la diffusion.]]></interface>
+    <interface name="POST /appreciations/export" kind="REST" path="docs/tech-spec-epic-4-generation-ia.md#L227-L228"><![CDATA[Génère un ZIP contenant les PDF individuels des rapports validés.]]></interface>
+    <interface name="GET /students/{id}/profile" kind="REST" path="docs/tech-spec-epic-4-generation-ia.md#L200-L214"><![CDATA[Fournit les analytics nécessaires (présence, participation, résultats) à injecter dans la génération bihebdomadaire.]]></interface>
+  </interfaces>
+  <tests>
+    <standards><![CDATA[Suivre la checklist manuelle de la story (docs/tech-spec-epic-4-generation-ia.md#L420-L438) et les bonnes pratiques Playwright décrites dans le même document; tests E2E ciblent `/dashboard/appreciations` avec génération, validation et export.]]></standards>
+    <locations><![CDATA[Playwright E2E: tests/e2e/** (à créer si absent); Hooks/services unitaires: src/features/appreciations/**/__tests__; Documentation checklist: docs/tech-spec-epic-4-generation-ia.md.]]></locations>
+    <ideas><![CDATA[
+- AC1: test Playwright vérifiant l'affichage de l'alerte dashboard et navigation vers la modale de génération.
+- AC3: test E2E simulant une génération bulk et contrôlant la barre de progression (12/20 élèves).
+- AC4: tests unitaires/mockés pour `AppreciationGeneratorService` couvrant l'agrégation des analytics et le respect du délai.
+- AC7: test d'intégration export vérifiant la réception d'un ZIP et le message de confirmation.
+    ]]></ideas>
+  </tests>
+</story-context>
