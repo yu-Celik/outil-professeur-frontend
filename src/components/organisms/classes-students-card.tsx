@@ -90,7 +90,11 @@ export function ClassesStudentsCard({
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isStudentModalOpen, setIsStudentModalOpen] = useState(false);
   const { getClassColorWithText } = useClassColors(teacherId, "year-2024");
-  const { createClass, schoolYears, loading: classLoading } = useClassManagement();
+  const {
+    createClass,
+    schoolYears,
+    loading: classLoading,
+  } = useClassManagement();
 
   const handleClassClick = (classId: string) => {
     setSelectedClass(classId);

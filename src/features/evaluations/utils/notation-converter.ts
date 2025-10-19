@@ -26,7 +26,10 @@ export interface GradeValidationResult {
 }
 
 export class NotationConverter {
-  private conversionMatrix: Map<string, Map<string, (value: number) => number>> = new Map();
+  private conversionMatrix: Map<
+    string,
+    Map<string, (value: number) => number>
+  > = new Map();
 
   constructor(private systems: NotationSystem[]) {
     this.buildConversionMatrix();
@@ -34,12 +37,15 @@ export class NotationConverter {
 
   // Build optimized conversion matrix for all systems
   private buildConversionMatrix(): void {
-    this.systems.forEach(fromSystem => {
+    this.systems.forEach((fromSystem) => {
       const fromMap = new Map<string, (value: number) => number>();
 
-      this.systems.forEach(toSystem => {
+      this.systems.forEach((toSystem) => {
         if (fromSystem.id !== toSystem.id) {
-          fromMap.set(toSystem.id, this.createDirectConversion(fromSystem, toSystem));
+          fromMap.set(
+            toSystem.id,
+            this.createDirectConversion(fromSystem, toSystem),
+          );
         }
       });
 
@@ -48,7 +54,10 @@ export class NotationConverter {
   }
 
   // Create direct conversion function between two systems
-  private createDirectConversion(from: NotationSystem, to: NotationSystem): (value: number) => number {
+  private createDirectConversion(
+    from: NotationSystem,
+    to: NotationSystem,
+  ): (value: number) => number {
     return (value: number): number => {
       // Handle special cases based on scale types
       if (from.scaleType === to.scaleType) {
@@ -61,7 +70,11 @@ export class NotationConverter {
   }
 
   // Convert between systems of the same type
-  private convertSameType(value: number, from: NotationSystem, to: NotationSystem): number {
+  private convertSameType(
+    value: number,
+    from: NotationSystem,
+    to: NotationSystem,
+  ): number {
     const ratio = (to.maxValue - to.minValue) / (from.maxValue - from.minValue);
     const converted = (value - from.minValue) * ratio + to.minValue;
 
@@ -75,7 +88,11 @@ export class NotationConverter {
   }
 
   // Convert between systems of different types
-  private convertDifferentTypes(value: number, from: NotationSystem, to: NotationSystem): number {
+  private convertDifferentTypes(
+    value: number,
+    from: NotationSystem,
+    to: NotationSystem,
+  ): number {
     // First normalize to percentage (0-100)
     const percentage = this.normalizeToPercentage(value, from);
 
@@ -90,7 +107,10 @@ export class NotationConverter {
   }
 
   // Convert percentage to specific system
-  private percentageToSystem(percentage: number, system: NotationSystem): number {
+  private percentageToSystem(
+    percentage: number,
+    system: NotationSystem,
+  ): number {
     const range = system.maxValue - system.minValue;
     const converted = (percentage / 100) * range + system.minValue;
 
@@ -129,7 +149,10 @@ export class NotationConverter {
   }
 
   // Convert percentage to competency level
-  private convertToCompetency(percentage: number, system: NotationSystem): number {
+  private convertToCompetency(
+    percentage: number,
+    system: NotationSystem,
+  ): number {
     const rules = system.rules as any;
     const passingLevel = rules.passingLevel || 2;
 
@@ -158,10 +181,10 @@ export class NotationConverter {
     value: number,
     fromSystemId: string,
     toSystemId: string,
-    options: ConversionOptions = {}
+    options: ConversionOptions = {},
   ): ConversionResult {
-    const fromSystem = this.systems.find(s => s.id === fromSystemId);
-    const toSystem = this.systems.find(s => s.id === toSystemId);
+    const fromSystem = this.systems.find((s) => s.id === fromSystemId);
+    const toSystem = this.systems.find((s) => s.id === toSystemId);
 
     if (!fromSystem || !toSystem) {
       throw new Error("Système de notation non trouvé");
@@ -187,7 +210,11 @@ export class NotationConverter {
   }
 
   // Calculate conversion confidence
-  private calculateConfidence(value: number, from: NotationSystem, to: NotationSystem): number {
+  private calculateConfidence(
+    value: number,
+    from: NotationSystem,
+    to: NotationSystem,
+  ): number {
     // Same type conversions are more reliable
     if (from.scaleType === to.scaleType) return 0.95;
 
@@ -195,8 +222,11 @@ export class NotationConverter {
     if (from.scaleType === "numeric" && to.scaleType === "numeric") return 0.9;
 
     // Letter to competency or vice versa has moderate reliability
-    if ((from.scaleType === "letter" && to.scaleType === "competency") ||
-        (from.scaleType === "competency" && to.scaleType === "letter")) return 0.7;
+    if (
+      (from.scaleType === "letter" && to.scaleType === "competency") ||
+      (from.scaleType === "competency" && to.scaleType === "letter")
+    )
+      return 0.7;
 
     // Custom conversions are less reliable
     if (from.scaleType === "custom" || to.scaleType === "custom") return 0.6;
@@ -218,7 +248,7 @@ export class NotationConverter {
 
   // Comprehensive grade validation
   public validateGrade(value: number, systemId: string): GradeValidationResult {
-    const system = this.systems.find(s => s.id === systemId);
+    const system = this.systems.find((s) => s.id === systemId);
 
     if (!system) {
       return {
@@ -233,7 +263,9 @@ export class NotationConverter {
 
     // Basic range validation
     if (value < system.minValue || value > system.maxValue) {
-      errors.push(`La note doit être entre ${system.minValue} et ${system.maxValue}`);
+      errors.push(
+        `La note doit être entre ${system.minValue} et ${system.maxValue}`,
+      );
     }
 
     // Type-specific validation
@@ -266,7 +298,12 @@ export class NotationConverter {
   }
 
   // Validate numeric grades
-  private validateNumericGrade(value: number, system: NotationSystem, errors: string[], warnings: string[]): void {
+  private validateNumericGrade(
+    value: number,
+    system: NotationSystem,
+    errors: string[],
+    warnings: string[],
+  ): void {
     const rules = system.rules as any;
 
     if (rules.precision) {
@@ -282,7 +319,12 @@ export class NotationConverter {
   }
 
   // Validate letter grades
-  private validateLetterGrade(value: number, system: NotationSystem, errors: string[], warnings: string[]): void {
+  private validateLetterGrade(
+    value: number,
+    system: NotationSystem,
+    errors: string[],
+    warnings: string[],
+  ): void {
     if (value % 1 !== 0) {
       errors.push("Les notes par lettres doivent être des entiers");
     }
@@ -294,7 +336,12 @@ export class NotationConverter {
   }
 
   // Validate competency grades
-  private validateCompetencyGrade(value: number, system: NotationSystem, errors: string[], warnings: string[]): void {
+  private validateCompetencyGrade(
+    value: number,
+    system: NotationSystem,
+    errors: string[],
+    warnings: string[],
+  ): void {
     if (value % 1 !== 0) {
       errors.push("Les niveaux de compétence doivent être des entiers");
     }
@@ -306,7 +353,12 @@ export class NotationConverter {
   }
 
   // Validate custom grades
-  private validateCustomGrade(value: number, system: NotationSystem, errors: string[], warnings: string[]): void {
+  private validateCustomGrade(
+    value: number,
+    system: NotationSystem,
+    errors: string[],
+    warnings: string[],
+  ): void {
     const rules = system.rules as any;
 
     if (rules.precision && (value * (1 / rules.precision)) % 1 !== 0) {
@@ -338,19 +390,24 @@ export class NotationConverter {
     values: number[],
     fromSystemId: string,
     toSystemId: string,
-    options: ConversionOptions = {}
+    options: ConversionOptions = {},
   ): ConversionResult[] {
-    return values.map(value => this.convert(value, fromSystemId, toSystemId, options));
+    return values.map((value) =>
+      this.convert(value, fromSystemId, toSystemId, options),
+    );
   }
 
   // Get conversion preview/simulation
-  public getConversionPreview(fromSystemId: string, toSystemId: string): {
+  public getConversionPreview(
+    fromSystemId: string,
+    toSystemId: string,
+  ): {
     examples: Array<{ from: number; to: number; label: string }>;
     confidence: number;
     isExact: boolean;
   } {
-    const fromSystem = this.systems.find(s => s.id === fromSystemId);
-    const toSystem = this.systems.find(s => s.id === toSystemId);
+    const fromSystem = this.systems.find((s) => s.id === fromSystemId);
+    const toSystem = this.systems.find((s) => s.id === toSystemId);
 
     if (!fromSystem || !toSystem) {
       throw new Error("Système de notation non trouvé");
@@ -364,7 +421,10 @@ export class NotationConverter {
   }
 
   // Generate example conversions for preview
-  private generateConversionExamples(from: NotationSystem, to: NotationSystem): Array<{ from: number; to: number; label: string }> {
+  private generateConversionExamples(
+    from: NotationSystem,
+    to: NotationSystem,
+  ): Array<{ from: number; to: number; label: string }> {
     const examples: Array<{ from: number; to: number; label: string }> = [];
     const range = from.maxValue - from.minValue;
     const steps = Math.min(5, range + 1);

@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { Button } from "@/components/atoms/button";
 import { Input } from "@/components/atoms/input";
 import { Label } from "@/components/atoms/label";
@@ -79,6 +80,16 @@ export function LoginForm({
               <Button type="submit" className="w-full" disabled={isLoading}>
                 {isLoading ? "Signing in..." : "Login"}
               </Button>
+
+              <div className="text-center text-sm">
+                Don't have an account?{" "}
+                <Link
+                  href="/register"
+                  className="underline underline-offset-4 hover:text-primary"
+                >
+                  Sign up
+                </Link>
+              </div>
             </div>
           </form>
         </CardContent>

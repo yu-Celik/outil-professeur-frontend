@@ -17,6 +17,7 @@ export const showSessionMoveToast = ({
       <span>Séance déplacée vers {newDateTime}</span>
       {onUndo && (
         <button
+          type="button"
           onClick={(e) => {
             e.stopPropagation();
             onUndo();

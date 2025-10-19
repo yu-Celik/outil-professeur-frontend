@@ -164,6 +164,53 @@ export class WeekSessionGenerator {
 
     return allSessions;
   }
+
+  /**
+   * Génère des dates de sessions depuis un template sur une plage de dates
+   * Utilisé pour la génération bulk depuis l'UI
+   * @param template Template hebdomadaire
+   * @param startDate Date de début
+   * @param endDate Date de fin
+   * @returns Array de dates générées
+   */
+  static generateSessionDates(
+    template: WeeklyTemplate,
+    startDate: Date,
+    endDate: Date,
+  ): Date[] {
+    const dates: Date[] = [];
+    let currentWeek = getWeekStart(startDate);
+
+    while (currentWeek <= endDate) {
+      const sessionDate = calculateSessionDate(currentWeek, template.dayOfWeek);
+
+      // Vérifier si la date est dans la plage
+      if (sessionDate >= startDate && sessionDate <= endDate) {
+        dates.push(sessionDate);
+      }
+
+      // Passer à la semaine suivante
+      currentWeek = new Date(currentWeek);
+      currentWeek.setDate(currentWeek.getDate() + 7);
+    }
+
+    return dates;
+  }
+
+  /**
+   * Calcule le nombre de sessions qui seront générées
+   * @param template Template hebdomadaire
+   * @param startDate Date de début
+   * @param endDate Date de fin
+   * @returns Nombre de sessions
+   */
+  static calculateSessionCount(
+    template: WeeklyTemplate,
+    startDate: Date,
+    endDate: Date,
+  ): number {
+    return this.generateSessionDates(template, startDate, endDate).length;
+  }
 }
 
 /**

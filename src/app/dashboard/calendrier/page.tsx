@@ -1,27 +1,30 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Toaster } from "sonner";
-import { LoadingSpinner } from "@/components/atoms/loading-spinner";
-import { ClassColorPicker } from "@/components/molecules/class-color-picker";
+import { Toaster, toast } from "sonner";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
 } from "@/components/atoms/dialog";
+import { LoadingSpinner } from "@/components/atoms/loading-spinner";
+import { ClassColorPicker } from "@/components/molecules/class-color-picker";
 import { SessionCancelDialog } from "@/components/molecules/session-cancel-dialog";
 import { SessionForm } from "@/components/molecules/session-form";
 import { SessionMoveDialog } from "@/components/molecules/session-move-dialog";
 import { CalendarToolbar } from "@/components/organisms/calendar-toolbar";
 import { CalendarWeekView } from "@/components/organisms/calendar-week-view";
-import { useCalendar } from "@/features/calendar";
-import { useClassColors } from "@/features/calendar";
-import { useModal, useSimpleModal } from "@/shared/hooks";
-import { useSessionMoves } from "@/features/calendar";
-import { useSetPageTitle } from "@/shared/hooks";
+import {
+  useCalendar,
+  useClassColors,
+  useSessionMoves,
+} from "@/features/calendar";
 import { useUserSession } from "@/features/settings";
+import { ApiError } from "@/lib/api";
+import { useModal, useSetPageTitle, useSimpleModal } from "@/shared/hooks";
 import type { CourseSession, TimeSlot } from "@/types/uml-entities";
+import { TestApiButton } from "./test-api-button";
 
 export default function CalendrierPage() {
   useSetPageTitle("Calendrier");
@@ -51,7 +54,6 @@ export default function CalendrierPage() {
 
   const {
     currentDate,
-    calendarWeeks,
     calendarEvents,
     loading,
     navigateWeek,
@@ -70,7 +72,7 @@ export default function CalendrierPage() {
   // Synchroniser avec les préférences UML
   useEffect(() => {
     if (!userLoading) {
-      const preferences = getPreferences();
+      getPreferences();
       // Vue hebdomadaire uniquement - plus de préférence de vue
     }
   }, [userLoading, getPreferences]);
@@ -113,44 +115,123 @@ export default function CalendrierPage() {
   };
 
   const handleManageAttendance = (sessionId: string) => {
-    // Navigation vers la page sessions unifiée avec sessionId pour auto-ouvrir l'accordéon
-    window.location.href = `/dashboard/sessions?sessionId=${sessionId}`;
+    // Navigation vers la page sessions unifiée avec sessionId et viewMode=batch pour saisie rapide
+    window.location.href = `/dashboard/sessions?sessionId=${sessionId}&viewMode=batch`;
   };
 
-  const handleCreateMakeupSession = (date: Date, timeSlotId: string) => {
-    sessionFormModal.open({ date, timeSlotId, type: "makeup" });
+  const handleOpenSessionForm = ({
+    date,
+    timeSlotId,
+    type,
+  }: {
+    date: Date;
+    timeSlotId: string;
+    type: "normal" | "makeup";
+  }) => {
+    sessionFormModal.open({ date, timeSlotId, type });
   };
 
   const handleCancelSession = (session: CourseSession) => {
     cancelModal.open(session);
   };
 
-  const handleConfirmCancel = (sessionId: string) => {
-    cancelSession(sessionId);
-    cancelModal.close();
+  const handleConfirmCancel = async (sessionId: string) => {
+    try {
+      await cancelSession(sessionId);
+      toast.success("Session annulée avec succès");
+      cancelModal.close();
+    } catch (error) {
+      const fallbackMessage =
+        error instanceof Error
+          ? error.message
+          : "Impossible d'annuler la session. Veuillez réessayer.";
+      toast.error(fallbackMessage);
+    }
   };
 
   const handleOpenMoveDialog = (session: CourseSession) => {
     moveModal.open(session);
   };
 
-  const handleMoveSessionConfirm = (
+  const handleMoveSessionConfirm = async (
     sessionId: string,
     newDate: Date,
     newTimeSlot: TimeSlot,
   ) => {
     if (!moveModal.data) return;
 
-    // Utiliser le hook de déplacement pour la logique métier et les notifications
-    handleMoveSession(
-      sessionId,
-      newDate,
-      newTimeSlot,
-      moveModal.data,
-      moveSession, // Fonction du hook useCalendar pour mettre à jour les données
-    );
+    try {
+      // Update via API
+      await moveSession(sessionId, {
+        sessionDate: newDate,
+        timeSlotId: newTimeSlot.id,
+        isMoved: true,
+        notes: `Déplacé depuis ${new Date(moveModal.data.sessionDate).toLocaleDateString("fr-FR")} - ${timeSlots.find((t) => t.id === moveModal.data?.timeSlotId)?.name || ""}`,
+      });
 
-    moveModal.close();
+      // Show success toast with undo functionality
+      handleMoveSession(
+        sessionId,
+        newDate,
+        newTimeSlot,
+        moveModal.data,
+        moveSession,
+      );
+
+      moveModal.close();
+    } catch (error) {
+      if (error instanceof ApiError && error.status === 409) {
+        const subject = subjects.find(
+          (s) => s.id === moveModal.data?.subjectId,
+        );
+        const classEntity = classes.find(
+          (c) => c.id === moveModal.data?.classId,
+        );
+        const conflictMessage = `Créneau déjà occupé par session Classe ${classEntity?.classCode || "inconnue"} - Matière ${subject?.name || "inconnue"}`;
+        toast.error(conflictMessage);
+      } else {
+        const fallbackMessage =
+          error instanceof Error
+            ? error.message
+            : "Impossible de déplacer la session. Veuillez réessayer.";
+        toast.error(fallbackMessage);
+      }
+    }
+  };
+
+  const handleSessionFormSubmit = async (
+    sessionData: Partial<CourseSession>,
+  ) => {
+    try {
+      const createdSession = await addSession(sessionData);
+      toast.success("Session créée avec succès");
+      sessionFormModal.close();
+      return createdSession;
+    } catch (error) {
+      if (error instanceof ApiError && error.status === 409) {
+        const subject = subjects.find((s) => s.id === sessionData.subjectId);
+        const classEntity = classes.find((c) => c.id === sessionData.classId);
+        const subjectLabel =
+          subject?.name ?? sessionData.subjectId ?? "Matière inconnue";
+        const classLabel =
+          classEntity?.classCode ?? sessionData.classId ?? "Classe inconnue";
+        const conflictMessage = `Créneau déjà occupé par session Classe ${classLabel} - Matière ${subjectLabel}`;
+        toast.error(conflictMessage);
+        throw new ApiError(conflictMessage, error.status, error.code);
+      }
+
+      const fallbackMessage =
+        error instanceof Error
+          ? error.message
+          : "Impossible de créer la session. Veuillez réessayer.";
+      toast.error(fallbackMessage);
+
+      if (error instanceof Error) {
+        throw error;
+      }
+
+      throw new Error(fallbackMessage);
+    }
   };
 
   if (loading || userLoading) {
@@ -176,13 +257,13 @@ export default function CalendrierPage() {
         onNavigateToJanuary2025={navigateToJanuary2025}
         onNavigateToAugust2025={navigateToAugust2025}
         onToggleFilters={() => setShowFilters(!showFilters)}
-        onCreateSession={() => {
-          sessionFormModal.open({
+        onCreateSession={() =>
+          handleOpenSessionForm({
             date: new Date(),
             timeSlotId: "",
             type: "normal",
-          });
-        }}
+          })
+        }
         onManageColors={colorPickerModal.open}
       />
 
@@ -195,7 +276,9 @@ export default function CalendrierPage() {
         onManageAttendance={handleManageAttendance}
         onMove={handleOpenMoveDialog}
         onCancel={handleCancelSession}
-        onCreateMakeupSession={handleCreateMakeupSession}
+        onCreateSession={({ date, timeSlotId, type }) =>
+          handleOpenSessionForm({ date, timeSlotId, type })
+        }
       />
 
       {/* Modal de création de session */}
@@ -211,17 +294,13 @@ export default function CalendrierPage() {
           {sessionFormModal.data && (
             <SessionForm
               onClose={sessionFormModal.close}
-              onSave={(session) => {
-                addSession(session);
-                sessionFormModal.close();
-              }}
+              onSave={handleSessionFormSubmit}
               initialDate={sessionFormModal.data.date || undefined}
               initialTimeSlotId={sessionFormModal.data.timeSlotId}
               subjects={subjects}
               classes={classes}
               timeSlots={timeSlots}
               teacherId={teacherId}
-              schoolYearId="year-2025"
               sessionType={sessionFormModal.data.type}
               standalone={false}
             />
@@ -264,6 +343,9 @@ export default function CalendrierPage() {
 
       {/* Toast notifications */}
       <Toaster richColors position="bottom-right" />
+
+      {/* 🧪 Bouton de test API (À SUPPRIMER après les tests) */}
+      <TestApiButton />
     </div>
   );
 }

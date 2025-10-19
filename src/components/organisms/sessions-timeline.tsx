@@ -39,7 +39,7 @@ export function SessionsTimeline({
   // Grouper les sessions par date
   const groupedSessions = useMemo<GroupedSessions>(() => {
     const groups: GroupedSessions = {};
-    
+
     filteredSessions.forEach((session) => {
       const dateKey = new Date(session.sessionDate).toISOString().split("T")[0];
       if (!groups[dateKey]) {
@@ -52,7 +52,9 @@ export function SessionsTimeline({
     Object.keys(groups).forEach((date) => {
       groups[date].sort((a, b) => {
         // Comparer par sessionDate complète pour l'ordre temporel
-        return new Date(a.sessionDate).getTime() - new Date(b.sessionDate).getTime();
+        return (
+          new Date(a.sessionDate).getTime() - new Date(b.sessionDate).getTime()
+        );
       });
     });
 
@@ -69,7 +71,10 @@ export function SessionsTimeline({
     const now = new Date();
     return filteredSessions
       .filter((session) => new Date(session.sessionDate) > now)
-      .sort((a, b) => new Date(a.sessionDate).getTime() - new Date(b.sessionDate).getTime())[0];
+      .sort(
+        (a, b) =>
+          new Date(a.sessionDate).getTime() - new Date(b.sessionDate).getTime(),
+      )[0];
   }, [filteredSessions]);
 
   // Obtenir les sessions d'aujourd'hui
@@ -100,7 +105,7 @@ export function SessionsTimeline({
           <div>
             <h3 className="font-medium text-foreground mb-2">Aucune séance</h3>
             <p className="text-sm text-muted-foreground">
-              {selectedClassId && selectedClassId !== "all" 
+              {selectedClassId && selectedClassId !== "all"
                 ? "Pas de séance pour cette classe"
                 : "Aucune séance trouvée"}
             </p>
@@ -160,7 +165,7 @@ export function SessionsTimeline({
               {new Date(currentDate).toLocaleDateString("fr-FR", {
                 weekday: "short",
                 day: "numeric",
-                month: "short"
+                month: "short",
               })}
             </span>
             <Button

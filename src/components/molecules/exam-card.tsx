@@ -4,6 +4,7 @@ import {
   BookOpen,
   CalendarDays,
   Clock,
+  Copy,
   Edit,
   Eye,
   GraduationCap,
@@ -32,6 +33,7 @@ export interface ExamCardProps {
   className?: string;
   onEdit?: (examId: string) => void;
   onDelete?: (examId: string) => void;
+  onDuplicate?: (examId: string) => void;
   onGrade?: (examId: string) => void;
   onTogglePublication?: (examId: string) => void;
   showActions?: boolean;
@@ -45,6 +47,7 @@ export function ExamCard({
   className = "",
   onEdit,
   onDelete,
+  onDuplicate,
   onGrade,
   onTogglePublication,
   showActions = true,
@@ -54,6 +57,7 @@ export function ExamCard({
 }: ExamCardProps) {
   const handleEdit = () => onEdit?.(exam.id);
   const handleDelete = () => onDelete?.(exam.id);
+  const handleDuplicate = () => onDuplicate?.(exam.id);
   const handleGrade = () => onGrade?.(exam.id);
   const handleTogglePublication = () => onTogglePublication?.(exam.id);
 
@@ -120,6 +124,10 @@ export function ExamCard({
                 <DropdownMenuItem onClick={handleGrade}>
                   <GraduationCap className="w-4 h-4 mr-2" />
                   Saisir les notes
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleDuplicate}>
+                  <Copy className="w-4 h-4 mr-2" />
+                  Dupliquer
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={handleTogglePublication}>
                   <Share2 className="w-4 h-4 mr-2" />

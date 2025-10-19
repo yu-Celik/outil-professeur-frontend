@@ -18,14 +18,7 @@ import {
   DialogTitle,
 } from "@/components/atoms/dialog";
 import { Badge } from "@/components/atoms/badge";
-import {
-  Grid3x3,
-  Target,
-  Scale,
-  Eye,
-  Plus,
-  X
-} from "lucide-react";
+import { Grid3x3, Target, Scale, Eye, Plus, X } from "lucide-react";
 import { useRubricManagement } from "@/features/evaluations";
 import type { Rubric } from "@/types/uml-entities";
 import type { RubricSection } from "@/features/evaluations/mocks";
@@ -98,7 +91,9 @@ export function RubricSelector({
             onValueChange={handleValueChange}
             disabled={disabled}
           >
-            <SelectTrigger className={error ? "border-destructive flex-1" : "flex-1"}>
+            <SelectTrigger
+              className={error ? "border-destructive flex-1" : "flex-1"}
+            >
               <SelectValue placeholder={placeholder} />
             </SelectTrigger>
             <SelectContent>
@@ -137,9 +132,7 @@ export function RubricSelector({
         </div>
 
         {/* Message d'erreur */}
-        {error && (
-          <p className="text-sm text-destructive">{error}</p>
-        )}
+        {error && <p className="text-sm text-destructive">{error}</p>}
 
         {/* Info sur la grille sélectionnée */}
         {selectedRubric && (
@@ -185,7 +178,9 @@ export function RubricSelector({
         >
           <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle>Aperçu de la grille : {previewRubric.name}</DialogTitle>
+              <DialogTitle>
+                Aperçu de la grille : {previewRubric.name}
+              </DialogTitle>
               <DialogDescription>
                 Détails des sections et critères de cette grille d'évaluation
               </DialogDescription>
@@ -205,7 +200,7 @@ function RubricSummary({ rubric }: { rubric: Rubric }) {
   const sectionsCount = Object.keys(sections).length;
   const totalCriteria = Object.values(sections).reduce(
     (sum, section) => sum + section.criteria.length,
-    0
+    0,
   );
 
   return (
@@ -256,7 +251,9 @@ function RubricPreview({ rubric }: { rubric: Rubric }) {
                       className="flex items-center gap-1 bg-background rounded px-2 py-1 text-xs border"
                     >
                       <span className="font-medium">{level.points} pts</span>
-                      <span className="text-muted-foreground">- {level.name}</span>
+                      <span className="text-muted-foreground">
+                        - {level.name}
+                      </span>
                     </div>
                   ))}
                 </div>

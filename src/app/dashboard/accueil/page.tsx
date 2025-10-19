@@ -4,9 +4,10 @@ import { CalendarWidget } from "@/components/organisms/calendar-widget";
 import { ChatAI } from "@/components/organisms/chat-ai";
 import { ClassesStudentsCard } from "@/components/organisms/classes-students-card";
 import { OnboardingBanner } from "@/components/organisms/onboarding-banner";
+import { AlertsWidget } from "@/components/organisms/alerts-widget";
 import { useDashboardData } from "@/features/accueil";
-import { useSetPageTitle } from "@/shared/hooks";
 import { useUserSession } from "@/features/settings";
+import { useSetPageTitle } from "@/shared/hooks";
 
 export default function AccueilPage() {
   useSetPageTitle("Tableau de bord");
@@ -85,9 +86,16 @@ export default function AccueilPage() {
           </div>
         </div>
 
-        {/* Section Chat IA */}
-        <div className="flex-2 min-w-0 min-h-0">
-          <ChatAI />
+        {/* Section droite: Alertes + Chat IA */}
+        <div className="flex-2 min-w-0 min-h-0 flex flex-col gap-4">
+          <div className="flex-shrink-0 h-80">
+            <AlertsWidget
+              classIds={classes.map((cls) => ({ id: cls.id, name: cls.name }))}
+            />
+          </div>
+          <div className="flex-1 min-h-0">
+            <ChatAI />
+          </div>
         </div>
       </div>
 

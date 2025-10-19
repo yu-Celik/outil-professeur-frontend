@@ -33,7 +33,7 @@ export class SessionManagementService {
    */
   static createMakeupSession(
     options: MakeupSessionOptions,
-    teacherId: string
+    teacherId: string,
   ): CourseSession {
     const {
       originalSessionId,
@@ -64,17 +64,17 @@ export class SessionManagementService {
         : `Séance de rattrapage${reason ? ` - ${reason}` : ""}`,
       createdAt: new Date(),
       updatedAt: new Date(),
-      reschedule: function(newDate: Date) {
+      reschedule: function (newDate: Date) {
         this.sessionDate = newDate;
         this.isMoved = true;
         this.updatedAt = new Date();
         this.notes = `${this.notes || ""} (Redéplacé le ${newDate.toLocaleDateString()})`;
       },
-      takeAttendance: function() {
+      takeAttendance: function () {
         this.status = "in_progress";
         this.updatedAt = new Date();
       },
-      summary: function() {
+      summary: function () {
         return `Rattrapage ${this.classId} - ${this.subjectId} le ${this.sessionDate.toLocaleDateString()}`;
       },
     };
@@ -87,7 +87,7 @@ export class SessionManagementService {
    */
   static moveSession(
     session: CourseSession,
-    options: SessionMoveOptions
+    options: SessionMoveOptions,
   ): CourseSession {
     const { newDate, newTimeSlotId, reason } = options;
 
@@ -110,7 +110,7 @@ export class SessionManagementService {
    */
   static cancelSession(
     session: CourseSession,
-    options: SessionCancelOptions
+    options: SessionCancelOptions,
   ): CourseSession {
     const { reason } = options;
 
@@ -131,14 +131,17 @@ export class SessionManagementService {
     sessions: CourseSession[],
     date: Date,
     timeSlotId: string,
-    excludeSessionId?: string
+    excludeSessionId?: string,
   ): CourseSession | null {
-    return sessions.find(session =>
-      session.id !== excludeSessionId &&
-      session.status !== "cancelled" &&
-      session.sessionDate.toDateString() === date.toDateString() &&
-      session.timeSlotId === timeSlotId
-    ) || null;
+    return (
+      sessions.find(
+        (session) =>
+          session.id !== excludeSessionId &&
+          session.status !== "cancelled" &&
+          session.sessionDate.toDateString() === date.toDateString() &&
+          session.timeSlotId === timeSlotId,
+      ) || null
+    );
   }
 
   /**
@@ -154,11 +157,11 @@ export class SessionManagementService {
   } {
     return {
       total: sessions.length,
-      moved: sessions.filter(s => s.isMoved).length,
-      makeup: sessions.filter(s => s.isMakeup).length,
-      cancelled: sessions.filter(s => s.status === "cancelled").length,
-      planned: sessions.filter(s => s.status === "planned").length,
-      completed: sessions.filter(s => s.status === "done").length,
+      moved: sessions.filter((s) => s.isMoved).length,
+      makeup: sessions.filter((s) => s.isMakeup).length,
+      cancelled: sessions.filter((s) => s.status === "cancelled").length,
+      planned: sessions.filter((s) => s.status === "planned").length,
+      completed: sessions.filter((s) => s.status === "done").length,
     };
   }
 
@@ -211,15 +214,16 @@ export class SessionManagementService {
 
     const summary = `${stats.total} séances au total : ${stats.completed} terminées, ${stats.planned} planifiées, ${stats.moved} déplacées, ${stats.makeup} rattrapages, ${stats.cancelled} annulées`;
 
-    const details = sessions.map(session => ({
+    const details = sessions.map((session) => ({
       sessionId: session.id,
-      type: session.status === "cancelled"
-        ? "cancelled" as const
-        : session.isMakeup
-        ? "makeup" as const
-        : session.isMoved
-        ? "moved" as const
-        : "normal" as const,
+      type:
+        session.status === "cancelled"
+          ? ("cancelled" as const)
+          : session.isMakeup
+            ? ("makeup" as const)
+            : session.isMoved
+              ? ("moved" as const)
+              : ("normal" as const),
       date: session.sessionDate.toLocaleDateString(),
       notes: session.notes || "",
     }));

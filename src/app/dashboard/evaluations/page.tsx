@@ -22,8 +22,12 @@ export default function EvaluationsPage() {
   const [editingExam, setEditingExam] = useState<Exam | null>(null);
   const [gradingExamId, setGradingExamId] = useState<string | null>(null);
 
-  const { selectedClassId, currentTeacherId, assignmentsLoading } = useClassSelection();
-  const { refresh, getExamById } = useExamManagement(currentTeacherId);
+  const { selectedClassId, currentTeacherId, assignmentsLoading } =
+    useClassSelection();
+  const { refresh, getExamById } = useExamManagement(
+    currentTeacherId,
+    selectedClassId,
+  );
 
   const handleCreateExam = () => {
     setEditingExam(null);
@@ -84,7 +88,8 @@ export default function EvaluationsPage() {
           Sélectionnez une classe
         </div>
         <div className="text-sm text-center max-w-sm leading-relaxed">
-          Choisissez une classe dans la sidebar pour créer et gérer ses évaluations
+          Choisissez une classe dans la sidebar pour créer et gérer ses
+          évaluations
         </div>
       </div>
     );
@@ -97,10 +102,7 @@ export default function EvaluationsPage() {
           <CardTitle>Comment attribuer des notes rapidement ?</CardTitle>
           <p className="text-sm text-muted-foreground">
             Sélectionne une classe, crée ton évaluation puis clique sur
-            <span className="font-medium">
-              {" "}
-              «&nbsp;Saisir les notes&nbsp;»
-            </span>
+            <span className="font-medium"> «&nbsp;Saisir les notes&nbsp;»</span>
             pour accéder à la grille de correction interactive.
           </p>
         </CardHeader>
@@ -111,16 +113,13 @@ export default function EvaluationsPage() {
           </div>
           <div>
             <span className="text-foreground font-medium">2.</span> Clique sur
-            <span className="font-medium">
-              {" "}
-              «&nbsp;Saisir les notes&nbsp;»
-            </span>{" "}
+            <span className="font-medium"> «&nbsp;Saisir les notes&nbsp;»</span>{" "}
             : tu arrives sur la grille élève par élève.
           </div>
           <div>
             <span className="text-foreground font-medium">3.</span> Saisie
-            inline ou via la modal détaillée ; les validations suivent le
-            barème de l'examen.
+            inline ou via la modal détaillée ; les validations suivent le barème
+            de l'examen.
           </div>
         </CardContent>
       </Card>

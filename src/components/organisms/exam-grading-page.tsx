@@ -44,9 +44,11 @@ export function ExamGradingPage({ examId, onBack }: ExamGradingPageProps) {
     );
   }
 
-  const examClass = MOCK_CLASSES.find(c => c.id === exam.classId);
-  const examSubject = MOCK_SUBJECTS.find(s => s.id === exam.subjectId);
-  const notationSystem = notationSystems.find(ns => ns.id === exam.notationSystemId);
+  const examClass = MOCK_CLASSES.find((c) => c.id === exam.classId);
+  const examSubject = MOCK_SUBJECTS.find((s) => s.id === exam.subjectId);
+  const notationSystem = notationSystems.find(
+    (ns) => ns.id === exam.notationSystemId,
+  );
 
   return (
     <div className="space-y-6">
@@ -59,9 +61,11 @@ export function ExamGradingPage({ examId, onBack }: ExamGradingPageProps) {
               Retour
             </Button>
           )}
-          
+
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Correction d'examen</h1>
+            <h1 className="text-3xl font-bold tracking-tight">
+              Correction d'examen
+            </h1>
             <p className="text-muted-foreground">
               Interface de notation et d'évaluation des copies
             </p>
@@ -77,9 +81,9 @@ export function ExamGradingPage({ examId, onBack }: ExamGradingPageProps) {
             <div className="text-sm text-muted-foreground">Date</div>
             <div className="font-medium">
               {exam.examDate.toLocaleDateString("fr-FR", {
-                day: 'numeric',
-                month: 'long',
-                year: 'numeric'
+                day: "numeric",
+                month: "long",
+                year: "numeric",
               })}
             </div>
           </div>
@@ -116,19 +120,14 @@ export function ExamGradingPage({ examId, onBack }: ExamGradingPageProps) {
 
       {/* Métadonnées de l'examen */}
       <div className="flex flex-wrap gap-2">
-        <Badge variant="outline">
-          {exam.examType}
-        </Badge>
+        <Badge variant="outline">{exam.examType}</Badge>
         {notationSystem && (
           <Badge variant="secondary">
-            Notation: {notationSystem.name} ({notationSystem.minValue}-{notationSystem.maxValue})
+            Notation: {notationSystem.name} ({notationSystem.minValue}-
+            {notationSystem.maxValue})
           </Badge>
         )}
-        {exam.isPublished && (
-          <Badge variant="default">
-            Publié
-          </Badge>
-        )}
+        {exam.isPublished && <Badge variant="default">Publié</Badge>}
       </div>
 
       {/* Interface de correction principale */}

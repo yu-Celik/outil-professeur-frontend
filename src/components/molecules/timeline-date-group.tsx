@@ -21,18 +21,18 @@ export function TimelineDateGroup({
   const today = new Date();
   const isToday = dateObj.toDateString() === today.toDateString();
   const isPast = dateObj < today;
-  
+
   // Formatage de la date
   const formattedDate = dateObj.toLocaleDateString("fr-FR", {
     weekday: "long",
     day: "numeric",
-    month: "long"
+    month: "long",
   });
 
   const formattedShortDate = dateObj.toLocaleDateString("fr-FR", {
     weekday: "short",
     day: "numeric",
-    month: "short"
+    month: "short",
   });
 
   return (
@@ -40,24 +40,24 @@ export function TimelineDateGroup({
       {/* En-tête de date */}
       <div className="flex items-center gap-3 sticky top-0 bg-background/95 backdrop-blur-sm py-2 z-10">
         <div className="flex items-center gap-2">
-          <div 
+          <div
             className={`p-1.5 rounded-lg ${
-              isToday 
-                ? "bg-primary text-primary-foreground" 
-                : isPast 
-                  ? "bg-muted text-muted-foreground" 
+              isToday
+                ? "bg-primary text-primary-foreground"
+                : isPast
+                  ? "bg-muted text-muted-foreground"
                   : "bg-secondary text-secondary-foreground"
             }`}
           >
             <Calendar className="h-4 w-4" />
           </div>
           <div>
-            <h3 
+            <h3
               className={`font-semibold text-sm capitalize ${
-                isToday 
-                  ? "text-primary" 
-                  : isPast 
-                    ? "text-muted-foreground" 
+                isToday
+                  ? "text-primary"
+                  : isPast
+                    ? "text-muted-foreground"
                     : "text-foreground"
               }`}
             >
@@ -68,7 +68,7 @@ export function TimelineDateGroup({
             </p>
           </div>
         </div>
-        
+
         {/* Indicateur aujourd'hui */}
         {isToday && (
           <div className="ml-auto">
@@ -85,22 +85,22 @@ export function TimelineDateGroup({
         {isToday && (
           <div className="absolute -left-[2px] top-0 bottom-0 w-0.5 bg-primary"></div>
         )}
-        
+
         {sessions.map((session, index) => (
           <div key={session.id} className="relative">
             {/* Point de connexion */}
-            <div 
+            <div
               className={`absolute -left-[22px] top-4 w-3 h-3 rounded-full border-2 ${
                 selectedSessionId === session.id
-                  ? "bg-primary border-primary" 
+                  ? "bg-primary border-primary"
                   : isToday
-                    ? "bg-primary/20 border-primary" 
+                    ? "bg-primary/20 border-primary"
                     : isPast
-                      ? "bg-muted border-muted" 
+                      ? "bg-muted border-muted"
                       : "bg-secondary border-secondary"
               }`}
             />
-            
+
             <SessionTimelineItem
               session={session}
               isSelected={selectedSessionId === session.id}

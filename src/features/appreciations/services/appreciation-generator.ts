@@ -3,7 +3,7 @@ import type {
   StyleGuide,
   PhraseBank,
   Student,
-  Subject
+  Subject,
 } from "@/types/uml-entities";
 
 // Types pour la génération d'appréciations
@@ -39,6 +39,8 @@ export interface GenerationParameters {
   targetLength?: number;
   emphasizeProgress?: boolean;
   includeSpecificExamples?: boolean;
+  formal?: boolean; // For trimester bulletin formal structure
+  structureType?: "biweekly_report" | "trimester_bulletin" | "subject_comment";
 }
 
 export interface GenerationResult {
@@ -61,14 +63,13 @@ export interface GenerationResult {
  * et les paramètres de style définis par l'enseignant.
  */
 export class AppreciationGeneratorService {
-
   /**
    * Génère une appréciation complète basée sur les données de l'élève
    */
   static async generateAppreciation(
     studentData: StudentData,
     context: GenerationContext,
-    parameters: GenerationParameters
+    parameters: GenerationParameters,
   ): Promise<GenerationResult> {
     const startTime = performance.now();
 
@@ -80,7 +81,7 @@ export class AppreciationGeneratorService {
       const selectedPhrases = this.selectPhrases(
         context.phraseBank,
         analysis,
-        parameters
+        parameters,
       );
 
       // Générer le contenu selon le style guide
@@ -89,7 +90,7 @@ export class AppreciationGeneratorService {
         context,
         parameters,
         selectedPhrases,
-        analysis
+        analysis,
       );
 
       // Calculer les métadonnées
@@ -97,21 +98,26 @@ export class AppreciationGeneratorService {
         content,
         context.styleGuide,
         selectedPhrases,
-        performance.now() - startTime
+        performance.now() - startTime,
       );
 
       // Générer des suggestions et alternatives
       const suggestions = this.generateSuggestions(analysis, parameters);
-      const alternatives = this.generateAlternatives(content, context.styleGuide);
+      const alternatives = this.generateAlternatives(
+        content,
+        context.styleGuide,
+      );
 
       return {
         content,
         metadata,
         suggestions,
-        alternatives
+        alternatives,
       };
     } catch (error) {
-      throw new Error(`Erreur lors de la génération: ${error instanceof Error ? error.message : 'Erreur inconnue'}`);
+      throw new Error(
+        `Erreur lors de la génération: ${error instanceof Error ? error.message : "Erreur inconnue"}`,
+      );
     }
   }
 
@@ -122,7 +128,11 @@ export class AppreciationGeneratorService {
     studentsData: StudentData[],
     context: GenerationContext,
     parameters: GenerationParameters,
-    progressCallback?: (current: number, total: number, studentName: string) => void
+    progressCallback?: (
+      current: number,
+      total: number,
+      studentName: string,
+    ) => void,
   ): Promise<GenerationResult[]> {
     const results: GenerationResult[] = [];
 
@@ -130,7 +140,11 @@ export class AppreciationGeneratorService {
       const studentData = studentsData[i];
 
       if (progressCallback) {
-        progressCallback(i + 1, studentsData.length, studentData.student.fullName());
+        progressCallback(
+          i + 1,
+          studentsData.length,
+          studentData.student.fullName(),
+        );
       }
 
       // Ajouter une variation pour éviter les répétitions
@@ -139,13 +153,13 @@ export class AppreciationGeneratorService {
       const result = await this.generateAppreciation(
         studentData,
         context,
-        variedParameters
+        variedParameters,
       );
 
       results.push(result);
 
       // Délai pour simuler le traitement IA
-      await new Promise(resolve => setTimeout(resolve, 300));
+      await new Promise((resolve) => setTimeout(resolve, 300));
     }
 
     return results;
@@ -155,19 +169,33 @@ export class AppreciationGeneratorService {
    * Analyser les données de l'élève pour déterminer les axes principaux
    */
   private static analyzeStudentData(studentData: StudentData) {
-    const { participationLevel, averageGrade, attendanceRate, strengths, improvementAreas } = studentData;
+    const {
+      participationLevel,
+      averageGrade,
+      attendanceRate,
+      strengths,
+      improvementAreas,
+    } = studentData;
 
     // Déterminer le profil général
-    let overallProfile: 'excellent' | 'good' | 'average' | 'struggling';
+    let overallProfile: "excellent" | "good" | "average" | "struggling";
 
     if (averageGrade >= 16 && participationLevel >= 8 && attendanceRate >= 95) {
-      overallProfile = 'excellent';
-    } else if (averageGrade >= 13 && participationLevel >= 6.5 && attendanceRate >= 85) {
-      overallProfile = 'good';
-    } else if (averageGrade >= 10 && participationLevel >= 5 && attendanceRate >= 75) {
-      overallProfile = 'average';
+      overallProfile = "excellent";
+    } else if (
+      averageGrade >= 13 &&
+      participationLevel >= 6.5 &&
+      attendanceRate >= 85
+    ) {
+      overallProfile = "good";
+    } else if (
+      averageGrade >= 10 &&
+      participationLevel >= 5 &&
+      attendanceRate >= 75
+    ) {
+      overallProfile = "average";
     } else {
-      overallProfile = 'struggling';
+      overallProfile = "struggling";
     }
 
     // Identifier les points forts dominants
@@ -175,7 +203,10 @@ export class AppreciationGeneratorService {
     const primaryImprovements = improvementAreas.slice(0, 2);
 
     // Calculer le trend de progression (simulé)
-    const progressionTrend = this.calculateProgressionTrend(participationLevel, averageGrade);
+    const progressionTrend = this.calculateProgressionTrend(
+      participationLevel,
+      averageGrade,
+    );
 
     return {
       overallProfile,
@@ -184,7 +215,7 @@ export class AppreciationGeneratorService {
       progressionTrend,
       engagementLevel: participationLevel,
       academicLevel: averageGrade,
-      attendance: attendanceRate
+      attendance: attendanceRate,
     };
   }
 
@@ -194,7 +225,7 @@ export class AppreciationGeneratorService {
   private static selectPhrases(
     phraseBank: PhraseBank,
     analysis: any,
-    parameters: GenerationParameters
+    parameters: GenerationParameters,
   ): { positive: string[]; improvements: string[]; encouragements: string[] } {
     const entries = phraseBank.entries as any;
 
@@ -204,7 +235,7 @@ export class AppreciationGeneratorService {
 
     // Sélection basée sur le profil de l'élève
     if (parameters.includeStrengths && entries.positiveElements) {
-      parameters.focusAreas.forEach(area => {
+      parameters.focusAreas.forEach((area) => {
         if (entries.positiveElements[area]) {
           const phrases = entries.positiveElements[area];
           positive.push(this.selectRandomPhrase(phrases));
@@ -233,7 +264,7 @@ export class AppreciationGeneratorService {
     context: GenerationContext,
     parameters: GenerationParameters,
     selectedPhrases: any,
-    analysis: any
+    analysis: any,
   ): string {
     const { styleGuide } = context;
     const studentName = studentData.student.firstName;
@@ -253,17 +284,24 @@ export class AppreciationGeneratorService {
       content += selectedPhrases.positive.join(" et ");
 
       if (styleGuide.length === "long") {
-        content += ". Cette attitude témoigne d'un réel investissement personnel. ";
+        content +=
+          ". Cette attitude témoigne d'un réel investissement personnel. ";
       } else {
         content += ". ";
       }
     }
 
     // Ajouter les axes d'amélioration de manière constructive
-    if (parameters.includeImprovements && selectedPhrases.improvements.length > 0) {
+    if (
+      parameters.includeImprovements &&
+      selectedPhrases.improvements.length > 0
+    ) {
       const improvement = selectedPhrases.improvements[0];
 
-      if (styleGuide.tone === "constructif" || styleGuide.tone === "bienveillant") {
+      if (
+        styleGuide.tone === "constructif" ||
+        styleGuide.tone === "bienveillant"
+      ) {
         content += `Pour poursuivre cette progression, ${studentName.toLowerCase()} ${improvement}. `;
       } else {
         content += `${improvement}. `;
@@ -271,12 +309,16 @@ export class AppreciationGeneratorService {
     }
 
     // Ajouter l'encouragement selon le ton
-    if (parameters.includeEncouragement && selectedPhrases.encouragements.length > 0) {
+    if (
+      parameters.includeEncouragement &&
+      selectedPhrases.encouragements.length > 0
+    ) {
       const encouragement = selectedPhrases.encouragements[0];
       content += encouragement;
 
       if (styleGuide.tone === "valorisant") {
-        content += " L'évolution positive est remarquable et laisse présager de belles réussites.";
+        content +=
+          " L'évolution positive est remarquable et laisse présager de belles réussites.";
       }
     }
 
@@ -298,35 +340,43 @@ export class AppreciationGeneratorService {
     content: string,
     styleGuide: StyleGuide,
     selectedPhrases: any,
-    generationTime: number
+    generationTime: number,
   ) {
     return {
-      wordsCount: content.split(' ').length,
-      sentencesCount: content.split(/[.!?]/).filter(s => s.trim().length > 0).length,
+      wordsCount: content.split(" ").length,
+      sentencesCount: content.split(/[.!?]/).filter((s) => s.trim().length > 0)
+        .length,
       tone: styleGuide.tone,
       focusAreas: Object.keys(selectedPhrases.positive || {}),
       phrasesUsed: [
-        ...selectedPhrases.positive || [],
-        ...selectedPhrases.improvements || [],
-        ...selectedPhrases.encouragements || []
+        ...(selectedPhrases.positive || []),
+        ...(selectedPhrases.improvements || []),
+        ...(selectedPhrases.encouragements || []),
       ],
-      generationTime: Math.round(generationTime)
+      generationTime: Math.round(generationTime),
     };
   }
 
   /**
    * Générer des suggestions d'amélioration
    */
-  private static generateSuggestions(analysis: any, parameters: GenerationParameters): string[] {
+  private static generateSuggestions(
+    analysis: any,
+    parameters: GenerationParameters,
+  ): string[] {
     const suggestions: string[] = [];
 
-    if (analysis.overallProfile === 'struggling') {
-      suggestions.push("Envisager un entretien individuel pour comprendre les difficultés");
+    if (analysis.overallProfile === "struggling") {
+      suggestions.push(
+        "Envisager un entretien individuel pour comprendre les difficultés",
+      );
       suggestions.push("Proposer des ressources d'aide personnalisées");
     }
 
     if (analysis.engagementLevel < 5) {
-      suggestions.push("Travailler sur la motivation et l'engagement de l'élève");
+      suggestions.push(
+        "Travailler sur la motivation et l'engagement de l'élève",
+      );
     }
 
     if (parameters.targetLength && parameters.targetLength > 150) {
@@ -339,7 +389,10 @@ export class AppreciationGeneratorService {
   /**
    * Générer des versions alternatives
    */
-  private static generateAlternatives(content: string, styleGuide: StyleGuide): string[] {
+  private static generateAlternatives(
+    content: string,
+    styleGuide: StyleGuide,
+  ): string[] {
     // Simuler des alternatives en variant le ton
     const alternatives: string[] = [];
 
@@ -363,7 +416,10 @@ export class AppreciationGeneratorService {
     return phrases[Math.floor(Math.random() * phrases.length)];
   }
 
-  private static calculateProgressionTrend(participation: number, grade: number): string {
+  private static calculateProgressionTrend(
+    participation: number,
+    grade: number,
+  ): string {
     const average = (participation + grade) / 2;
     if (average >= 15) return "ascending";
     if (average >= 12) return "stable";
@@ -371,7 +427,10 @@ export class AppreciationGeneratorService {
     return "declining";
   }
 
-  private static addVariation(params: GenerationParameters, index: number): GenerationParameters {
+  private static addVariation(
+    params: GenerationParameters,
+    index: number,
+  ): GenerationParameters {
     const varied = { ...params };
 
     // Varier légèrement les paramètres pour éviter les répétitions
@@ -389,23 +448,29 @@ export class AppreciationGeneratorService {
   private static addVariations(content: string): string {
     // Ajouter des variations stylistiques mineures
     return content
-      .replace(/\. /g, Math.random() > 0.7 ? '. En effet, ' : '. ')
-      .replace(/Par ailleurs/g, Math.random() > 0.5 ? 'De plus' : 'Par ailleurs');
+      .replace(/\. /g, Math.random() > 0.7 ? ". En effet, " : ". ")
+      .replace(
+        /Par ailleurs/g,
+        Math.random() > 0.5 ? "De plus" : "Par ailleurs",
+      );
   }
 
-  private static cleanAndFinalize(content: string, styleGuide: StyleGuide): string {
+  private static cleanAndFinalize(
+    content: string,
+    styleGuide: StyleGuide,
+  ): string {
     // Nettoyer les espaces multiples
-    content = content.replace(/\s+/g, ' ').trim();
+    content = content.replace(/\s+/g, " ").trim();
 
     // Vérifier les phrases bannies
-    styleGuide.bannedPhrases.forEach(banned => {
-      const regex = new RegExp(banned, 'gi');
-      content = content.replace(regex, '');
+    styleGuide.bannedPhrases.forEach((banned) => {
+      const regex = new RegExp(banned, "gi");
+      content = content.replace(regex, "");
     });
 
     // S'assurer que le contenu se termine bien
-    if (!content.endsWith('.') && !content.endsWith('!')) {
-      content += '.';
+    if (!content.endsWith(".") && !content.endsWith("!")) {
+      content += ".";
     }
 
     return content;

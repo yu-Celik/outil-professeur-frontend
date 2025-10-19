@@ -2,7 +2,12 @@
 
 import { useState, useEffect } from "react";
 import { Button } from "@/components/atoms/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/molecules/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/molecules/card";
 import { Badge } from "@/components/atoms/badge";
 import { Input } from "@/components/atoms/input";
 import { Label } from "@/components/atoms/label";
@@ -21,7 +26,12 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/molecules/dialog";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/molecules/tabs";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/components/molecules/tabs";
 import {
   Sparkles,
   User,
@@ -36,13 +46,20 @@ import {
   Eye,
   Clock,
   CheckCircle,
-  AlertCircle
+  AlertCircle,
 } from "lucide-react";
-import { useAppreciationGeneration, useStyleGuides, usePhraseBank } from "@/features/appreciations";
+import {
+  useAppreciationGeneration,
+  useStyleGuides,
+  usePhraseBank,
+} from "@/features/appreciations";
 import { MOCK_STUDENTS } from "@/features/students/mocks";
 import { MOCK_SUBJECTS } from "@/features/gestion/mocks";
 import { MOCK_ACADEMIC_PERIODS } from "@/features/gestion/mocks";
-import type { GenerationRequest, BulkGenerationRequest } from "@/features/appreciations/hooks/use-appreciation-generation";
+import type {
+  GenerationRequest,
+  BulkGenerationRequest,
+} from "@/features/appreciations/hooks/use-appreciation-generation";
 
 export interface AppreciationGenerationInterfaceProps {
   teacherId?: string;
@@ -55,7 +72,7 @@ export function AppreciationGenerationInterface({
   teacherId = "KsmNtVf4zwqO3VV3SQJqPrRlQBA1fFyR",
   className = "",
   defaultMode = "individual",
-  onGenerationComplete
+  onGenerationComplete,
 }: AppreciationGenerationInterfaceProps) {
   const [mode, setMode] = useState<"individual" | "bulk">(defaultMode);
   const [selectedStudentId, setSelectedStudentId] = useState<string>("");
@@ -67,7 +84,8 @@ export function AppreciationGenerationInterface({
   const [contentKind, setContentKind] = useState<string>("bulletin");
   const [audience, setAudience] = useState<string>("parents");
   const [customInstructions, setCustomInstructions] = useState<string>("");
-  const [generatedAppreciation, setGeneratedAppreciation] = useState<string>("");
+  const [generatedAppreciation, setGeneratedAppreciation] =
+    useState<string>("");
   const [showPreview, setShowPreview] = useState<boolean>(false);
 
   const {
@@ -77,7 +95,7 @@ export function AppreciationGenerationInterface({
     bulkGenerationProgress,
     updateAppreciationContent,
     toggleFavorite,
-    validateAppreciation
+    validateAppreciation,
   } = useAppreciationGeneration(teacherId);
 
   const { styleGuides } = useStyleGuides(teacherId);
@@ -89,7 +107,7 @@ export function AppreciationGenerationInterface({
       return;
     }
 
-    const student = MOCK_STUDENTS.find(s => s.id === selectedStudentId);
+    const student = MOCK_STUDENTS.find((s) => s.id === selectedStudentId);
     if (!student) return;
 
     const request: GenerationRequest = {
@@ -111,15 +129,15 @@ export function AppreciationGenerationInterface({
         strengths: student.strengths,
         improvementAreas: student.improvementAxes,
         behaviorNotes: ["engaged", "collaborative"],
-        customInstructions
+        customInstructions,
       },
       generationParams: {
         includeStrengths: true,
         includeImprovements: true,
         includeEncouragement: true,
-        focusAreas: ["participation", "comprehension", "expression"]
+        focusAreas: ["participation", "comprehension", "expression"],
       },
-      language: "fr"
+      language: "fr",
     };
 
     const result = await generateAppreciation(request);
@@ -149,35 +167,36 @@ export function AppreciationGenerationInterface({
         audience,
         generationTrigger: "bulk",
         inputData: {
-          customInstructions
+          customInstructions,
         },
         generationParams: {
           includeStrengths: true,
           includeImprovements: true,
           includeEncouragement: true,
-          focusAreas: ["participation", "comprehension", "expression"]
+          focusAreas: ["participation", "comprehension", "expression"],
         },
-        language: "fr"
-      }
+        language: "fr",
+      },
     };
 
     const results = await generateBulkAppreciations(request);
     if (results.length > 0) {
-      onGenerationComplete?.(results.map(r => r.id));
+      onGenerationComplete?.(results.map((r) => r.id));
     }
   };
 
   const handleStudentSelection = (studentId: string, selected: boolean) => {
     if (selected) {
-      setSelectedStudentIds(prev => [...prev, studentId]);
+      setSelectedStudentIds((prev) => [...prev, studentId]);
     } else {
-      setSelectedStudentIds(prev => prev.filter(id => id !== studentId));
+      setSelectedStudentIds((prev) => prev.filter((id) => id !== studentId));
     }
   };
 
-  const canGenerate = mode === "individual"
-    ? selectedStudentId && selectedStyleGuideId
-    : selectedStudentIds.length > 0 && selectedStyleGuideId;
+  const canGenerate =
+    mode === "individual"
+      ? selectedStudentId && selectedStyleGuideId
+      : selectedStudentIds.length > 0 && selectedStyleGuideId;
 
   return (
     <div className={`space-y-6 ${className}`}>
@@ -189,13 +208,17 @@ export function AppreciationGenerationInterface({
             Génération d'appréciations IA
           </h2>
           <p className="text-sm text-muted-foreground">
-            Créez des appréciations personnalisées avec l'intelligence artificielle
+            Créez des appréciations personnalisées avec l'intelligence
+            artificielle
           </p>
         </div>
       </div>
 
       {/* Sélecteur de mode */}
-      <Tabs value={mode} onValueChange={(value) => setMode(value as "individual" | "bulk")}>
+      <Tabs
+        value={mode}
+        onValueChange={(value) => setMode(value as "individual" | "bulk")}
+      >
         <TabsList className="grid grid-cols-2 w-fit">
           <TabsTrigger value="individual" className="flex items-center gap-2">
             <User className="h-4 w-4" />
@@ -222,12 +245,15 @@ export function AppreciationGenerationInterface({
                 {/* Sélection de l'élève */}
                 <div>
                   <Label htmlFor="student">Élève</Label>
-                  <Select value={selectedStudentId} onValueChange={setSelectedStudentId}>
+                  <Select
+                    value={selectedStudentId}
+                    onValueChange={setSelectedStudentId}
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder="Sélectionner un élève" />
                     </SelectTrigger>
                     <SelectContent>
-                      {MOCK_STUDENTS.slice(0, 10).map(student => (
+                      {MOCK_STUDENTS.slice(0, 10).map((student) => (
                         <SelectItem key={student.id} value={student.id}>
                           {student.fullName()}
                         </SelectItem>
@@ -239,13 +265,18 @@ export function AppreciationGenerationInterface({
                 {/* Sélection de la matière */}
                 <div>
                   <Label htmlFor="subject">Matière (optionnel)</Label>
-                  <Select value={selectedSubjectId} onValueChange={setSelectedSubjectId}>
+                  <Select
+                    value={selectedSubjectId}
+                    onValueChange={setSelectedSubjectId}
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder="Général ou par matière" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="general">Appréciation générale</SelectItem>
-                      {MOCK_SUBJECTS.map(subject => (
+                      <SelectItem value="general">
+                        Appréciation générale
+                      </SelectItem>
+                      {MOCK_SUBJECTS.map((subject) => (
                         <SelectItem key={subject.id} value={subject.id}>
                           {subject.name}
                         </SelectItem>
@@ -257,12 +288,15 @@ export function AppreciationGenerationInterface({
                 {/* Période académique */}
                 <div>
                   <Label htmlFor="period">Période</Label>
-                  <Select value={selectedPeriodId} onValueChange={setSelectedPeriodId}>
+                  <Select
+                    value={selectedPeriodId}
+                    onValueChange={setSelectedPeriodId}
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder="Sélectionner une période" />
                     </SelectTrigger>
                     <SelectContent>
-                      {MOCK_ACADEMIC_PERIODS.map(period => (
+                      {MOCK_ACADEMIC_PERIODS.map((period) => (
                         <SelectItem key={period.id} value={period.id}>
                           {period.name}
                         </SelectItem>
@@ -274,12 +308,15 @@ export function AppreciationGenerationInterface({
                 {/* Guide de style */}
                 <div>
                   <Label htmlFor="style">Guide de style</Label>
-                  <Select value={selectedStyleGuideId} onValueChange={setSelectedStyleGuideId}>
+                  <Select
+                    value={selectedStyleGuideId}
+                    onValueChange={setSelectedStyleGuideId}
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder="Choisir un style" />
                     </SelectTrigger>
                     <SelectContent>
-                      {styleGuides.map(guide => (
+                      {styleGuides.map((guide) => (
                         <SelectItem key={guide.id} value={guide.id}>
                           {guide.name}
                           <Badge variant="outline" className="ml-2 text-xs">
@@ -294,16 +331,23 @@ export function AppreciationGenerationInterface({
                 {/* Banque de phrases */}
                 <div>
                   <Label htmlFor="phrases">Banque de phrases (optionnel)</Label>
-                  <Select value={selectedPhraseBankId} onValueChange={setSelectedPhraseBankId}>
+                  <Select
+                    value={selectedPhraseBankId}
+                    onValueChange={setSelectedPhraseBankId}
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder="Utiliser une banque de phrases" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="none">Aucune banque spécifique</SelectItem>
-                      {phraseBanks.map(bank => (
+                      <SelectItem value="none">
+                        Aucune banque spécifique
+                      </SelectItem>
+                      {phraseBanks.map((bank) => (
                         <SelectItem key={bank.id} value={bank.id}>
-                          {bank.scope === 'general' ? 'Banque générale' :
-                           MOCK_SUBJECTS.find(s => s.id === bank.subjectId)?.name || bank.subjectId}
+                          {bank.scope === "general"
+                            ? "Banque générale"
+                            : MOCK_SUBJECTS.find((s) => s.id === bank.subjectId)
+                                ?.name || bank.subjectId}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -312,7 +356,9 @@ export function AppreciationGenerationInterface({
 
                 {/* Instructions personnalisées */}
                 <div>
-                  <Label htmlFor="instructions">Instructions personnalisées</Label>
+                  <Label htmlFor="instructions">
+                    Instructions personnalisées
+                  </Label>
                   <Textarea
                     id="instructions"
                     placeholder="Ajoutez des instructions spécifiques pour personnaliser l'appréciation..."
@@ -355,7 +401,9 @@ export function AppreciationGenerationInterface({
                 {generatedAppreciation ? (
                   <div className="space-y-4">
                     <div className="p-4 bg-muted rounded-lg border-l-4 border-l-primary">
-                      <p className="text-sm leading-relaxed">{generatedAppreciation}</p>
+                      <p className="text-sm leading-relaxed">
+                        {generatedAppreciation}
+                      </p>
                     </div>
                     <div className="flex gap-2">
                       <Button size="sm" variant="outline">
@@ -376,7 +424,9 @@ export function AppreciationGenerationInterface({
                   <div className="text-center py-12 text-muted-foreground">
                     <MessageSquare className="h-16 w-16 mx-auto mb-4 opacity-50" />
                     <p>L'appréciation générée apparaîtra ici</p>
-                    <p className="text-sm">Configurez les paramètres et lancez la génération</p>
+                    <p className="text-sm">
+                      Configurez les paramètres et lancez la génération
+                    </p>
                   </div>
                 )}
               </CardContent>
@@ -398,14 +448,21 @@ export function AppreciationGenerationInterface({
               <CardContent className="space-y-4">
                 {/* Sélection multiple d'élèves */}
                 <div>
-                  <Label>Élèves ({selectedStudentIds.length} sélectionnés)</Label>
+                  <Label>
+                    Élèves ({selectedStudentIds.length} sélectionnés)
+                  </Label>
                   <div className="mt-2 space-y-2 max-h-48 overflow-y-auto border rounded-lg p-3">
-                    {MOCK_STUDENTS.slice(0, 10).map(student => (
-                      <label key={student.id} className="flex items-center space-x-2 cursor-pointer">
+                    {MOCK_STUDENTS.slice(0, 10).map((student) => (
+                      <label
+                        key={student.id}
+                        className="flex items-center space-x-2 cursor-pointer"
+                      >
                         <input
                           type="checkbox"
                           checked={selectedStudentIds.includes(student.id)}
-                          onChange={(e) => handleStudentSelection(student.id, e.target.checked)}
+                          onChange={(e) =>
+                            handleStudentSelection(student.id, e.target.checked)
+                          }
                           className="rounded"
                         />
                         <span className="text-sm">{student.fullName()}</span>
@@ -417,12 +474,15 @@ export function AppreciationGenerationInterface({
                 {/* Autres paramètres similaires au mode individuel */}
                 <div>
                   <Label htmlFor="bulk-style">Guide de style</Label>
-                  <Select value={selectedStyleGuideId} onValueChange={setSelectedStyleGuideId}>
+                  <Select
+                    value={selectedStyleGuideId}
+                    onValueChange={setSelectedStyleGuideId}
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder="Choisir un style commun" />
                     </SelectTrigger>
                     <SelectContent>
-                      {styleGuides.map(guide => (
+                      {styleGuides.map((guide) => (
                         <SelectItem key={guide.id} value={guide.id}>
                           {guide.name}
                         </SelectItem>
@@ -469,11 +529,16 @@ export function AppreciationGenerationInterface({
                         <span>{bulkGenerationProgress.currentStudent}</span>
                       </div>
                       <Progress
-                        value={(bulkGenerationProgress.current / bulkGenerationProgress.total) * 100}
+                        value={
+                          (bulkGenerationProgress.current /
+                            bulkGenerationProgress.total) *
+                          100
+                        }
                         className="mb-2"
                       />
                       <div className="text-xs text-muted-foreground text-center">
-                        {bulkGenerationProgress.current} / {bulkGenerationProgress.total}
+                        {bulkGenerationProgress.current} /{" "}
+                        {bulkGenerationProgress.total}
                       </div>
                     </div>
                   </div>
@@ -481,7 +546,9 @@ export function AppreciationGenerationInterface({
                   <div className="text-center py-12 text-muted-foreground">
                     <Users className="h-16 w-16 mx-auto mb-4 opacity-50" />
                     <p>La progression apparaîtra ici</p>
-                    <p className="text-sm">Lancez la génération en lot pour suivre l'avancement</p>
+                    <p className="text-sm">
+                      Lancez la génération en lot pour suivre l'avancement
+                    </p>
                   </div>
                 )}
               </CardContent>

@@ -1,6 +1,13 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState, useCallback, ReactNode } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  useCallback,
+  ReactNode,
+} from "react";
 import { useTeachingAssignments } from "@/features/gestion/hooks";
 import { useClassColors } from "@/features/calendar/hooks";
 import { useUserSession } from "@/features/settings/hooks";
@@ -12,50 +19,62 @@ interface ClassSelectionContextType {
   selectedClassId: string | null;
   classes: Class[];
   assignmentsLoading: boolean;
-  
+
   // Fonctions
-  getClassColorWithText: (classId: string) => { backgroundColor: string; color: string; borderColor: string };
+  getClassColorWithText: (classId: string) => {
+    backgroundColor: string;
+    color: string;
+    borderColor: string;
+  };
   handleClassSelect: (classId: string | null) => void;
   selectFirstClassIfAvailable: () => void;
 }
 
-const ClassSelectionContext = createContext<ClassSelectionContextType | undefined>(undefined);
+const ClassSelectionContext = createContext<
+  ClassSelectionContextType | undefined
+>(undefined);
 
 interface ClassSelectionProviderProps {
   children: ReactNode;
 }
 
-export function ClassSelectionProvider({ children }: ClassSelectionProviderProps) {
+export function ClassSelectionProvider({
+  children,
+}: ClassSelectionProviderProps) {
   const { user } = useUserSession();
   const currentTeacherId = user?.id || "KsmNtVf4zwqO3VV3SQJqPrRlQBA1fFyR";
-  
+
   // État global persistant
   const [selectedClassId, setSelectedClassId] = useState<string | null>(null);
-  
+
   // Hooks pour les données
-  const { assignments, loading: assignmentsLoading } = useTeachingAssignments(currentTeacherId);
+  const { assignments, loading: assignmentsLoading } =
+    useTeachingAssignments(currentTeacherId);
   const { getClassColorWithText } = useClassColors(currentTeacherId);
 
   // Classes disponibles (déduplication basée sur l'ID)
-  const classes: Class[] = assignments?.reduce((uniqueClasses, assignment) => {
-    const classExists = uniqueClasses.some(c => c.id === assignment.classId);
-    if (!classExists) {
-      uniqueClasses.push({
-        ...assignment.class,
-        id: assignment.classId
-      });
-    }
-    return uniqueClasses;
-  }, [] as Class[]) || [];
+  const classes: Class[] =
+    assignments?.reduce((uniqueClasses, assignment) => {
+      const classExists = uniqueClasses.some(
+        (c) => c.id === assignment.classId,
+      );
+      if (!classExists) {
+        uniqueClasses.push({
+          ...assignment.class,
+          id: assignment.classId,
+        });
+      }
+      return uniqueClasses;
+    }, [] as Class[]) || [];
 
   // Gestionnaire de sélection de classe
   const handleClassSelect = useCallback((classId: string | null) => {
     setSelectedClassId(classId);
     // Optionnel : sauvegarder dans localStorage pour persistance
     if (classId) {
-      localStorage.setItem('selectedClassId', classId);
+      localStorage.setItem("selectedClassId", classId);
     } else {
-      localStorage.removeItem('selectedClassId');
+      localStorage.removeItem("selectedClassId");
     }
   }, []);
 
@@ -63,8 +82,8 @@ export function ClassSelectionProvider({ children }: ClassSelectionProviderProps
   const selectFirstClassIfAvailable = useCallback(() => {
     if (!selectedClassId && classes.length > 0) {
       // Essayer de récupérer depuis localStorage
-      const savedClassId = localStorage.getItem('selectedClassId');
-      if (savedClassId && classes.some(c => c.id === savedClassId)) {
+      const savedClassId = localStorage.getItem("selectedClassId");
+      if (savedClassId && classes.some((c) => c.id === savedClassId)) {
         setSelectedClassId(savedClassId);
       } else {
         // Sinon, prendre la première classe
@@ -75,8 +94,8 @@ export function ClassSelectionProvider({ children }: ClassSelectionProviderProps
 
   // Restaurer la sélection depuis localStorage au montage
   useEffect(() => {
-    const savedClassId = localStorage.getItem('selectedClassId');
-    if (savedClassId && classes.some(c => c.id === savedClassId)) {
+    const savedClassId = localStorage.getItem("selectedClassId");
+    if (savedClassId && classes.some((c) => c.id === savedClassId)) {
       setSelectedClassId(savedClassId);
     }
   }, [classes]);
@@ -106,7 +125,9 @@ export function ClassSelectionProvider({ children }: ClassSelectionProviderProps
 export function useClassSelection() {
   const context = useContext(ClassSelectionContext);
   if (context === undefined) {
-    throw new Error('useClassSelection must be used within a ClassSelectionProvider');
+    throw new Error(
+      "useClassSelection must be used within a ClassSelectionProvider",
+    );
   }
   return context;
 }

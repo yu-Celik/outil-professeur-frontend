@@ -1,14 +1,6 @@
 "use client";
 
-import {
-  Clock,
-  Coffee,
-  Hash,
-  Play,
-  Save,
-  Square,
-  X,
-} from "lucide-react";
+import { Clock, Coffee, Hash, Play, Save, Square, X } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/atoms/button";
 import { Input } from "@/components/atoms/input";
@@ -38,7 +30,10 @@ interface TimeSlotCrudFormProps {
   existingTimeSlots?: TimeSlot[];
   isLoading?: boolean;
   calculateDuration?: (startTime: string, endTime: string) => number;
-  checkConflicts?: (data: { startTime: string; endTime: string; name: string }, excludeId?: string) => string[];
+  checkConflicts?: (
+    data: { startTime: string; endTime: string; name: string },
+    excludeId?: string,
+  ) => string[];
 }
 
 interface TimeSlotFormData {
@@ -56,7 +51,12 @@ const PREDEFINED_TIMESLOTS = [
   { name: "Récréation", startTime: "10:00", endTime: "10:15", isBreak: true },
   { name: "M3", startTime: "10:15", endTime: "11:15", isBreak: false },
   { name: "M4", startTime: "11:15", endTime: "12:15", isBreak: false },
-  { name: "Pause déjeuner", startTime: "12:15", endTime: "13:15", isBreak: true },
+  {
+    name: "Pause déjeuner",
+    startTime: "12:15",
+    endTime: "13:15",
+    isBreak: true,
+  },
   { name: "S1", startTime: "13:15", endTime: "14:15", isBreak: false },
   { name: "S2", startTime: "14:15", endTime: "15:15", isBreak: false },
   { name: "Récréation", startTime: "15:15", endTime: "15:30", isBreak: true },
@@ -124,7 +124,7 @@ export function TimeSlotCrudForm({
     if (startTime && endTime) {
       const start = new Date(`2000-01-01T${startTime}:00`);
       const end = new Date(`2000-01-01T${endTime}:00`);
-      
+
       if (start >= end) {
         newErrors.endTime = "L'heure de fin doit être après l'heure de début";
       }
@@ -134,7 +134,7 @@ export function TimeSlotCrudForm({
         // Utiliser la fonction externe si fournie
         const conflicts = checkConflicts(
           { startTime, endTime, name },
-          isEditing ? editingTimeSlot.id : undefined
+          isEditing ? editingTimeSlot.id : undefined,
         );
         if (conflicts.length > 0) {
           newErrors.overlap = `Ce créneau chevauche avec: ${conflicts.join(", ")}`;
@@ -143,15 +143,16 @@ export function TimeSlotCrudForm({
         // Vérification par défaut
         const hasOverlap = existingTimeSlots.some((slot) => {
           if (isEditing && slot.id === editingTimeSlot.id) return false;
-          
+
           const slotStart = new Date(`2000-01-01T${slot.startTime}:00`);
           const slotEnd = new Date(`2000-01-01T${slot.endTime}:00`);
-          
-          return (start < slotEnd && end > slotStart);
+
+          return start < slotEnd && end > slotStart;
         });
 
         if (hasOverlap) {
-          newErrors.overlap = "Ce créneau chevauche avec un autre créneau existant";
+          newErrors.overlap =
+            "Ce créneau chevauche avec un autre créneau existant";
         }
       }
     }
@@ -194,7 +195,9 @@ export function TimeSlotCrudForm({
     }
   };
 
-  const handlePredefinedSelect = (predefined: typeof PREDEFINED_TIMESLOTS[0]) => {
+  const handlePredefinedSelect = (
+    predefined: (typeof PREDEFINED_TIMESLOTS)[0],
+  ) => {
     setName(predefined.name);
     setStartTime(predefined.startTime);
     setEndTime(predefined.endTime);
@@ -210,7 +213,12 @@ export function TimeSlotCrudForm({
     return `${hours}h${mins.toString().padStart(2, "0")}`;
   };
 
-  const isValid = name.trim() && startTime && endTime && displayOrder >= 1 && durationMinutes > 0;
+  const isValid =
+    name.trim() &&
+    startTime &&
+    endTime &&
+    displayOrder >= 1 &&
+    durationMinutes > 0;
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
@@ -307,7 +315,9 @@ export function TimeSlotCrudForm({
                 disabled={isLoading}
               />
               {errors.displayOrder && (
-                <p className="text-sm text-destructive">{errors.displayOrder}</p>
+                <p className="text-sm text-destructive">
+                  {errors.displayOrder}
+                </p>
               )}
             </div>
 
@@ -376,7 +386,10 @@ export function TimeSlotCrudForm({
               onCheckedChange={(checked) => setIsBreak(checked as boolean)}
               disabled={isLoading}
             />
-            <Label htmlFor="isBreak" className="text-sm font-medium flex items-center gap-2">
+            <Label
+              htmlFor="isBreak"
+              className="text-sm font-medium flex items-center gap-2"
+            >
               <Coffee className="h-4 w-4 text-orange-500" />
               Créneau de pause (récréation, déjeuner...)
             </Label>
@@ -393,9 +406,11 @@ export function TimeSlotCrudForm({
           {isValid && (
             <div className="p-4 bg-muted/30 rounded-lg border border-border/50">
               <div className="flex items-center gap-3">
-                <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${
-                  isBreak ? "bg-orange-100" : "bg-primary/10"
-                }`}>
+                <div
+                  className={`w-12 h-12 rounded-lg flex items-center justify-center ${
+                    isBreak ? "bg-orange-100" : "bg-primary/10"
+                  }`}
+                >
                   {isBreak ? (
                     <Coffee className="h-5 w-5 text-orange-500" />
                   ) : (
@@ -405,16 +420,20 @@ export function TimeSlotCrudForm({
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
                     <p className="font-medium text-sm">{name}</p>
-                    <span className={`px-2 py-1 text-xs rounded-full ${
-                      isBreak 
-                        ? "bg-orange-100 text-orange-800" 
-                        : "bg-primary/20 text-primary"
-                    }`}>
+                    <span
+                      className={`px-2 py-1 text-xs rounded-full ${
+                        isBreak
+                          ? "bg-orange-100 text-orange-800"
+                          : "bg-primary/20 text-primary"
+                      }`}
+                    >
                       {isBreak ? "Pause" : "Cours"}
                     </span>
                   </div>
                   <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                    <span>{startTime} - {endTime}</span>
+                    <span>
+                      {startTime} - {endTime}
+                    </span>
                     <span>{formatDuration(durationMinutes)}</span>
                     <span>Ordre: {displayOrder}</span>
                   </div>

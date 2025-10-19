@@ -26,7 +26,8 @@ export const MOCK_NOTATION_SYSTEMS: NotationSystem[] = [
     },
     createdAt: new Date("2025-08-15"),
     updatedAt: new Date("2025-09-06"),
-    validateGrade: (grade: number) => grade >= 0 && grade <= 20 && (grade * 2) % 1 === 0,
+    validateGrade: (grade: number) =>
+      grade >= 0 && grade <= 20 && (grade * 2) % 1 === 0,
     convert: function (value: number, fromSystem: NotationSystem): number {
       const ratio =
         (this.maxValue - this.minValue) /
@@ -61,7 +62,8 @@ export const MOCK_NOTATION_SYSTEMS: NotationSystem[] = [
     },
     createdAt: new Date("2025-08-15"),
     updatedAt: new Date("2025-09-06"),
-    validateGrade: (grade: number) => grade >= 0 && grade <= 100 && grade % 1 === 0,
+    validateGrade: (grade: number) =>
+      grade >= 0 && grade <= 100 && grade % 1 === 0,
     convert: function (value: number, fromSystem: NotationSystem): number {
       const ratio =
         (this.maxValue - this.minValue) /
@@ -96,7 +98,8 @@ export const MOCK_NOTATION_SYSTEMS: NotationSystem[] = [
     },
     createdAt: new Date("2025-08-15"),
     updatedAt: new Date("2025-09-06"),
-    validateGrade: (grade: number) => grade >= 0 && grade <= 4 && grade % 1 === 0,
+    validateGrade: (grade: number) =>
+      grade >= 0 && grade <= 4 && grade % 1 === 0,
     convert: function (value: number, fromSystem: NotationSystem): number {
       const ratio =
         (this.maxValue - this.minValue) /
@@ -117,9 +120,19 @@ export const MOCK_NOTATION_SYSTEMS: NotationSystem[] = [
     maxValue: 12,
     rules: {
       gradeLabels: {
-        0: "F", 1: "F+", 2: "D-", 3: "D", 4: "D+",
-        5: "C-", 6: "C", 7: "C+", 8: "B-", 9: "B",
-        10: "B+", 11: "A-", 12: "A",
+        0: "F",
+        1: "F+",
+        2: "D-",
+        3: "D",
+        4: "D+",
+        5: "C-",
+        6: "C",
+        7: "C+",
+        8: "B-",
+        9: "B",
+        10: "B+",
+        11: "A-",
+        12: "A",
       },
       letterMappings: {
         F: { value: 0, description: "Échec" },
@@ -140,7 +153,8 @@ export const MOCK_NOTATION_SYSTEMS: NotationSystem[] = [
     },
     createdAt: new Date("2025-08-15"),
     updatedAt: new Date("2025-09-06"),
-    validateGrade: (grade: number) => grade >= 0 && grade <= 12 && grade % 1 === 0,
+    validateGrade: (grade: number) =>
+      grade >= 0 && grade <= 12 && grade % 1 === 0,
     convert: function (value: number, fromSystem: NotationSystem): number {
       const ratio =
         (this.maxValue - this.minValue) /
@@ -148,7 +162,21 @@ export const MOCK_NOTATION_SYSTEMS: NotationSystem[] = [
       return Math.round((value - fromSystem.minValue) * ratio + this.minValue);
     },
     formatDisplay: (grade: number, _locale: string = "fr-FR") => {
-      const labels = ["F", "F+", "D-", "D", "D+", "C-", "C", "C+", "B-", "B", "B+", "A-", "A"];
+      const labels = [
+        "F",
+        "F+",
+        "D-",
+        "D",
+        "D+",
+        "C-",
+        "C",
+        "C+",
+        "B-",
+        "B",
+        "B+",
+        "A-",
+        "A",
+      ];
       return labels[Math.round(grade)] || "F";
     },
   },
@@ -182,7 +210,8 @@ export const MOCK_NOTATION_SYSTEMS: NotationSystem[] = [
     },
     createdAt: new Date("2025-08-15"),
     updatedAt: new Date("2025-09-06"),
-    validateGrade: (grade: number) => grade >= 0 && grade <= 3 && grade % 1 === 0,
+    validateGrade: (grade: number) =>
+      grade >= 0 && grade <= 3 && grade % 1 === 0,
     convert: function (value: number, fromSystem: NotationSystem): number {
       const ratio =
         (this.maxValue - this.minValue) /
@@ -227,7 +256,8 @@ export const MOCK_NOTATION_SYSTEMS: NotationSystem[] = [
     },
     createdAt: new Date("2025-08-15"),
     updatedAt: new Date("2025-09-06"),
-    validateGrade: (grade: number) => grade >= 0 && grade <= 4 && grade % 1 === 0,
+    validateGrade: (grade: number) =>
+      grade >= 0 && grade <= 4 && grade % 1 === 0,
     convert: function (value: number, fromSystem: NotationSystem): number {
       const ratio =
         (this.maxValue - this.minValue) /
@@ -263,7 +293,8 @@ export const MOCK_NOTATION_SYSTEMS: NotationSystem[] = [
     },
     createdAt: new Date("2025-08-15"),
     updatedAt: new Date("2025-09-06"),
-    validateGrade: (grade: number) => grade >= 0 && grade <= 5 && grade % 1 === 0,
+    validateGrade: (grade: number) =>
+      grade >= 0 && grade <= 5 && grade % 1 === 0,
     convert: function (value: number, fromSystem: NotationSystem): number {
       const ratio =
         (this.maxValue - this.minValue) /

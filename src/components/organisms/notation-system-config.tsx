@@ -4,23 +4,50 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/atoms/button";
 import { Card } from "@/components/molecules/card";
 import { Badge } from "@/components/atoms/badge";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/molecules/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/molecules/dialog";
 import { Input } from "@/components/atoms/input";
 import { Label } from "@/components/atoms/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/molecules/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/molecules/select";
 import { Textarea } from "@/components/atoms/textarea";
 import { Switch } from "@/components/atoms/switch";
-import { AlertCircle, Plus, Edit, Trash2, Copy, Download, Upload } from "lucide-react";
+import {
+  AlertCircle,
+  Plus,
+  Edit,
+  Trash2,
+  Copy,
+  Download,
+  Upload,
+} from "lucide-react";
 import { Alert, AlertDescription } from "@/components/molecules/alert";
 import { useNotationSystem } from "@/features/evaluations/hooks/use-notation-system";
-import type { NotationSystem, CreateNotationSystemData, UpdateNotationSystemData } from "@/features/evaluations/services/notation-system-service";
+import type {
+  NotationSystem,
+  CreateNotationSystemData,
+  UpdateNotationSystemData,
+} from "@/features/evaluations/services/notation-system-service";
 
 interface NotationSystemConfigProps {
   schoolYearId?: string;
   onSystemChange?: (systemId: string) => void;
 }
 
-export function NotationSystemConfig({ schoolYearId = "year-2025", onSystemChange }: NotationSystemConfigProps) {
+export function NotationSystemConfig({
+  schoolYearId = "year-2025",
+  onSystemChange,
+}: NotationSystemConfigProps) {
   const {
     notationSystems,
     defaultSystem,
@@ -33,7 +60,9 @@ export function NotationSystemConfig({ schoolYearId = "year-2025", onSystemChang
     refresh,
   } = useNotationSystem(schoolYearId);
 
-  const [selectedSystem, setSelectedSystem] = useState<NotationSystem | null>(null);
+  const [selectedSystem, setSelectedSystem] = useState<NotationSystem | null>(
+    null,
+  );
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [scaleConfigs, setScaleConfigs] = useState<Record<string, any>>({});
@@ -47,14 +76,17 @@ export function NotationSystemConfig({ schoolYearId = "year-2025", onSystemChang
     loadConfigs();
   }, [getScaleConfigurations]);
 
-
   const handleSystemSelect = (system: NotationSystem) => {
     setSelectedSystem(system);
     onSystemChange?.(system.id);
   };
 
   const handleDeleteSystem = async (systemId: string) => {
-    if (window.confirm("Êtes-vous sûr de vouloir supprimer ce système de notation ?")) {
+    if (
+      window.confirm(
+        "Êtes-vous sûr de vouloir supprimer ce système de notation ?",
+      )
+    ) {
       const success = await deleteNotationSystem(systemId);
       if (success) {
         setSelectedSystem(null);
@@ -65,7 +97,9 @@ export function NotationSystemConfig({ schoolYearId = "year-2025", onSystemChang
   if (loading) {
     return (
       <Card className="p-6">
-        <div className="text-center">Chargement des systèmes de notation...</div>
+        <div className="text-center">
+          Chargement des systèmes de notation...
+        </div>
       </Card>
     );
   }
@@ -84,13 +118,18 @@ export function NotationSystemConfig({ schoolYearId = "year-2025", onSystemChang
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold">Configuration des systèmes de notation</h2>
+          <h2 className="text-2xl font-bold">
+            Configuration des systèmes de notation
+          </h2>
           <p className="text-muted-foreground">
             Gérez vos systèmes de notation et leurs conversions
           </p>
         </div>
         <div className="flex gap-2">
-          <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+          <Dialog
+            open={isCreateDialogOpen}
+            onOpenChange={setIsCreateDialogOpen}
+          >
             <DialogTrigger asChild>
               <Button>
                 <Plus className="w-4 h-4 mr-2" />
@@ -112,7 +151,6 @@ export function NotationSystemConfig({ schoolYearId = "year-2025", onSystemChang
               />
             </DialogContent>
           </Dialog>
-
         </div>
       </div>
 
@@ -151,7 +189,6 @@ export function NotationSystemConfig({ schoolYearId = "year-2025", onSystemChang
           )}
         </DialogContent>
       </Dialog>
-
     </div>
   );
 }
@@ -193,7 +230,9 @@ function SystemsList({
             </div>
             <div className="flex gap-1">
               {defaultSystem?.id === system.id && (
-                <Badge variant="default" className="text-xs">Par défaut</Badge>
+                <Badge variant="default" className="text-xs">
+                  Par défaut
+                </Badge>
               )}
               <Badge variant="outline" className="text-xs">
                 {system.scaleType}
@@ -206,22 +245,34 @@ function SystemsList({
           </div>
 
           <div className="flex gap-2">
-            <Button size="sm" variant="outline" onClick={(e) => {
-              e.stopPropagation();
-              onEdit(system);
-            }}>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={(e) => {
+                e.stopPropagation();
+                onEdit(system);
+              }}
+            >
               <Edit className="w-3 h-3" />
             </Button>
-            <Button size="sm" variant="outline" onClick={(e) => {
-              e.stopPropagation();
-              // Copy system
-            }}>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={(e) => {
+                e.stopPropagation();
+                // Copy system
+              }}
+            >
               <Copy className="w-3 h-3" />
             </Button>
-            <Button size="sm" variant="destructive" onClick={(e) => {
-              e.stopPropagation();
-              onDelete(system.id);
-            }}>
+            <Button
+              size="sm"
+              variant="destructive"
+              onClick={(e) => {
+                e.stopPropagation();
+                onDelete(system.id);
+              }}
+            >
               <Trash2 className="w-3 h-3" />
             </Button>
           </div>
@@ -247,7 +298,7 @@ function CreateSystemForm({
   const handleScaleTypeChange = (scaleType: string) => {
     const config = scaleConfigs[scaleType];
     if (config) {
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
         scaleType: scaleType as any,
         minValue: config.defaultRange.min,
@@ -259,8 +310,12 @@ function CreateSystemForm({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (formData.name && formData.scaleType &&
-        formData.minValue !== undefined && formData.maxValue !== undefined) {
+    if (
+      formData.name &&
+      formData.scaleType &&
+      formData.minValue !== undefined &&
+      formData.maxValue !== undefined
+    ) {
       onSubmit(formData as CreateNotationSystemData);
     }
   };
@@ -273,7 +328,9 @@ function CreateSystemForm({
           <Input
             id="name"
             value={formData.name || ""}
-            onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+            onChange={(e) =>
+              setFormData((prev) => ({ ...prev, name: e.target.value }))
+            }
             placeholder="ex: Notation sur 20"
             required
           />
@@ -281,7 +338,10 @@ function CreateSystemForm({
 
         <div>
           <Label htmlFor="scaleType">Type d'échelle</Label>
-          <Select value={formData.scaleType} onValueChange={handleScaleTypeChange}>
+          <Select
+            value={formData.scaleType}
+            onValueChange={handleScaleTypeChange}
+          >
             <SelectTrigger>
               <SelectValue />
             </SelectTrigger>
@@ -303,7 +363,12 @@ function CreateSystemForm({
             id="minValue"
             type="number"
             value={formData.minValue || 0}
-            onChange={(e) => setFormData(prev => ({ ...prev, minValue: Number(e.target.value) }))}
+            onChange={(e) =>
+              setFormData((prev) => ({
+                ...prev,
+                minValue: Number(e.target.value),
+              }))
+            }
             required
           />
         </div>
@@ -314,7 +379,12 @@ function CreateSystemForm({
             id="maxValue"
             type="number"
             value={formData.maxValue || 20}
-            onChange={(e) => setFormData(prev => ({ ...prev, maxValue: Number(e.target.value) }))}
+            onChange={(e) =>
+              setFormData((prev) => ({
+                ...prev,
+                maxValue: Number(e.target.value),
+              }))
+            }
             required
           />
         </div>
@@ -331,7 +401,7 @@ function CreateSystemForm({
             onChange={(e) => {
               try {
                 const rules = JSON.parse(e.target.value);
-                setFormData(prev => ({ ...prev, rules }));
+                setFormData((prev) => ({ ...prev, rules }));
               } catch {
                 // Invalid JSON, ignore
               }
@@ -343,7 +413,9 @@ function CreateSystemForm({
       )}
 
       <div className="flex justify-end gap-2">
-        <Button type="button" variant="outline">Annuler</Button>
+        <Button type="button" variant="outline">
+          Annuler
+        </Button>
         <Button type="submit">Créer</Button>
       </div>
     </form>
@@ -381,7 +453,9 @@ function EditSystemForm({
         <Input
           id="edit-name"
           value={formData.name || ""}
-          onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+          onChange={(e) =>
+            setFormData((prev) => ({ ...prev, name: e.target.value }))
+          }
           required
         />
       </div>
@@ -393,7 +467,12 @@ function EditSystemForm({
             id="edit-minValue"
             type="number"
             value={formData.minValue || 0}
-            onChange={(e) => setFormData(prev => ({ ...prev, minValue: Number(e.target.value) }))}
+            onChange={(e) =>
+              setFormData((prev) => ({
+                ...prev,
+                minValue: Number(e.target.value),
+              }))
+            }
             required
           />
         </div>
@@ -404,7 +483,12 @@ function EditSystemForm({
             id="edit-maxValue"
             type="number"
             value={formData.maxValue || 20}
-            onChange={(e) => setFormData(prev => ({ ...prev, maxValue: Number(e.target.value) }))}
+            onChange={(e) =>
+              setFormData((prev) => ({
+                ...prev,
+                maxValue: Number(e.target.value),
+              }))
+            }
             required
           />
         </div>
@@ -417,7 +501,7 @@ function EditSystemForm({
           onChange={(e) => {
             try {
               const rules = JSON.parse(e.target.value);
-              setFormData(prev => ({ ...prev, rules }));
+              setFormData((prev) => ({ ...prev, rules }));
             } catch {
               // Invalid JSON, ignore
             }
@@ -428,10 +512,11 @@ function EditSystemForm({
       </div>
 
       <div className="flex justify-end gap-2">
-        <Button type="button" variant="outline">Annuler</Button>
+        <Button type="button" variant="outline">
+          Annuler
+        </Button>
         <Button type="submit">Sauvegarder</Button>
       </div>
     </form>
   );
 }
-

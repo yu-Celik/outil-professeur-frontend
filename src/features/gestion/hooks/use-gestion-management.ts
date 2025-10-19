@@ -3,10 +3,10 @@
  * Combine la gestion des classes, matières et années scolaires
  */
 
-import { useClassManagement } from './use-class-management';
-import { useSubjectManagement } from './use-subject-management';
-import { useAcademicStructures } from './use-academic-structures';
-import { MOCK_SCHOOL_YEARS } from '../mocks';
+import { useClassManagement } from "./use-class-management";
+import { useSubjectManagement } from "./use-subject-management";
+import { useAcademicStructures } from "./use-academic-structures";
+import { MOCK_SCHOOL_YEARS } from "../mocks";
 
 export function useGestionManagement() {
   const classManagement = useClassManagement();
@@ -32,8 +32,14 @@ export function useGestionManagement() {
     deleteSubject: subjectManagement.deleteSubject,
 
     // États globaux
-    loading: classManagement.loading || subjectManagement.loading || academicStructures.loading,
-    error: classManagement.error || subjectManagement.error || academicStructures.error,
+    loading:
+      classManagement.loading ||
+      subjectManagement.loading ||
+      academicStructures.loading,
+    error:
+      classManagement.error ||
+      subjectManagement.error ||
+      academicStructures.error,
 
     // Méthodes utilitaires
     refresh: () => {

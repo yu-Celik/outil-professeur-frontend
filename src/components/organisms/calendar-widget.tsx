@@ -195,7 +195,8 @@ export function CalendarWidget({
                         {event.courseSession.status === "planned" &&
                           "Planifiée"}
                         {event.courseSession.status === "done" && "Terminée"}
-                        {event.courseSession.status === "cancelled" && "Annulée"}
+                        {event.courseSession.status === "cancelled" &&
+                          "Annulée"}
                       </Badge>
                     </div>
 
@@ -239,9 +240,7 @@ export function CalendarWidget({
             <CalendarIcon className="h-12 w-12 mx-auto mb-3 text-muted-foreground/50" />
             <div className="text-muted-foreground mb-4">
               <p className="font-medium">Aucune session récente</p>
-              <p className="text-sm">
-                Vos sessions terminées apparaîtront ici
-              </p>
+              <p className="text-sm">Vos sessions terminées apparaîtront ici</p>
             </div>
             <Link href="/dashboard/calendrier">
               <Button variant="outline" className="gap-2">

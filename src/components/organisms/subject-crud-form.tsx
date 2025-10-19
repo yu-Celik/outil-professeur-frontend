@@ -1,11 +1,6 @@
 "use client";
 
-import {
-  BookOpen,
-  Hash,
-  Save,
-  X,
-} from "lucide-react";
+import { BookOpen, Hash, Save, X } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/atoms/button";
 import { Input } from "@/components/atoms/input";
@@ -35,20 +30,60 @@ interface SubjectFormData {
 }
 
 const PREDEFINED_SUBJECTS = [
-  { name: "Mathématiques", code: "MATH", description: "Mathématiques générales et spécialisées" },
-  { name: "Français", code: "FR", description: "Langue et littérature françaises" },
-  { name: "Histoire-Géographie", code: "HG", description: "Histoire et géographie" },
-  { name: "Sciences de la Vie et de la Terre", code: "SVT", description: "Biologie et géologie" },
-  { name: "Physique-Chimie", code: "PC", description: "Sciences physiques et chimiques" },
+  {
+    name: "Mathématiques",
+    code: "MATH",
+    description: "Mathématiques générales et spécialisées",
+  },
+  {
+    name: "Français",
+    code: "FR",
+    description: "Langue et littérature françaises",
+  },
+  {
+    name: "Histoire-Géographie",
+    code: "HG",
+    description: "Histoire et géographie",
+  },
+  {
+    name: "Sciences de la Vie et de la Terre",
+    code: "SVT",
+    description: "Biologie et géologie",
+  },
+  {
+    name: "Physique-Chimie",
+    code: "PC",
+    description: "Sciences physiques et chimiques",
+  },
   { name: "Anglais", code: "ANG", description: "Langue vivante anglaise" },
   { name: "Espagnol", code: "ESP", description: "Langue vivante espagnole" },
   { name: "Allemand", code: "ALL", description: "Langue vivante allemande" },
-  { name: "Éducation Physique et Sportive", code: "EPS", description: "Activités physiques et sportives" },
-  { name: "Arts Plastiques", code: "AP", description: "Arts visuels et plastiques" },
+  {
+    name: "Éducation Physique et Sportive",
+    code: "EPS",
+    description: "Activités physiques et sportives",
+  },
+  {
+    name: "Arts Plastiques",
+    code: "AP",
+    description: "Arts visuels et plastiques",
+  },
   { name: "Musique", code: "MUS", description: "Éducation musicale" },
-  { name: "Technologie", code: "TECH", description: "Sciences et technologies" },
-  { name: "Sciences Économiques et Sociales", code: "SES", description: "Économie et sociologie" },
-  { name: "Philosophie", code: "PHILO", description: "Philosophie et pensée critique" },
+  {
+    name: "Technologie",
+    code: "TECH",
+    description: "Sciences et technologies",
+  },
+  {
+    name: "Sciences Économiques et Sociales",
+    code: "SES",
+    description: "Économie et sociologie",
+  },
+  {
+    name: "Philosophie",
+    code: "PHILO",
+    description: "Philosophie et pensée critique",
+  },
   { name: "Latin", code: "LAT", description: "Langue et culture latines" },
   { name: "Grec", code: "GREC", description: "Langue et culture grecques" },
 ];
@@ -62,7 +97,9 @@ export function SubjectCrudForm({
 }: SubjectCrudFormProps) {
   const [name, setName] = useState(editingSubject?.name || "");
   const [code, setCode] = useState(editingSubject?.code || "");
-  const [description, setDescription] = useState(editingSubject?.description || "");
+  const [description, setDescription] = useState(
+    editingSubject?.description || "",
+  );
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const isEditing = !!editingSubject;
@@ -82,7 +119,8 @@ export function SubjectCrudForm({
     if (!description.trim()) {
       newErrors.description = "La description est requise";
     } else if (description.trim().length > 500) {
-      newErrors.description = "La description ne peut pas dépasser 500 caractères";
+      newErrors.description =
+        "La description ne peut pas dépasser 500 caractères";
     }
 
     setErrors(newErrors);
@@ -113,7 +151,7 @@ export function SubjectCrudForm({
     }
   };
 
-  const handlePredefinedSelect = (subject: typeof PREDEFINED_SUBJECTS[0]) => {
+  const handlePredefinedSelect = (subject: (typeof PREDEFINED_SUBJECTS)[0]) => {
     setName(subject.name);
     setCode(subject.code);
     setDescription(subject.description);
@@ -126,7 +164,7 @@ export function SubjectCrudForm({
       return words[0].substring(0, 4).toUpperCase();
     } else {
       return words
-        .map(word => word.charAt(0))
+        .map((word) => word.charAt(0))
         .join("")
         .substring(0, 4)
         .toUpperCase();
@@ -136,7 +174,7 @@ export function SubjectCrudForm({
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newName = e.target.value;
     setName(newName);
-    
+
     // Auto-générer le code si ce n'est pas en mode édition et si le code est vide
     if (!isEditing && !code.trim()) {
       const generatedCode = generateCodeFromName(newName);

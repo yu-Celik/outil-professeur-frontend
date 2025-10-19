@@ -1,31 +1,24 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { authClient } from "@/lib/auth-client";
-import { useAsyncOperation } from "@/shared/hooks";
+import { useRouter } from "next/navigation";
+import { useAuth } from "../contexts/auth-context";
 
 export function useLogin() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const { isLoading, error, execute } = useAsyncOperation();
+  const { login, loading, error } = useAuth();
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    await execute(async () => {
-      const { error: authError } = await authClient.signIn.email({
-        email,
-        password,
-      });
-
-      if (authError) {
-        throw new Error(authError.message || "Login failed");
-      }
-
+    try {
+      await login(email, password);
       router.push("/dashboard");
-    });
+    } catch (err) {
+      // Error is already handled by auth context
+    }
   };
 
   return {
@@ -33,7 +26,7 @@ export function useLogin() {
     setEmail,
     password,
     setPassword,
-    isLoading,
+    isLoading: loading,
     error,
     handleSubmit,
   };

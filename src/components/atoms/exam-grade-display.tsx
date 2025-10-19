@@ -2,7 +2,6 @@
 
 import { Badge } from "@/components/atoms/badge";
 import { useNotationSystem } from "@/features/evaluations";
-import type { NotationSystem } from "@/types/uml-entities";
 
 export interface ExamGradeDisplayProps {
   grade: number;
@@ -19,9 +18,12 @@ export function ExamGradeDisplay({
   className = "",
   showBadge = true,
 }: ExamGradeDisplayProps) {
-  const { notationSystems, formatGrade, getGradeBadgeVariant, getGradeColor } = useNotationSystem();
-  
-  const notationSystem = notationSystems.find(ns => ns.id === notationSystemId) || notationSystems[0];
+  const { notationSystems, formatGrade, getGradeBadgeVariant, getGradeColor } =
+    useNotationSystem();
+
+  const notationSystem =
+    notationSystems.find((ns) => ns.id === notationSystemId) ||
+    notationSystems[0];
 
   if (isAbsent) {
     if (showBadge) {
@@ -40,7 +42,7 @@ export function ExamGradeDisplay({
 
   const formattedGrade = formatGrade(grade, notationSystem, "fr-FR");
   const gradeColor = getGradeColor(grade, notationSystem);
-  
+
   if (showBadge) {
     const badgeVariant = getGradeBadgeVariant(grade, notationSystem);
     return (

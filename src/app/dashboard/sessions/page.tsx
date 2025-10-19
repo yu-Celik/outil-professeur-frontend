@@ -1,23 +1,38 @@
 "use client";
 
-import { Suspense } from "react";
+import { Calendar, List, Grid } from "lucide-react";
+import { Suspense, useState, useEffect, useCallback } from "react";
+import { useSearchParams } from "next/navigation";
+import { toast } from "sonner";
 
+import { Button } from "@/components/atoms/button";
 import { SessionsList } from "@/components/organisms/sessions-list";
 import { SessionsTimeline } from "@/components/organisms/sessions-timeline";
-import { useSessionManagement } from "@/features/sessions";
-import { useSetPageTitle } from "@/shared/hooks";
-import { useClassColors } from "@/features/calendar";
-import { useUserSession } from "@/features/settings";
+import { AttendanceBatchEditor } from "@/components/organisms/attendance-batch-editor";
 import { useClassSelection } from "@/contexts/class-selection-context";
-import { Calendar } from "lucide-react";
+import { useSessionManagement } from "@/features/sessions";
+import { useAttendanceApi } from "@/features/sessions/api";
+import { useSetPageTitle } from "@/shared/hooks";
+import type { StudentParticipation } from "@/types/uml-entities";
+
+type ViewMode = "list" | "batch";
 
 function SessionsPageContent() {
   useSetPageTitle("Gestion des participations");
 
-  const { user } = useUserSession();
-  const teacherId = user?.id || "KsmNtVf4zwqO3VV3SQJqPrRlQBA1fFyR";
-  const { getClassColorWithText } = useClassColors(teacherId);
   const { selectedClassId, assignmentsLoading } = useClassSelection();
+  const searchParams = useSearchParams();
+  const viewModeParam = searchParams.get("viewMode") as ViewMode | null;
+  const { upsertSessionAttendance, mapToUpsertItem } = useAttendanceApi();
+
+  const [viewMode, setViewMode] = useState<ViewMode>("list");
+
+  // Initialize view mode from URL parameter
+  useEffect(() => {
+    if (viewModeParam === "batch" || viewModeParam === "list") {
+      setViewMode(viewModeParam);
+    }
+  }, [viewModeParam]);
 
   const {
     // States
@@ -29,12 +44,42 @@ function SessionsPageContent() {
     allSessions,
     selectedSession,
     studentsForSession,
+    attendanceData,
 
     // Actions
     setSelectedDate,
     setSelectedSessionId,
     toggleAccordion,
+    refreshAttendance,
   } = useSessionManagement();
+
+  // Handle individual participation save
+  const handleSaveParticipation = useCallback(
+    async (participation: Partial<StudentParticipation>) => {
+      if (!selectedSession) return;
+
+      try {
+        const upsertItem = mapToUpsertItem(participation);
+        await upsertSessionAttendance(selectedSession.id, {
+          items: [upsertItem],
+        });
+
+        // Refresh attendance data after save
+        await refreshAttendance(selectedSession.id);
+
+        toast.success("Participation enregistrée avec succès");
+      } catch (error) {
+        console.error("Failed to save participation:", error);
+        toast.error("Erreur lors de l'enregistrement de la participation");
+      }
+    },
+    [
+      selectedSession,
+      mapToUpsertItem,
+      upsertSessionAttendance,
+      refreshAttendance,
+    ],
+  );
 
   if (assignmentsLoading) {
     return (
@@ -68,7 +113,9 @@ function SessionsPageContent() {
         <SessionsTimeline
           sessions={allSessions}
           selectedClassId={selectedClassId}
-          selectedSessionId={selectedSessionId === "all" ? null : selectedSessionId}
+          selectedSessionId={
+            selectedSessionId === "all" ? null : selectedSessionId
+          }
           onSessionSelect={setSelectedSessionId}
           currentDate={selectedDate}
           onNavigateDate={(direction) => {
@@ -85,13 +132,56 @@ function SessionsPageContent() {
 
       {/* Détail de la séance */}
       <div className="w-1/2 min-w-0 flex flex-col">
-        <SessionsList
-          selectedSessionId={selectedSessionId}
-          selectedSession={selectedSession || null}
-          studentsForSession={studentsForSession}
-          openAccordions={openAccordions}
-          onToggleAccordion={toggleAccordion}
-        />
+        {/* View mode toggle - only show when a session is selected */}
+        {selectedSessionId !== "all" && selectedSession && (
+          <div className="flex gap-2 mb-3">
+            <Button
+              variant={viewMode === "list" ? "default" : "outline"}
+              size="sm"
+              onClick={() => setViewMode("list")}
+              className="flex-1"
+            >
+              <List className="h-4 w-4 mr-2" />
+              Vue détaillée
+            </Button>
+            <Button
+              variant={viewMode === "batch" ? "default" : "outline"}
+              size="sm"
+              onClick={() => setViewMode("batch")}
+              className="flex-1"
+            >
+              <Grid className="h-4 w-4 mr-2" />
+              Saisie rapide
+            </Button>
+          </div>
+        )}
+
+        {/* Conditional rendering based on view mode */}
+        {viewMode === "list" ? (
+          <SessionsList
+            selectedSessionId={selectedSessionId}
+            selectedSession={selectedSession || null}
+            studentsForSession={studentsForSession}
+            openAccordions={openAccordions}
+            onToggleAccordion={toggleAccordion}
+            attendanceData={attendanceData}
+            onSaveParticipation={handleSaveParticipation}
+          />
+        ) : (
+          selectedSession &&
+          selectedSessionId !== "all" && (
+            <AttendanceBatchEditor
+              sessionId={selectedSession.id}
+              students={studentsForSession}
+              existingAttendance={attendanceData || []}
+              onSave={(savedData) => {
+                console.log("Attendance saved:", savedData);
+                refreshAttendance(selectedSession.id);
+              }}
+              onCancel={() => setViewMode("list")}
+            />
+          )
+        )}
       </div>
     </div>
   );

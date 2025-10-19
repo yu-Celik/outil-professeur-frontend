@@ -1,14 +1,19 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { getCompletedSessionsForTeacher } from "@/features/sessions/mocks";
 import { getStudentsByClass } from "@/features/students/mocks";
 import { getWeeklyTemplatesForTeacher } from "@/features/calendar/mocks";
 import { useTeachingAssignments } from "@/features/gestion";
 import { useUserSession } from "@/features/settings";
 import { useClassSelection } from "@/contexts/class-selection-context";
-import type { Class, CourseSession } from "@/types/uml-entities";
+import { useAttendanceApi } from "@/features/sessions/api";
+import type {
+  Class,
+  CourseSession,
+  StudentParticipation,
+} from "@/types/uml-entities";
 
 export function useSessionManagement() {
   const { user } = useUserSession();
@@ -58,9 +63,14 @@ export function useSessionManagement() {
     sessionIdParam || "all",
   );
   const [openAccordions, setOpenAccordions] = useState<Set<string>>(new Set());
+  const [attendanceData, setAttendanceData] = useState<
+    StudentParticipation[] | null
+  >(null);
+  const [attendanceLoading, setAttendanceLoading] = useState(false);
 
   // Hooks
   const { assignments } = useTeachingAssignments(teacherId);
+  const { getSessionAttendance, mapFromApiResponse } = useAttendanceApi();
 
   // Générer les sessions directement depuis les mock data
   const allSessions = useMemo(() => {
@@ -155,6 +165,42 @@ export function useSessionManagement() {
     ? getStudentsByClass(selectedSession.classId)
     : [];
 
+  // Fetch attendance data when session is selected
+  const fetchAttendanceData = useCallback(
+    async (sessionId: string) => {
+      if (!sessionId || sessionId === "all") {
+        setAttendanceData(null);
+        return;
+      }
+
+      setAttendanceLoading(true);
+      try {
+        const apiResponse = await getSessionAttendance(sessionId);
+        const mappedData = apiResponse.map(mapFromApiResponse);
+        setAttendanceData(mappedData);
+      } catch (error) {
+        console.error(
+          `Failed to fetch attendance for session ${sessionId}:`,
+          error,
+        );
+        // Fallback to empty array instead of null to indicate fetch was attempted
+        setAttendanceData([]);
+      } finally {
+        setAttendanceLoading(false);
+      }
+    },
+    [getSessionAttendance, mapFromApiResponse],
+  );
+
+  // Auto-load attendance data when session changes
+  useEffect(() => {
+    if (selectedSessionId && selectedSessionId !== "all") {
+      fetchAttendanceData(selectedSessionId);
+    } else {
+      setAttendanceData(null);
+    }
+  }, [selectedSessionId, fetchAttendanceData]);
+
   // Auto-ouvrir l'accordéon si sessionId fourni en paramètre
   useEffect(() => {
     if (sessionIdParam && selectedSession) {
@@ -193,17 +239,20 @@ export function useSessionManagement() {
     selectedDate,
     selectedSessionId,
     openAccordions,
+    attendanceLoading,
 
     // Data
     allSessions,
     uniqueClasses,
     selectedSession,
     studentsForSession,
+    attendanceData,
 
     // Actions
     setSelectedClassId: setSessionSelectedClassId,
     setSelectedDate,
     setSelectedSessionId,
     toggleAccordion,
+    refreshAttendance: fetchAttendanceData,
   };
 }

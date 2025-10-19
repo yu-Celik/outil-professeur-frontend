@@ -11,7 +11,11 @@ import { ExamForm } from "@/components/molecules/exam-form";
 import { useExamManagement } from "@/features/evaluations";
 import { useNotationSystem } from "@/features/evaluations";
 import type { Exam } from "@/types/uml-entities";
-import { MOCK_CLASSES, MOCK_SUBJECTS, MOCK_ACADEMIC_PERIODS } from "@/features/gestion/mocks";
+import {
+  MOCK_CLASSES,
+  MOCK_SUBJECTS,
+  MOCK_ACADEMIC_PERIODS,
+} from "@/features/gestion/mocks";
 
 export interface ExamFormDialogProps {
   isOpen: boolean;
@@ -32,14 +36,14 @@ export function ExamFormDialog({
 
   const handleSubmit = async (formData: any) => {
     setIsSubmitting(true);
-    
+
     try {
       if (exam) {
         await updateExam(exam.id, formData);
       } else {
         await createExam(formData);
       }
-      
+
       onSuccess?.();
       onClose();
     } catch (error) {
@@ -63,7 +67,7 @@ export function ExamFormDialog({
             {exam ? "Modifier l'examen" : "Créer un nouvel examen"}
           </DialogTitle>
         </DialogHeader>
-        
+
         <div className="mt-4">
           <ExamForm
             exam={exam}

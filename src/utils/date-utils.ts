@@ -100,3 +100,21 @@ export function formatDateFR(
 ): string {
   return date.toLocaleDateString("fr-FR", options);
 }
+
+/**
+ * Formate une date au format ISO (YYYY-MM-DD) pour les API
+ * @param date Date à formater
+ * @returns Date au format YYYY-MM-DD
+ */
+export function formatDateToISO(date: Date): string {
+  return date.toISOString().split("T")[0];
+}
+
+/**
+ * Parse une date ISO et retourne un objet Date
+ * @param isoDate Date au format ISO (YYYY-MM-DD ou ISO 8601 complet)
+ * @returns Objet Date
+ */
+export function parseDateFromISO(isoDate: string): Date {
+  return new Date(isoDate);
+}

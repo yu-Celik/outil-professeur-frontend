@@ -4,7 +4,11 @@
  */
 
 import { useCRUDOperations, type CRUDConfig } from "./use-crud-operations";
-import { validateObject, type ValidationRule, hasValidationErrors } from "./use-validation";
+import {
+  validateObject,
+  type ValidationRule,
+  hasValidationErrors,
+} from "./use-validation";
 
 export interface BaseManagementConfig<T, FormData> {
   entityName: string;
@@ -20,26 +24,33 @@ export interface BaseManagementReturn<T, FormData> {
   items: T[];
   loading: boolean;
   error: string | null;
-  
+
   // Opérations CRUD
   create: (data: FormData) => Promise<T>;
   update: (id: string, data: FormData) => Promise<T>;
   delete: (id: string) => Promise<void>;
   getById: (id: string) => T | undefined;
   refresh: () => void;
-  
+
   // Validation
-  validateForm: (data: FormData, excludeId?: string) => Record<keyof FormData, string | null>;
-  hasValidationErrors: (errors: Record<keyof FormData, string | null>) => boolean;
+  validateForm: (
+    data: FormData,
+    excludeId?: string,
+  ) => Record<keyof FormData, string | null>;
+  hasValidationErrors: (
+    errors: Record<keyof FormData, string | null>,
+  ) => boolean;
 }
 
 /**
  * Hook de management de base réutilisable
  */
-export function useBaseManagement<T extends { id: string; createdAt: Date; updatedAt: Date }, FormData>(
-  config: BaseManagementConfig<T, FormData>
+export function useBaseManagement<
+  T extends { id: string; createdAt: Date; updatedAt: Date },
+  FormData,
+>(
+  config: BaseManagementConfig<T, FormData>,
 ): BaseManagementReturn<T, FormData> {
-  
   const crud = useCRUDOperations({
     entityName: config.entityName,
     mockData: config.mockData,
@@ -47,17 +58,34 @@ export function useBaseManagement<T extends { id: string; createdAt: Date; updat
     createEntity: config.createEntity,
     updateEntity: config.updateEntity,
     validateCreate: (data: FormData, existingItems: T[]): string | null => {
-      const errors = validateObject(data, config.validationRules, existingItems);
+      const errors = validateObject(
+        data,
+        config.validationRules,
+        existingItems,
+      );
       if (hasValidationErrors(errors)) {
-        const firstError = Object.values(errors).find(error => error !== null) as string | undefined;
+        const firstError = Object.values(errors).find(
+          (error) => error !== null,
+        ) as string | undefined;
         return firstError || "Erreur de validation";
       }
       return null;
     },
-    validateUpdate: (id: string, data: FormData, existingItems: T[]): string | null => {
-      const errors = validateObject(data, config.validationRules, existingItems, id);
+    validateUpdate: (
+      id: string,
+      data: FormData,
+      existingItems: T[],
+    ): string | null => {
+      const errors = validateObject(
+        data,
+        config.validationRules,
+        existingItems,
+        id,
+      );
       if (hasValidationErrors(errors)) {
-        const firstError = Object.values(errors).find(error => error !== null) as string | undefined;
+        const firstError = Object.values(errors).find(
+          (error) => error !== null,
+        ) as string | undefined;
         return firstError || "Erreur de validation";
       }
       return null;

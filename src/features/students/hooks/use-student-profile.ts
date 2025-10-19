@@ -1,12 +1,24 @@
 "use client";
 
-import { useMemo, useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import type {
   Student,
   StudentProfile,
   SchoolYear,
   AcademicPeriod,
 } from "@/types/uml-entities";
+import { studentsClient } from "../api/students-client";
+import { formatDateToISO, parseDateFromISO } from "@/utils/date-utils";
+import { useAsyncOperation } from "@/shared/hooks";
+import type {
+  StudentObservation,
+  ObservationFormData,
+} from "../types/observation-types";
+import {
+  parseObservationsFromAPI,
+  serializeObservationsForAPI,
+} from "../types/observation-types";
+import { toast } from "sonner";
 
 interface StudentParticipation {
   id: string;
@@ -23,39 +35,23 @@ interface StudentParticipation {
 }
 
 export function useStudentProfile(studentId: string) {
-  // Mock data basé sur les entités UML - en production, ces données viendraient d'une API
-  const [student] = useState<Student>({
-    id: studentId,
-    createdBy: "KsmNtVf4zwqO3VV3SQJqPrRlQBA1fFyR",
-    firstName: "Pierre",
-    lastName: "Collin",
-    currentClassId: "class-b1",
-    needs: ["Améliorer la concentration", "Renforcer la confiance en soi"],
-    observations: [
-      "Élève attentif mais timide",
-      "Excellente compréhension des concepts",
-    ],
-    strengths: ["Bon en calcul mental", "Analyse logique", "Travail autonome"],
-    improvementAxes: [
-      "Participation orale",
-      "Expression écrite",
-      "Gestion du temps",
-    ],
-    createdAt: new Date("2025-09-01"),
-    updatedAt: new Date(),
-    fullName: () => "Pierre Collin",
-    attendanceRate: (_start: Date, _end: Date) => 0.89,
-    participationAverage: (_start: Date, _end: Date) => 16.8,
-  });
+  const [student, setStudent] = useState<Student | null>(null);
+  const [currentProfile, setCurrentProfile] = useState<StudentProfile | null>(
+    null,
+  );
+  const [observations, setObservations] = useState<StudentObservation[]>([]);
+  const [isWatchlisted, setIsWatchlisted] = useState(false);
+  const [etag, setEtag] = useState<string | undefined>(undefined);
 
+  // Mock school year and period - In production, these would come from API
   const [schoolYear] = useState<SchoolYear>({
     id: "year-2025",
     createdBy: "admin-1",
-    name: "2025-2025",
-    startDate: new Date("2025-09-01"),
+    name: "2024-2025",
+    startDate: new Date("2024-09-01"),
     endDate: new Date("2025-06-30"),
     isActive: true,
-    createdAt: new Date("2025-08-15"),
+    createdAt: new Date("2024-08-15"),
     updatedAt: new Date(),
     createPeriod: (_name: string, _start: Date, _end: Date, _order: number) =>
       ({}) as AcademicPeriod,
@@ -67,129 +63,315 @@ export function useStudentProfile(studentId: string) {
     schoolYearId: "year-2025",
     name: "Premier trimestre",
     order: 1,
-    startDate: new Date("2025-09-01"),
-    endDate: new Date("2025-12-20"),
+    startDate: new Date("2024-09-01"),
+    endDate: new Date("2024-12-20"),
     isActive: true,
-    createdAt: new Date("2025-08-15"),
+    createdAt: new Date("2024-08-15"),
     updatedAt: new Date(),
     contains: (date: Date) =>
-      date >= new Date("2025-09-01") && date <= new Date("2025-12-20"),
+      date >= new Date("2024-09-01") && date <= new Date("2024-12-20"),
   });
 
-  // Mock participations récentes
-  const recentParticipations: StudentParticipation[] = useMemo(
-    () => [
-      {
-        id: "participation-1",
-        courseSessionId: "session-1",
-        subject: "Mathématiques",
-        date: "18/02",
-        time: "16h00 - 17h00",
-        isPresent: true,
-        participationLevel: 18,
-        behavior: "Attentif,Participatif",
-        specificRemarks: "Excellente compréhension des équations",
-        technicalIssues: "",
-        markedAt: new Date("2025-02-18T17:00:00"),
-      },
-      {
-        id: "participation-2",
-        courseSessionId: "session-2",
-        subject: "Français",
-        date: "16/02",
-        time: "14h00 - 15h30",
-        isPresent: true,
-        participationLevel: 15,
-        behavior: "Timide",
-        specificRemarks: "A du mal à s'exprimer à l'oral",
-        technicalIssues: "",
-        markedAt: new Date("2025-02-16T15:30:00"),
-      },
-      {
-        id: "participation-3",
-        courseSessionId: "session-3",
-        subject: "Sciences",
-        date: "14/02",
-        time: "10h00 - 11h30",
-        isPresent: false,
-        participationLevel: 0,
-        behavior: "",
-        specificRemarks: "Absent justifié",
-        technicalIssues: "",
-        markedAt: new Date("2025-02-14T10:00:00"),
-      },
-    ],
-    [],
-  );
+  const [recentParticipations, setRecentParticipations] = useState<
+    StudentParticipation[]
+  >([]);
 
-  const [currentProfile, setCurrentProfile] = useState<StudentProfile | null>(
-    null,
-  );
+  const {
+    isLoading: profileLoading,
+    error: profileError,
+    execute: loadProfile,
+  } = useAsyncOperation();
 
-  // Génération du profil étudiant (UML: StudentProfile.generate())
+  // Load student profile data from API
   useEffect(() => {
-    const generateProfile = () => {
-      const presentParticipations = recentParticipations.filter(
-        (p) => p.isPresent,
-      );
-      const averageParticipation =
-        presentParticipations.length > 0
-          ? presentParticipations.reduce(
-              (sum, p) => sum + p.participationLevel,
-              0,
-            ) / presentParticipations.length
-          : 0;
+    const fetchProfileData = async () => {
+      try {
+        const startDate = formatDateToISO(currentPeriod.startDate);
+        const endDate = formatDateToISO(currentPeriod.endDate);
 
-      const attendanceRate =
-        recentParticipations.length > 0
-          ? (recentParticipations.filter((p) => p.isPresent).length /
-              recentParticipations.length) *
-            100
-          : 0;
+        // Fetch student basic info and profile with analytics
+        const [studentData, profileData] = await Promise.all([
+          studentsClient.getStudent(studentId),
+          studentsClient.getStudentProfile(studentId, {
+            start_date: startDate,
+            end_date: endDate,
+          }),
+        ]);
 
-      const behaviorAnalysis = presentParticipations
-        .flatMap((p) => p.behavior.split(",").filter((b) => b.trim()))
-        .reduce(
-          (acc, behavior) => {
-            acc[behavior] = (acc[behavior] || 0) + 1;
-            return acc;
-          },
-          {} as Record<string, number>,
+        // Map API response to Student entity
+        const studentEntity: Student = {
+          id: studentData.id,
+          createdBy: "system", // Not provided by API
+          firstName: studentData.first_name,
+          lastName: studentData.last_name,
+          currentClassId: studentData.current_class_id || "", // Empty string if not provided
+          needs: studentData.needs || [],
+          observations: studentData.observations || [],
+          strengths: studentData.strengths || [],
+          improvementAxes: studentData.improvement_axes || [],
+          createdAt: parseDateFromISO(studentData.created_at),
+          updatedAt: parseDateFromISO(studentData.updated_at),
+          fullName: () => studentData.full_name,
+          attendanceRate: (_start: Date, _end: Date) =>
+            profileData.analytics.attendance_rate ?? 0,
+          participationAverage: (_start: Date, _end: Date) =>
+            profileData.analytics.participation_average ?? 0,
+        };
+
+        setStudent(studentEntity);
+
+        // Parse and set observations from API
+        const parsedObservations = parseObservationsFromAPI(
+          studentData.observations,
+          "Enseignant",
         );
+        setObservations(parsedObservations);
 
-      const profile: StudentProfile = {
-        id: `profile-${student.id}-${currentPeriod.id}`,
-        createdBy: "KsmNtVf4zwqO3VV3SQJqPrRlQBA1fFyR",
-        studentId: student.id,
-        academicPeriodId: currentPeriod.id,
-        features: {
-          averageParticipation: averageParticipation.toFixed(1),
-          attendanceRate: attendanceRate.toFixed(1),
-          dominantBehaviors: Object.entries(behaviorAnalysis)
-            .sort(([, a], [, b]) => b - a)
-            .slice(0, 3)
-            .map(([behavior]) => behavior),
-          strengths: student.strengths,
-          improvementAxes: student.improvementAxes,
-          needs: student.needs,
-          observations: student.observations,
-        },
-        evidenceRefs: {
-          participations: recentParticipations.map((p) => p.id),
-          sessions: recentParticipations.map((p) => p.courseSessionId),
-          subjects: [...new Set(recentParticipations.map((p) => p.subject))],
-        },
-        status: "active",
-        generatedAt: new Date(),
-        updatedAt: new Date(),
-        review: (notes: string) => console.log("Profile reviewed:", notes),
-      };
+        // Set watchlist status
+        setIsWatchlisted(studentData.watchlist ?? false);
 
-      setCurrentProfile(profile);
+        // Store ETag for optimistic concurrency control (if available from headers)
+        // Note: axios response headers are lowercase
+        const responseEtag = undefined; // TODO: Extract from response headers if API provides it
+        setEtag(responseEtag);
+
+        // Generate StudentProfile from API data
+        const profile: StudentProfile = {
+          id: `profile-${studentEntity.id}-${currentPeriod.id}`,
+          createdBy: "system",
+          studentId: studentEntity.id,
+          academicPeriodId: currentPeriod.id,
+          features: {
+            averageParticipation:
+              profileData.analytics.participation_average?.toFixed(1) ?? "0.0",
+            attendanceRate:
+              profileData.analytics.attendance_rate?.toFixed(1) ?? "0.0",
+            dominantBehaviors: [], // Will be populated by behavioral analysis
+            strengths: studentEntity.strengths,
+            improvementAxes: studentEntity.improvementAxes,
+            needs: studentEntity.needs,
+            observations: studentEntity.observations,
+          },
+          evidenceRefs: {
+            participations: [],
+            sessions: [],
+            subjects: [],
+          },
+          status: "active",
+          generatedAt: new Date(),
+          updatedAt: new Date(),
+          review: (notes: string) => console.log("Profile reviewed:", notes),
+        };
+
+        setCurrentProfile(profile);
+      } catch (error) {
+        console.error("Error loading student profile:", error);
+        throw error;
+      }
     };
 
-    generateProfile();
-  }, [student, currentPeriod, recentParticipations]);
+    loadProfile(fetchProfileData);
+  }, [studentId, currentPeriod, loadProfile]);
+
+  // Load recent participations (mock for now - will be replaced with API call later)
+  useEffect(() => {
+    // TODO: Replace with API call when participation endpoints are available
+    // For now, keep mock data to maintain UI compatibility
+    setRecentParticipations([]);
+  }, [studentId]);
+
+  /**
+   * Create a new observation
+   */
+  const createObservation = useCallback(
+    async (formData: ObservationFormData) => {
+      if (!student) {
+        toast.error("Impossible d'ajouter une observation sans élève chargé");
+        return;
+      }
+
+      try {
+        const newObservation: StudentObservation = {
+          id: `obs-${Date.now()}`,
+          content: formData.content,
+          createdAt: formData.date || new Date(),
+          updatedAt: new Date(),
+          author: "Enseignant",
+        };
+
+        const updatedObservations = [...observations, newObservation];
+        setObservations(updatedObservations);
+
+        // Persist to API
+        const apiObservations =
+          serializeObservationsForAPI(updatedObservations);
+        const updatedStudent = await studentsClient.updateStudent(
+          studentId,
+          { observations: apiObservations },
+          etag,
+        );
+
+        // Update student entity
+        setStudent({
+          ...student,
+          observations: updatedStudent.observations || [],
+          updatedAt: parseDateFromISO(updatedStudent.updated_at),
+        });
+
+        toast.success("Observation ajoutée avec succès");
+
+        return newObservation;
+      } catch (error) {
+        // Rollback optimistic update
+        setObservations(observations);
+        console.error("Error creating observation:", error);
+        toast.error("Impossible d'ajouter l'observation. Veuillez réessayer.");
+        throw error;
+      }
+    },
+    [student, studentId, observations, etag],
+  );
+
+  /**
+   * Update an existing observation
+   */
+  const updateObservation = useCallback(
+    async (observationId: string, content: string) => {
+      if (!student) {
+        toast.error("Impossible de modifier une observation sans élève chargé");
+        return;
+      }
+
+      const previousObservations = [...observations];
+
+      try {
+        const updatedObservations = observations.map((obs) =>
+          obs.id === observationId
+            ? { ...obs, content, updatedAt: new Date() }
+            : obs,
+        );
+
+        setObservations(updatedObservations);
+
+        // Persist to API
+        const apiObservations =
+          serializeObservationsForAPI(updatedObservations);
+        const updatedStudent = await studentsClient.updateStudent(
+          studentId,
+          { observations: apiObservations },
+          etag,
+        );
+
+        // Update student entity
+        setStudent({
+          ...student,
+          observations: updatedStudent.observations || [],
+          updatedAt: parseDateFromISO(updatedStudent.updated_at),
+        });
+
+        toast.success("Observation modifiée avec succès");
+      } catch (error) {
+        // Rollback optimistic update
+        setObservations(previousObservations);
+        console.error("Error updating observation:", error);
+        toast.error("Impossible de modifier l'observation. Veuillez réessayer.");
+        throw error;
+      }
+    },
+    [student, studentId, observations, etag],
+  );
+
+  /**
+   * Delete an observation
+   */
+  const removeObservation = useCallback(
+    async (observationId: string) => {
+      if (!student) {
+        toast.error("Impossible de supprimer une observation sans élève chargé");
+        return;
+      }
+
+      const previousObservations = [...observations];
+
+      try {
+        const updatedObservations = observations.filter(
+          (obs) => obs.id !== observationId,
+        );
+
+        setObservations(updatedObservations);
+
+        // Persist to API
+        const apiObservations =
+          serializeObservationsForAPI(updatedObservations);
+        const updatedStudent = await studentsClient.updateStudent(
+          studentId,
+          { observations: apiObservations },
+          etag,
+        );
+
+        // Update student entity
+        setStudent({
+          ...student,
+          observations: updatedStudent.observations || [],
+          updatedAt: parseDateFromISO(updatedStudent.updated_at),
+        });
+
+        toast.success("Observation supprimée avec succès");
+      } catch (error) {
+        // Rollback optimistic update
+        setObservations(previousObservations);
+        console.error("Error removing observation:", error);
+        toast.error("Impossible de supprimer l'observation. Veuillez réessayer.");
+        throw error;
+      }
+    },
+    [student, studentId, observations, etag],
+  );
+
+  /**
+   * Toggle watchlist status
+   */
+  const toggleWatchlist = useCallback(async () => {
+    if (!student) {
+      toast.error("Impossible de modifier le statut de surveillance");
+      return;
+    }
+
+    const previousStatus = isWatchlisted;
+
+    try {
+      // Optimistic update
+      const newStatus = !isWatchlisted;
+      setIsWatchlisted(newStatus);
+
+      // Persist to API
+      const updatedStudent = await studentsClient.toggleWatchlist(
+        studentId,
+        newStatus,
+        etag,
+      );
+
+      // Update student entity
+      setStudent({
+        ...student,
+        updatedAt: parseDateFromISO(updatedStudent.updated_at),
+      });
+
+      toast.success(
+        newStatus
+          ? "Élève ajouté à la liste de surveillance"
+          : "Élève retiré de la liste de surveillance",
+      );
+    } catch (error) {
+      // Rollback optimistic update
+      setIsWatchlisted(previousStatus);
+      console.error("Error toggling watchlist:", error);
+      toast.error(
+        "Impossible de modifier le statut de surveillance. Veuillez réessayer.",
+      );
+      throw error;
+    }
+  }, [student, studentId, isWatchlisted, etag]);
 
   return {
     student,
@@ -197,5 +379,15 @@ export function useStudentProfile(studentId: string) {
     currentPeriod,
     currentProfile,
     recentParticipations,
+    loading: profileLoading,
+    error: profileError,
+    // Observations management
+    observations,
+    createObservation,
+    updateObservation,
+    removeObservation,
+    // Watchlist management
+    isWatchlisted,
+    toggleWatchlist,
   };
 }

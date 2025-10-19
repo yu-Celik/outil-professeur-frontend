@@ -15,7 +15,8 @@ export interface CreateNotationSystemData {
   createdBy: string;
 }
 
-export interface UpdateNotationSystemData extends Partial<CreateNotationSystemData> {
+export interface UpdateNotationSystemData
+  extends Partial<CreateNotationSystemData> {
   id: string;
 }
 
@@ -46,21 +47,27 @@ class NotationSystemService {
   }
 
   // Read all notation systems
-  async getAll(options?: NotationSystemSearchOptions): Promise<NotationSystem[]> {
+  async getAll(
+    options?: NotationSystemSearchOptions,
+  ): Promise<NotationSystem[]> {
     let filtered = [...this.systems];
 
     if (options?.scaleType) {
-      filtered = filtered.filter(system => system.scaleType === options.scaleType);
+      filtered = filtered.filter(
+        (system) => system.scaleType === options.scaleType,
+      );
     }
 
     if (options?.createdBy) {
-      filtered = filtered.filter(system => system.createdBy === options.createdBy);
+      filtered = filtered.filter(
+        (system) => system.createdBy === options.createdBy,
+      );
     }
 
     if (options?.name) {
       const searchTerm = options.name.toLowerCase();
-      filtered = filtered.filter(system =>
-        system.name.toLowerCase().includes(searchTerm)
+      filtered = filtered.filter((system) =>
+        system.name.toLowerCase().includes(searchTerm),
       );
     }
 
@@ -69,12 +76,12 @@ class NotationSystemService {
 
   // Read single notation system
   async getById(id: string): Promise<NotationSystem | null> {
-    return this.systems.find(system => system.id === id) || null;
+    return this.systems.find((system) => system.id === id) || null;
   }
 
   // Update notation system
   async update(data: UpdateNotationSystemData): Promise<NotationSystem | null> {
-    const index = this.systems.findIndex(system => system.id === data.id);
+    const index = this.systems.findIndex((system) => system.id === data.id);
 
     if (index === -1) {
       return null;
@@ -85,18 +92,20 @@ class NotationSystemService {
       ...existing,
       ...data,
       updatedAt: new Date(),
-      validateGrade: data.minValue !== undefined || data.maxValue !== undefined
-        ? this.createValidateFunction(
-            data.minValue ?? existing.minValue,
-            data.maxValue ?? existing.maxValue
-          )
-        : existing.validateGrade,
-      formatDisplay: data.scaleType || data.rules
-        ? this.createFormatFunction(
-            data.scaleType ?? existing.scaleType,
-            data.rules ?? existing.rules
-          )
-        : existing.formatDisplay,
+      validateGrade:
+        data.minValue !== undefined || data.maxValue !== undefined
+          ? this.createValidateFunction(
+              data.minValue ?? existing.minValue,
+              data.maxValue ?? existing.maxValue,
+            )
+          : existing.validateGrade,
+      formatDisplay:
+        data.scaleType || data.rules
+          ? this.createFormatFunction(
+              data.scaleType ?? existing.scaleType,
+              data.rules ?? existing.rules,
+            )
+          : existing.formatDisplay,
     };
 
     this.systems[index] = updated;
@@ -105,7 +114,7 @@ class NotationSystemService {
 
   // Delete notation system
   async delete(id: string): Promise<boolean> {
-    const index = this.systems.findIndex(system => system.id === id);
+    const index = this.systems.findIndex((system) => system.id === id);
 
     if (index === -1) {
       return false;
@@ -114,7 +123,9 @@ class NotationSystemService {
     // Check if system is in use (mock check)
     const isInUse = await this.isSystemInUse(id);
     if (isInUse) {
-      throw new Error("Impossible de supprimer un système de notation en cours d'utilisation");
+      throw new Error(
+        "Impossible de supprimer un système de notation en cours d'utilisation",
+      );
     }
 
     this.systems.splice(index, 1);
@@ -125,7 +136,11 @@ class NotationSystemService {
   private async isSystemInUse(id: string): Promise<boolean> {
     // In real implementation, check exams and results using this system
     // For now, protect default systems
-    const defaultSystems = ["notation-numeric-20", "notation-letter-af", "notation-competencies"];
+    const defaultSystems = [
+      "notation-numeric-20",
+      "notation-letter-af",
+      "notation-competencies",
+    ];
     return defaultSystems.includes(id);
   }
 
@@ -133,7 +148,7 @@ class NotationSystemService {
   async convertGrade(
     value: number,
     fromSystemId: string,
-    toSystemId: string
+    toSystemId: string,
   ): Promise<number | null> {
     const fromSystem = await this.getById(fromSystemId);
     const toSystem = await this.getById(toSystemId);
@@ -155,7 +170,7 @@ class NotationSystemService {
   async formatGrade(
     value: number,
     systemId: string,
-    locale: string = "fr-FR"
+    locale: string = "fr-FR",
   ): Promise<string | null> {
     const system = await this.getById(systemId);
     return system ? system.formatDisplay(value, locale) : null;
@@ -235,10 +250,16 @@ class NotationSystemService {
 
   // Helper: Create conversion function
   private createConvertFunction() {
-    return function(this: NotationSystem, value: number, fromSystem: NotationSystem): number {
+    return function (
+      this: NotationSystem,
+      value: number,
+      fromSystem: NotationSystem,
+    ): number {
       if (this.id === fromSystem.id) return value;
 
-      const ratio = (this.maxValue - this.minValue) / (fromSystem.maxValue - fromSystem.minValue);
+      const ratio =
+        (this.maxValue - this.minValue) /
+        (fromSystem.maxValue - fromSystem.minValue);
       const converted = (value - fromSystem.minValue) * ratio + this.minValue;
 
       return Math.round(converted * 100) / 100;
@@ -246,7 +267,10 @@ class NotationSystemService {
   }
 
   // Helper: Create format function
-  private createFormatFunction(scaleType: string, rules: Record<string, unknown>) {
+  private createFormatFunction(
+    scaleType: string,
+    rules: Record<string, unknown>,
+  ) {
     return (grade: number, locale: string = "fr-FR"): string => {
       const roundedGrade = Math.round(grade);
 
@@ -256,7 +280,9 @@ class NotationSystemService {
           return labels[roundedGrade] || "F";
         }
         case "competency": {
-          const rulesTyped = rules as { competencyLevels?: Record<string, string> };
+          const rulesTyped = rules as {
+            competencyLevels?: Record<string, string>;
+          };
           if (rulesTyped.competencyLevels) {
             return rulesTyped.competencyLevels[roundedGrade] || "Non acquis";
           }
@@ -265,7 +291,9 @@ class NotationSystemService {
         case "numeric": {
           const rulesTyped = rules as { gradeLabels?: Record<string, string> };
           if (rulesTyped.gradeLabels) {
-            const max = Math.max(...Object.keys(rulesTyped.gradeLabels).map(Number));
+            const max = Math.max(
+              ...Object.keys(rulesTyped.gradeLabels).map(Number),
+            );
             return `${grade}/${max}`;
           }
           return grade.toString();
@@ -284,11 +312,18 @@ class NotationSystemService {
   }
 
   // Import systems from JSON
-  async importSystems(systemsData: Partial<NotationSystem>[]): Promise<NotationSystem[]> {
+  async importSystems(
+    systemsData: Partial<NotationSystem>[],
+  ): Promise<NotationSystem[]> {
     const imported: NotationSystem[] = [];
 
     for (const data of systemsData) {
-      if (!data.name || !data.scaleType || data.minValue === undefined || data.maxValue === undefined) {
+      if (
+        !data.name ||
+        !data.scaleType ||
+        data.minValue === undefined ||
+        data.maxValue === undefined
+      ) {
         continue;
       }
 
@@ -308,14 +343,16 @@ class NotationSystemService {
   }
 
   // Export systems to JSON
-  async exportSystems(systemIds?: string[]): Promise<Partial<NotationSystem>[]> {
+  async exportSystems(
+    systemIds?: string[],
+  ): Promise<Partial<NotationSystem>[]> {
     let systems = await this.getAll();
 
     if (systemIds) {
-      systems = systems.filter(system => systemIds.includes(system.id));
+      systems = systems.filter((system) => systemIds.includes(system.id));
     }
 
-    return systems.map(system => ({
+    return systems.map((system) => ({
       name: system.name,
       scaleType: system.scaleType,
       minValue: system.minValue,

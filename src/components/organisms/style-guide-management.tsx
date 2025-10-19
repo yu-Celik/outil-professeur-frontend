@@ -2,7 +2,12 @@
 
 import { useState } from "react";
 import { Button } from "@/components/atoms/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/molecules/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/molecules/card";
 import { Badge } from "@/components/atoms/badge";
 import { Input } from "@/components/atoms/input";
 import { Label } from "@/components/atoms/label";
@@ -32,7 +37,10 @@ import {
 } from "@/components/molecules/alert";
 import { Plus, Search, Settings, Edit, Trash2, Copy } from "lucide-react";
 import { useStyleGuides } from "@/features/appreciations";
-import type { CreateStyleGuideData, UpdateStyleGuideData } from "@/features/appreciations/hooks/use-style-guides";
+import type {
+  CreateStyleGuideData,
+  UpdateStyleGuideData,
+} from "@/features/appreciations/hooks/use-style-guides";
 import type { StyleGuide } from "@/types/uml-entities";
 
 export interface StyleGuideManagementProps {
@@ -46,7 +54,7 @@ export function StyleGuideManagement({
   teacherId = "KsmNtVf4zwqO3VV3SQJqPrRlQBA1fFyR",
   className = "",
   onStyleGuideSelect,
-  showActions = true
+  showActions = true,
 }: StyleGuideManagementProps) {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [editingGuide, setEditingGuide] = useState<StyleGuide | null>(null);
@@ -56,17 +64,20 @@ export function StyleGuideManagement({
 
   const {
     styleGuides,
+    defaultGuide,
     loading,
     error,
     createStyleGuide,
     updateStyleGuide,
     deleteStyleGuide,
+    duplicateStyleGuide,
+    setDefaultStyleGuide,
     getAllTones,
     getAllRegisters,
     getAllLengths,
     searchGuides,
     applyFilters,
-    getStats
+    getStats,
   } = useStyleGuides(teacherId);
 
   const stats = getStats();
@@ -109,18 +120,12 @@ export function StyleGuideManagement({
     }
   };
 
-  const handleDuplicateGuide = async (guide: StyleGuide) => {
-    const duplicateData: CreateStyleGuideData = {
-      name: `${guide.name} (Copie)`,
-      tone: guide.tone,
-      register: guide.register,
-      length: guide.length,
-      person: guide.person,
-      variability: guide.variability,
-      bannedPhrases: [...guide.bannedPhrases],
-      preferredPhrases: [...guide.preferredPhrases]
-    };
-    await createStyleGuide(duplicateData);
+  const handleDuplicateGuide = async (guideId: string) => {
+    await duplicateStyleGuide(guideId);
+  };
+
+  const handleSetDefault = async (guideId: string) => {
+    await setDefaultStyleGuide(guideId);
   };
 
   if (loading) {
@@ -129,7 +134,9 @@ export function StyleGuideManagement({
         <CardContent className="p-6">
           <div className="text-center py-8">
             <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full mx-auto mb-4"></div>
-            <p className="text-sm text-muted-foreground">Chargement des guides de style...</p>
+            <p className="text-sm text-muted-foreground">
+              Chargement des guides de style...
+            </p>
           </div>
         </CardContent>
       </Card>
@@ -164,7 +171,10 @@ export function StyleGuideManagement({
           </p>
         </div>
         {showActions && (
-          <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+          <Dialog
+            open={isCreateDialogOpen}
+            onOpenChange={setIsCreateDialogOpen}
+          >
             <DialogTrigger asChild>
               <Button>
                 <Plus className="h-4 w-4 mr-2" />
@@ -217,7 +227,7 @@ export function StyleGuideManagement({
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">Tous les tons</SelectItem>
-            {availableTones.map(tone => (
+            {availableTones.map((tone) => (
               <SelectItem key={tone} value={tone} className="capitalize">
                 {tone}
               </SelectItem>
@@ -228,18 +238,25 @@ export function StyleGuideManagement({
 
       {/* Liste des guides */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {styleGuides.map(guide => (
+        {styleGuides.map((guide) => (
           <Card
             key={guide.id}
             className={`cursor-pointer transition-all hover:shadow-md ${
-              onStyleGuideSelect ? 'hover:border-primary' : ''
+              onStyleGuideSelect ? "hover:border-primary" : ""
             }`}
             onClick={() => onStyleGuideSelect?.(guide)}
           >
             <CardHeader className="pb-3">
               <div className="flex items-start justify-between">
                 <div className="flex-1">
-                  <CardTitle className="text-lg">{guide.name}</CardTitle>
+                  <div className="flex items-center gap-2">
+                    <CardTitle className="text-lg">{guide.name}</CardTitle>
+                    {defaultGuide?.id === guide.id && (
+                      <Badge variant="default" className="text-xs">
+                        Par défaut
+                      </Badge>
+                    )}
+                  </div>
                   <div className="flex items-center gap-2 mt-2">
                     <Badge variant="secondary" className="text-xs">
                       {guide.tone}
@@ -269,8 +286,9 @@ export function StyleGuideManagement({
                       variant="ghost"
                       onClick={(e) => {
                         e.stopPropagation();
-                        handleDuplicateGuide(guide);
+                        handleDuplicateGuide(guide.id);
                       }}
+                      title="Dupliquer"
                     >
                       <Copy className="h-4 w-4" />
                     </Button>
@@ -291,21 +309,40 @@ export function StyleGuideManagement({
             <CardContent className="pt-0">
               <div className="space-y-3">
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">Variabilité</p>
+                  <p className="text-sm font-medium text-muted-foreground">
+                    Variabilité
+                  </p>
                   <p className="text-sm capitalize">{guide.variability}</p>
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">Phrases préférées</p>
+                  <p className="text-sm font-medium text-muted-foreground">
+                    Phrases préférées
+                  </p>
                   <p className="text-sm text-muted-foreground">
                     {guide.preferredPhrases.length} phrases configurées
                   </p>
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">Dernière modification</p>
+                  <p className="text-sm font-medium text-muted-foreground">
+                    Dernière modification
+                  </p>
                   <p className="text-sm text-muted-foreground">
                     {guide.updatedAt.toLocaleDateString()}
                   </p>
                 </div>
+                {showActions && defaultGuide?.id !== guide.id && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full mt-2"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleSetDefault(guide.id);
+                    }}
+                  >
+                    Définir par défaut
+                  </Button>
+                )}
               </div>
             </CardContent>
           </Card>
@@ -341,7 +378,9 @@ export function StyleGuideManagement({
             </DialogHeader>
             <StyleGuideForm
               initialData={editingGuide}
-              onSubmit={(data) => handleUpdateGuide({ id: editingGuide.id, ...data })}
+              onSubmit={(data) =>
+                handleUpdateGuide({ id: editingGuide.id, ...data })
+              }
               availableTones={availableTones}
               availableRegisters={availableRegisters}
               availableLengths={availableLengths}
@@ -351,18 +390,24 @@ export function StyleGuideManagement({
       )}
 
       {/* Dialog de confirmation de suppression */}
-      <AlertDialog open={!!deletingGuideId} onOpenChange={() => setDeletingGuideId(null)}>
+      <AlertDialog
+        open={!!deletingGuideId}
+        onOpenChange={() => setDeletingGuideId(null)}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertTitle>Supprimer le guide de style</AlertTitle>
             <AlertDialogDescription>
-              Cette action est irréversible. Le guide de style sera définitivement supprimé.
+              Cette action est irréversible. Le guide de style sera
+              définitivement supprimé.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Annuler</AlertDialogCancel>
             <AlertDialogAction
-              onClick={() => deletingGuideId && handleDeleteGuide(deletingGuideId)}
+              onClick={() =>
+                deletingGuideId && handleDeleteGuide(deletingGuideId)
+              }
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
               Supprimer
@@ -388,7 +433,7 @@ function StyleGuideForm({
   onSubmit,
   availableTones,
   availableRegisters,
-  availableLengths
+  availableLengths,
 }: StyleGuideFormProps) {
   const [formData, setFormData] = useState<CreateStyleGuideData>({
     name: initialData?.name || "",
@@ -398,7 +443,7 @@ function StyleGuideForm({
     person: initialData?.person || "troisieme",
     variability: initialData?.variability || "moyenne",
     bannedPhrases: initialData?.bannedPhrases || [],
-    preferredPhrases: initialData?.preferredPhrases || []
+    preferredPhrases: initialData?.preferredPhrases || [],
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -422,7 +467,9 @@ function StyleGuideForm({
           <Input
             id="name"
             value={formData.name}
-            onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+            onChange={(e) =>
+              setFormData((prev) => ({ ...prev, name: e.target.value }))
+            }
             placeholder="Ex: Style professionnel"
             required
           />
@@ -431,13 +478,15 @@ function StyleGuideForm({
           <Label htmlFor="tone">Ton</Label>
           <Select
             value={formData.tone}
-            onValueChange={(value) => setFormData(prev => ({ ...prev, tone: value }))}
+            onValueChange={(value) =>
+              setFormData((prev) => ({ ...prev, tone: value }))
+            }
           >
             <SelectTrigger>
               <SelectValue placeholder="Choisir un ton" />
             </SelectTrigger>
             <SelectContent>
-              {availableTones.map(tone => (
+              {availableTones.map((tone) => (
                 <SelectItem key={tone} value={tone} className="capitalize">
                   {tone}
                 </SelectItem>
@@ -452,14 +501,20 @@ function StyleGuideForm({
           <Label htmlFor="register">Registre</Label>
           <Select
             value={formData.register}
-            onValueChange={(value) => setFormData(prev => ({ ...prev, register: value }))}
+            onValueChange={(value) =>
+              setFormData((prev) => ({ ...prev, register: value }))
+            }
           >
             <SelectTrigger>
               <SelectValue placeholder="Registre" />
             </SelectTrigger>
             <SelectContent>
-              {availableRegisters.map(register => (
-                <SelectItem key={register} value={register} className="capitalize">
+              {availableRegisters.map((register) => (
+                <SelectItem
+                  key={register}
+                  value={register}
+                  className="capitalize"
+                >
                   {register}
                 </SelectItem>
               ))}
@@ -470,13 +525,15 @@ function StyleGuideForm({
           <Label htmlFor="length">Longueur</Label>
           <Select
             value={formData.length}
-            onValueChange={(value) => setFormData(prev => ({ ...prev, length: value }))}
+            onValueChange={(value) =>
+              setFormData((prev) => ({ ...prev, length: value }))
+            }
           >
             <SelectTrigger>
               <SelectValue placeholder="Longueur" />
             </SelectTrigger>
             <SelectContent>
-              {availableLengths.map(length => (
+              {availableLengths.map((length) => (
                 <SelectItem key={length} value={length} className="capitalize">
                   {length}
                 </SelectItem>
@@ -488,7 +545,9 @@ function StyleGuideForm({
           <Label htmlFor="person">Personne</Label>
           <Select
             value={formData.person}
-            onValueChange={(value) => setFormData(prev => ({ ...prev, person: value }))}
+            onValueChange={(value) =>
+              setFormData((prev) => ({ ...prev, person: value }))
+            }
           >
             <SelectTrigger>
               <SelectValue />
@@ -505,7 +564,9 @@ function StyleGuideForm({
         <Label htmlFor="variability">Variabilité</Label>
         <Select
           value={formData.variability}
-          onValueChange={(value) => setFormData(prev => ({ ...prev, variability: value }))}
+          onValueChange={(value) =>
+            setFormData((prev) => ({ ...prev, variability: value }))
+          }
         >
           <SelectTrigger>
             <SelectValue />
@@ -523,7 +584,11 @@ function StyleGuideForm({
           Annuler
         </Button>
         <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? "Enregistrement..." : (initialData ? "Modifier" : "Créer")}
+          {isSubmitting
+            ? "Enregistrement..."
+            : initialData
+              ? "Modifier"
+              : "Créer"}
         </Button>
       </div>
     </form>

@@ -19,7 +19,12 @@ import {
 import { Badge } from "@/components/atoms/badge";
 import { Button } from "@/components/atoms/button";
 import { Card, CardContent, CardHeader } from "@/components/molecules/card";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/atoms/tabs";
+import {
+  Tabs,
+  TabsList,
+  TabsTrigger,
+  TabsContent,
+} from "@/components/atoms/tabs";
 import { useStudentAnalytics } from "@/features/students/hooks";
 import type { Student } from "@/types/uml-entities";
 
@@ -53,30 +58,42 @@ export function StudentAnalysisPanel({
     academicPeriodId,
   });
 
-  const getSeverityColor = (severity: 'low' | 'medium' | 'high') => {
+  const getSeverityColor = (severity: "low" | "medium" | "high") => {
     switch (severity) {
-      case 'high': return 'destructive';
-      case 'medium': return 'warning';
-      case 'low': return 'secondary';
-      default: return 'secondary';
+      case "high":
+        return "destructive";
+      case "medium":
+        return "warning";
+      case "low":
+        return "secondary";
+      default:
+        return "secondary";
     }
   };
 
-  const getPriorityIcon = (priority: 'low' | 'medium' | 'high') => {
+  const getPriorityIcon = (priority: "low" | "medium" | "high") => {
     switch (priority) {
-      case 'high': return <AlertTriangle className="h-4 w-4 text-destructive" />;
-      case 'medium': return <Clock className="h-4 w-4 text-warning" />;
-      case 'low': return <CheckCircle className="h-4 w-4 text-muted-foreground" />;
-      default: return <CheckCircle className="h-4 w-4 text-muted-foreground" />;
+      case "high":
+        return <AlertTriangle className="h-4 w-4 text-destructive" />;
+      case "medium":
+        return <Clock className="h-4 w-4 text-warning" />;
+      case "low":
+        return <CheckCircle className="h-4 w-4 text-muted-foreground" />;
+      default:
+        return <CheckCircle className="h-4 w-4 text-muted-foreground" />;
     }
   };
 
-  const getTrendIcon = (direction: 'up' | 'down' | 'stable') => {
+  const getTrendIcon = (direction: "up" | "down" | "stable") => {
     switch (direction) {
-      case 'up': return <TrendingUp className="h-4 w-4 text-success" />;
-      case 'down': return <TrendingDown className="h-4 w-4 text-destructive" />;
-      case 'stable': return <Activity className="h-4 w-4 text-muted-foreground" />;
-      default: return <Activity className="h-4 w-4 text-muted-foreground" />;
+      case "up":
+        return <TrendingUp className="h-4 w-4 text-success" />;
+      case "down":
+        return <TrendingDown className="h-4 w-4 text-destructive" />;
+      case "stable":
+        return <Activity className="h-4 w-4 text-muted-foreground" />;
+      default:
+        return <Activity className="h-4 w-4 text-muted-foreground" />;
     }
   };
 
@@ -121,14 +138,14 @@ export function StudentAnalysisPanel({
         <CardContent className="p-6">
           <div className="text-center">
             <Eye className="h-12 w-12 mx-auto mb-4 text-muted-foreground opacity-50" />
-            <p className="text-sm font-medium mb-2">
-              Données insuffisantes
-            </p>
+            <p className="text-sm font-medium mb-2">Données insuffisantes</p>
             <p className="text-xs text-muted-foreground mb-4">
-              Au moins 5 participations ou 3 évaluations sont nécessaires pour générer une analyse fiable.
+              Au moins 5 participations ou 3 évaluations sont nécessaires pour
+              générer une analyse fiable.
             </p>
             <div className="text-xs text-muted-foreground">
-              Actuellement: {dataQuality.participationCount} participations, {dataQuality.examCount} évaluations
+              Actuellement: {dataQuality.participationCount} participations,{" "}
+              {dataQuality.examCount} évaluations
             </div>
           </div>
         </CardContent>
@@ -150,7 +167,7 @@ export function StudentAnalysisPanel({
           <div className="flex items-center gap-2">
             {lastAnalyzedAt && (
               <span className="text-xs text-muted-foreground">
-                Mise à jour: {lastAnalyzedAt.toLocaleDateString('fr-FR')}
+                Mise à jour: {lastAnalyzedAt.toLocaleDateString("fr-FR")}
               </span>
             )}
             <Button variant="ghost" size="sm" onClick={analyzeAll}>
@@ -191,11 +208,16 @@ export function StudentAnalysisPanel({
                   Alertes ({behavioralAlerts.length + academicRisks.length})
                 </h5>
                 {behavioralAlerts.slice(0, 2).map((alert, index) => (
-                  <div key={index} className="p-3 bg-destructive/5 border border-destructive/20 rounded-md">
+                  <div
+                    key={index}
+                    className="p-3 bg-destructive/5 border border-destructive/20 rounded-md"
+                  >
                     <div className="flex items-start gap-2">
                       <AlertTriangle className="h-3 w-3 text-destructive mt-0.5" />
                       <div>
-                        <p className="text-xs font-medium text-destructive">{alert.message}</p>
+                        <p className="text-xs font-medium text-destructive">
+                          {alert.message}
+                        </p>
                         <p className="text-xs text-muted-foreground mt-1">
                           {alert.suggestedActions[0]}
                         </p>
@@ -204,11 +226,16 @@ export function StudentAnalysisPanel({
                   </div>
                 ))}
                 {academicRisks.slice(0, 1).map((risk, index) => (
-                  <div key={index} className="p-3 bg-warning/5 border border-warning/20 rounded-md">
+                  <div
+                    key={index}
+                    className="p-3 bg-warning/5 border border-warning/20 rounded-md"
+                  >
                     <div className="flex items-start gap-2">
                       <AlertTriangle className="h-3 w-3 text-warning mt-0.5" />
                       <div>
-                        <p className="text-xs font-medium text-warning">{risk.description}</p>
+                        <p className="text-xs font-medium text-warning">
+                          {risk.description}
+                        </p>
                         <p className="text-xs text-muted-foreground mt-1">
                           {risk.suggestedActions[0]}
                         </p>
@@ -227,13 +254,17 @@ export function StudentAnalysisPanel({
                     <div className="text-lg font-bold text-primary">
                       {behavioralAnalysis.participationLevel}/20
                     </div>
-                    <div className="text-xs text-muted-foreground">Participation</div>
+                    <div className="text-xs text-muted-foreground">
+                      Participation
+                    </div>
                   </div>
                   <div className="p-3 bg-success/5 rounded-lg text-center">
                     <div className="text-lg font-bold text-success">
                       {Math.round(behavioralAnalysis.attendanceRate * 100)}%
                     </div>
-                    <div className="text-xs text-muted-foreground">Présence</div>
+                    <div className="text-xs text-muted-foreground">
+                      Présence
+                    </div>
                   </div>
                 </>
               )}
@@ -243,13 +274,17 @@ export function StudentAnalysisPanel({
                     <div className="text-lg font-bold text-blue-600">
                       {academicAnalysis.overallAverage}/20
                     </div>
-                    <div className="text-xs text-muted-foreground">Moyenne générale</div>
+                    <div className="text-xs text-muted-foreground">
+                      Moyenne générale
+                    </div>
                   </div>
                   <div className="p-3 bg-purple-500/5 rounded-lg text-center">
                     <div className="text-lg font-bold text-purple-600">
                       {Math.round(academicAnalysis.consistencyScore * 100)}%
                     </div>
-                    <div className="text-xs text-muted-foreground">Régularité</div>
+                    <div className="text-xs text-muted-foreground">
+                      Régularité
+                    </div>
                   </div>
                 </>
               )}
@@ -280,26 +315,38 @@ export function StudentAnalysisPanel({
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
-                      <span className="text-xs text-muted-foreground">Attention</span>
-                      <span className="text-xs font-medium">{behavioralAnalysis.attentionLevel}/20</span>
+                      <span className="text-xs text-muted-foreground">
+                        Attention
+                      </span>
+                      <span className="text-xs font-medium">
+                        {behavioralAnalysis.attentionLevel}/20
+                      </span>
                     </div>
                     <div className="w-full bg-muted h-2 rounded">
                       <div
                         className="bg-primary h-2 rounded"
-                        style={{ width: `${(behavioralAnalysis.attentionLevel / 20) * 100}%` }}
+                        style={{
+                          width: `${(behavioralAnalysis.attentionLevel / 20) * 100}%`,
+                        }}
                       />
                     </div>
                   </div>
 
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
-                      <span className="text-xs text-muted-foreground">Coopération</span>
-                      <span className="text-xs font-medium">{behavioralAnalysis.cooperationLevel}/20</span>
+                      <span className="text-xs text-muted-foreground">
+                        Coopération
+                      </span>
+                      <span className="text-xs font-medium">
+                        {behavioralAnalysis.cooperationLevel}/20
+                      </span>
                     </div>
                     <div className="w-full bg-muted h-2 rounded">
                       <div
                         className="bg-success h-2 rounded"
-                        style={{ width: `${(behavioralAnalysis.cooperationLevel / 20) * 100}%` }}
+                        style={{
+                          width: `${(behavioralAnalysis.cooperationLevel / 20) * 100}%`,
+                        }}
                       />
                     </div>
                   </div>
@@ -310,9 +357,13 @@ export function StudentAnalysisPanel({
                     <h5 className="text-sm font-medium">Évolution</h5>
                     <div className="flex items-center gap-2">
                       {getTrendIcon(behavioralTrends.attentionTrend.direction)}
-                      <span className="text-xs">{behavioralTrends.attentionTrend.periodComparison}</span>
+                      <span className="text-xs">
+                        {behavioralTrends.attentionTrend.periodComparison}
+                      </span>
                     </div>
-                    <p className="text-xs text-muted-foreground">{behavioralTrends.evolutionSummary}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {behavioralTrends.evolutionSummary}
+                    </p>
                   </div>
                 )}
               </>
@@ -335,7 +386,9 @@ export function StudentAnalysisPanel({
                       </div>
                     ))
                   ) : (
-                    <span className="text-xs text-muted-foreground">Aucune matière forte identifiée</span>
+                    <span className="text-xs text-muted-foreground">
+                      Aucune matière forte identifiée
+                    </span>
                   )}
                 </div>
 
@@ -355,9 +408,20 @@ export function StudentAnalysisPanel({
                   <div className="space-y-2">
                     <h5 className="text-sm font-medium">Progression</h5>
                     <div className="flex items-center gap-2">
-                      {getTrendIcon(academicProgress.overallTrend === 'improving' ? 'up' : academicProgress.overallTrend === 'declining' ? 'down' : 'stable')}
+                      {getTrendIcon(
+                        academicProgress.overallTrend === "improving"
+                          ? "up"
+                          : academicProgress.overallTrend === "declining"
+                            ? "down"
+                            : "stable",
+                      )}
                       <span className="text-xs">
-                        Évolution: {academicProgress.overallTrend === 'improving' ? 'positive' : academicProgress.overallTrend === 'declining' ? 'négative' : 'stable'}
+                        Évolution:{" "}
+                        {academicProgress.overallTrend === "improving"
+                          ? "positive"
+                          : academicProgress.overallTrend === "declining"
+                            ? "négative"
+                            : "stable"}
                       </span>
                     </div>
                   </div>
@@ -376,15 +440,27 @@ export function StudentAnalysisPanel({
                       {getPriorityIcon(rec.priority)}
                       <div className="flex-1 min-w-0">
                         <p className="text-xs font-medium">{rec.title}</p>
-                        <p className="text-xs text-muted-foreground">{rec.description}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {rec.description}
+                        </p>
                       </div>
-                      <Badge variant={rec.priority === 'high' ? 'destructive' : 'secondary'} className="text-xs">
-                        {rec.priority === 'high' ? 'Urgent' : rec.priority === 'medium' ? 'Important' : 'Suggéré'}
+                      <Badge
+                        variant={
+                          rec.priority === "high" ? "destructive" : "secondary"
+                        }
+                        className="text-xs"
+                      >
+                        {rec.priority === "high"
+                          ? "Urgent"
+                          : rec.priority === "medium"
+                            ? "Important"
+                            : "Suggéré"}
                       </Badge>
                     </div>
                     <div className="text-xs text-muted-foreground">
-                      <strong>Actions:</strong> {rec.actionItems.slice(0, 2).join(', ')}
-                      {rec.actionItems.length > 2 && '...'}
+                      <strong>Actions:</strong>{" "}
+                      {rec.actionItems.slice(0, 2).join(", ")}
+                      {rec.actionItems.length > 2 && "..."}
                     </div>
                   </div>
                 ))}

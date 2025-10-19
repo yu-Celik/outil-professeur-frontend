@@ -1,4 +1,8 @@
-import type { AcademicStructure, AcademicPeriod, SchoolYear } from "@/types/uml-entities";
+import type {
+  AcademicStructure,
+  AcademicPeriod,
+  SchoolYear,
+} from "@/types/uml-entities";
 
 interface PeriodCalculationOptions {
   schoolYear: SchoolYear;
@@ -27,12 +31,14 @@ export class PeriodCalculator {
     const periods = this.calculatePeriodDates(
       schoolYear.startDate,
       schoolYear.endDate,
-      academicStructure.periodsPerYear
+      academicStructure.periodsPerYear,
     );
 
     return periods.map((period, index) => {
       const order = index + 1;
-      const periodName = (academicStructure.periodNames[order.toString()] as string) || `Période ${order}`;
+      const periodName =
+        (academicStructure.periodNames[order.toString()] as string) ||
+        `Période ${order}`;
 
       return {
         id: `period-${academicStructure.periodModel}-${order}-${schoolYear.id}`,
@@ -45,7 +51,8 @@ export class PeriodCalculator {
         isActive: this.isCurrentPeriod(period.startDate, period.endDate),
         createdAt: new Date(),
         updatedAt: new Date(),
-        contains: (date: Date) => date >= period.startDate && date <= period.endDate,
+        contains: (date: Date) =>
+          date >= period.startDate && date <= period.endDate,
       };
     });
   }
@@ -56,10 +63,13 @@ export class PeriodCalculator {
   private static calculatePeriodDates(
     schoolYearStart: Date,
     schoolYearEnd: Date,
-    periodsCount: number
+    periodsCount: number,
   ): GeneratedPeriod[] {
     const periods: GeneratedPeriod[] = [];
-    const totalDays = Math.floor((schoolYearEnd.getTime() - schoolYearStart.getTime()) / (1000 * 60 * 60 * 24));
+    const totalDays = Math.floor(
+      (schoolYearEnd.getTime() - schoolYearStart.getTime()) /
+        (1000 * 60 * 60 * 24),
+    );
     const baseDaysPerPeriod = Math.floor(totalDays / periodsCount);
     const remainingDays = totalDays % periodsCount;
 
@@ -108,13 +118,15 @@ export class PeriodCalculator {
    */
   static generatePeriodsWithCustomDates(
     options: PeriodCalculationOptions,
-    customDates: Array<{ start: string; end: string }>
+    customDates: Array<{ start: string; end: string }>,
   ): AcademicPeriod[] {
     const { schoolYear, academicStructure, teacherId } = options;
 
     return customDates.map((dateRange, index) => {
       const order = index + 1;
-      const periodName = (academicStructure.periodNames[order.toString()] as string) || `Période ${order}`;
+      const periodName =
+        (academicStructure.periodNames[order.toString()] as string) ||
+        `Période ${order}`;
       const startDate = new Date(dateRange.start);
       const endDate = new Date(dateRange.end);
 
@@ -139,18 +151,19 @@ export class PeriodCalculator {
    */
   static validateStructureForSchoolYear(
     academicStructure: AcademicStructure,
-    schoolYear: SchoolYear
+    schoolYear: SchoolYear,
   ): { isValid: boolean; errors: string[] } {
     const errors: string[] = [];
 
     // Vérifier que l'année scolaire est suffisamment longue
     const totalDays = Math.floor(
-      (schoolYear.endDate.getTime() - schoolYear.startDate.getTime()) / (1000 * 60 * 60 * 24)
+      (schoolYear.endDate.getTime() - schoolYear.startDate.getTime()) /
+        (1000 * 60 * 60 * 24),
     );
 
     if (totalDays < academicStructure.periodsPerYear * 7) {
       errors.push(
-        `L'année scolaire (${totalDays} jours) est trop courte pour ${academicStructure.periodsPerYear} périodes`
+        `L'année scolaire (${totalDays} jours) est trop courte pour ${academicStructure.periodsPerYear} périodes`,
       );
     }
 
@@ -169,7 +182,7 @@ export class PeriodCalculator {
    */
   static calculateStructureStats(
     academicStructure: AcademicStructure,
-    schoolYear: SchoolYear
+    schoolYear: SchoolYear,
   ): {
     totalDays: number;
     averageDaysPerPeriod: number;
@@ -180,22 +193,27 @@ export class PeriodCalculator {
     }>;
   } {
     const totalDays = Math.floor(
-      (schoolYear.endDate.getTime() - schoolYear.startDate.getTime()) / (1000 * 60 * 60 * 24)
+      (schoolYear.endDate.getTime() - schoolYear.startDate.getTime()) /
+        (1000 * 60 * 60 * 24),
     );
 
     const periods = this.calculatePeriodDates(
       schoolYear.startDate,
       schoolYear.endDate,
-      academicStructure.periodsPerYear
+      academicStructure.periodsPerYear,
     );
 
     const periodsInfo = periods.map((period, index) => {
-      const days = Math.floor(
-        (period.endDate.getTime() - period.startDate.getTime()) / (1000 * 60 * 60 * 24)
-      ) + 1;
+      const days =
+        Math.floor(
+          (period.endDate.getTime() - period.startDate.getTime()) /
+            (1000 * 60 * 60 * 24),
+        ) + 1;
 
       const order = index + 1;
-      const name = (academicStructure.periodNames[order.toString()] as string) || `Période ${order}`;
+      const name =
+        (academicStructure.periodNames[order.toString()] as string) ||
+        `Période ${order}`;
 
       return {
         name,
@@ -206,7 +224,9 @@ export class PeriodCalculator {
 
     return {
       totalDays,
-      averageDaysPerPeriod: Math.round(totalDays / academicStructure.periodsPerYear),
+      averageDaysPerPeriod: Math.round(
+        totalDays / academicStructure.periodsPerYear,
+      ),
       periodsInfo,
     };
   }
@@ -214,23 +234,34 @@ export class PeriodCalculator {
   /**
    * Trouve la période académique active pour une date donnée
    */
-  static findActivePeriod(periods: AcademicPeriod[], date: Date = new Date()): AcademicPeriod | null {
-    return periods.find(period => period.contains(date)) || null;
+  static findActivePeriod(
+    periods: AcademicPeriod[],
+    date: Date = new Date(),
+  ): AcademicPeriod | null {
+    return periods.find((period) => period.contains(date)) || null;
   }
 
   /**
    * Obtient la prochaine période académique
    */
-  static getNextPeriod(periods: AcademicPeriod[], currentDate: Date = new Date()): AcademicPeriod | null {
+  static getNextPeriod(
+    periods: AcademicPeriod[],
+    currentDate: Date = new Date(),
+  ): AcademicPeriod | null {
     const sortedPeriods = periods.sort((a, b) => a.order - b.order);
-    return sortedPeriods.find(period => period.startDate > currentDate) || null;
+    return (
+      sortedPeriods.find((period) => period.startDate > currentDate) || null
+    );
   }
 
   /**
    * Obtient la période académique précédente
    */
-  static getPreviousPeriod(periods: AcademicPeriod[], currentDate: Date = new Date()): AcademicPeriod | null {
+  static getPreviousPeriod(
+    periods: AcademicPeriod[],
+    currentDate: Date = new Date(),
+  ): AcademicPeriod | null {
     const sortedPeriods = periods.sort((a, b) => b.order - a.order);
-    return sortedPeriods.find(period => period.endDate < currentDate) || null;
+    return sortedPeriods.find((period) => period.endDate < currentDate) || null;
   }
 }

@@ -1,11 +1,6 @@
 "use client";
 
-import {
-  BookOpen,
-  Edit,
-  Plus,
-  Trash2,
-} from "lucide-react";
+import { BookOpen, Edit, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { Badge } from "@/components/atoms/badge";
 import { Button } from "@/components/atoms/button";
@@ -75,7 +70,13 @@ export function SubjectsManagement({ teacherId }: SubjectsManagementProps) {
     console.log("Toggle non supporté pour les matières UML:", id);
   };
 
-  const SubjectItem = ({ subject, index }: { subject: Subject; index: number }) => {
+  const SubjectItem = ({
+    subject,
+    index,
+  }: {
+    subject: Subject;
+    index: number;
+  }) => {
     return (
       <div
         key={subject.id}
@@ -91,9 +92,7 @@ export function SubjectsManagement({ teacherId }: SubjectsManagementProps) {
             </div>
 
             <div>
-              <div className="font-medium">
-                {subject.name}
-              </div>
+              <div className="font-medium">{subject.name}</div>
               <div className="text-sm text-muted-foreground">
                 Code: {subject.code}
                 {subject.description && ` • ${subject.description}`}

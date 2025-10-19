@@ -20,7 +20,10 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/atoms/dialog";
-import { AcademicStructureCrudForm, type AcademicStructureFormData } from "@/components/organisms/academic-structure-crud-form";
+import {
+  AcademicStructureCrudForm,
+  type AcademicStructureFormData,
+} from "@/components/organisms/academic-structure-crud-form";
 import { useAcademicStructures } from "@/features/gestion";
 import { PeriodCalculator } from "@/services/period-calculator";
 import { getCurrentSchoolYear } from "@/features/gestion/mocks";
@@ -30,7 +33,9 @@ interface AcademicStructuresManagementProps {
   teacherId?: string;
 }
 
-export function AcademicStructuresManagement({ teacherId }: AcademicStructuresManagementProps) {
+export function AcademicStructuresManagement({
+  teacherId,
+}: AcademicStructuresManagementProps) {
   const {
     academicStructures,
     loading,
@@ -47,7 +52,8 @@ export function AcademicStructuresManagement({ teacherId }: AcademicStructuresMa
   } = useAcademicStructures({ teacherId });
 
   const [showForm, setShowForm] = useState(false);
-  const [editingStructure, setEditingStructure] = useState<AcademicStructure | null>(null);
+  const [editingStructure, setEditingStructure] =
+    useState<AcademicStructure | null>(null);
 
   const currentSchoolYear = getCurrentSchoolYear();
   const teacherStructure = getTeacherStructure();
@@ -79,7 +85,9 @@ export function AcademicStructuresManagement({ teacherId }: AcademicStructuresMa
 
   // Supprimer une structure
   const handleDelete = async (id: string) => {
-    if (confirm("Êtes-vous sûr de vouloir supprimer cette structure académique ?")) {
+    if (
+      confirm("Êtes-vous sûr de vouloir supprimer cette structure académique ?")
+    ) {
       try {
         await deleteAcademicStructure(id);
       } catch (error) {
@@ -106,7 +114,6 @@ export function AcademicStructuresManagement({ teacherId }: AcademicStructuresMa
     }
   };
 
-
   // Créer à partir d'un template ou ouvrir la structure existante
   const handleCreateFromTemplate = async (templateKey: string) => {
     if (hasStructure && teacherStructure) {
@@ -119,7 +126,9 @@ export function AcademicStructuresManagement({ teacherId }: AcademicStructuresMa
         await createFromTemplate(templateKey);
       } catch (error) {
         console.error("Erreur lors de la création depuis le template:", error);
-        alert(`Erreur: ${error instanceof Error ? error.message : "Erreur inconnue"}`);
+        alert(
+          `Erreur: ${error instanceof Error ? error.message : "Erreur inconnue"}`,
+        );
       }
     }
   };
@@ -129,7 +138,10 @@ export function AcademicStructuresManagement({ teacherId }: AcademicStructuresMa
     if (!currentSchoolYear) return null;
 
     try {
-      return PeriodCalculator.calculateStructureStats(structure, currentSchoolYear);
+      return PeriodCalculator.calculateStructureStats(
+        structure,
+        currentSchoolYear,
+      );
     } catch {
       return null;
     }
@@ -152,10 +164,15 @@ export function AcademicStructuresManagement({ teacherId }: AcademicStructuresMa
             <div className="flex items-center justify-between">
               <div>
                 <div className="flex items-center space-x-2">
-                  <Badge variant="secondary" className="bg-green-100 text-green-800">
+                  <Badge
+                    variant="secondary"
+                    className="bg-green-100 text-green-800"
+                  >
                     ✓ Configuré
                   </Badge>
-                  <span className="text-lg font-medium">{teacherStructure.name}</span>
+                  <span className="text-lg font-medium">
+                    {teacherStructure.name}
+                  </span>
                 </div>
                 <p className="text-sm text-muted-foreground mt-2">
                   {Object.values(teacherStructure.periodNames).join(" • ")}
@@ -193,7 +210,9 @@ export function AcademicStructuresManagement({ teacherId }: AcademicStructuresMa
                   disabled={loading}
                 >
                   <div className="w-full">
-                    <div className="font-medium text-base mb-1">{template.name}</div>
+                    <div className="font-medium text-base mb-1">
+                      {template.name}
+                    </div>
                     <div className="text-sm text-muted-foreground mb-2">
                       {template.periodsPerYear} périodes dans l'année
                     </div>
@@ -212,9 +231,7 @@ export function AcademicStructuresManagement({ teacherId }: AcademicStructuresMa
       {error && (
         <Card className="border-red-200 bg-red-50">
           <CardContent className="p-4">
-            <div className="text-red-700">
-              Erreur: {error}
-            </div>
+            <div className="text-red-700">Erreur: {error}</div>
           </CardContent>
         </Card>
       )}
@@ -233,7 +250,6 @@ export function AcademicStructuresManagement({ teacherId }: AcademicStructuresMa
           />
         </DialogContent>
       </Dialog>
-
     </div>
   );
 }

@@ -4,11 +4,16 @@ import { BookOpen, Calendar, ClipboardList, Clock, Users } from "lucide-react";
 import { Badge } from "@/components/atoms/badge";
 import { Card, CardContent } from "@/components/molecules/card";
 import { StudentParticipationAccordion } from "@/components/molecules/student-participation-accordion";
+import { SessionStatsSummary } from "@/components/molecules/session-stats-summary";
 import { getClassById } from "@/features/gestion/mocks";
 import { getStudentsByClass } from "@/features/students/mocks";
 import { getSubjectById } from "@/features/gestion/mocks";
 import { getTimeSlotById } from "@/features/calendar/mocks";
-import type { CourseSession, Student } from "@/types/uml-entities";
+import type {
+  CourseSession,
+  Student,
+  StudentParticipation,
+} from "@/types/uml-entities";
 
 interface SessionsListProps {
   selectedSessionId: string;
@@ -16,6 +21,10 @@ interface SessionsListProps {
   studentsForSession: Student[];
   openAccordions: Set<string>;
   onToggleAccordion: (studentId: string) => void;
+  attendanceData?: StudentParticipation[] | null;
+  onSaveParticipation?: (
+    participation: Partial<StudentParticipation>,
+  ) => Promise<void>;
 }
 
 export function SessionsList({
@@ -24,6 +33,8 @@ export function SessionsList({
   studentsForSession,
   openAccordions,
   onToggleAccordion,
+  attendanceData,
+  onSaveParticipation,
 }: SessionsListProps) {
   if (selectedSessionId === "all") {
     return (
@@ -105,7 +116,8 @@ export function SessionsList({
               <h3 className="text-sm font-semibold text-foreground truncate">
                 {getSubjectById(selectedSession.subjectId)?.name ||
                   selectedSession.subjectId}{" "}
-                - {getClassById(selectedSession.classId)?.classCode ||
+                -{" "}
+                {getClassById(selectedSession.classId)?.classCode ||
                   selectedSession.classId}
               </h3>
               <div className="flex items-center gap-2 text-xs text-muted-foreground">
@@ -144,18 +156,36 @@ export function SessionsList({
         </div>
       </div>
 
+      {/* Session Statistics */}
+      {attendanceData && attendanceData.length > 0 && (
+        <div className="flex-shrink-0 mb-3">
+          <SessionStatsSummary
+            attendanceData={attendanceData}
+            totalStudents={studentsForSession.length}
+          />
+        </div>
+      )}
+
       {/* Zone scrollable avec accordéons */}
       <div className="flex-1 space-y-4 overflow-y-auto min-h-0">
         {/* Accordéons par élève */}
-        {studentsForSession.map((student) => (
-          <StudentParticipationAccordion
-            key={student.id}
-            student={student}
-            session={selectedSession}
-            isOpen={openAccordions.has(student.id)}
-            onToggle={() => onToggleAccordion(student.id)}
-          />
-        ))}
+        {studentsForSession.map((student) => {
+          const studentAttendance = attendanceData?.find(
+            (a) => a.studentId === student.id,
+          );
+
+          return (
+            <StudentParticipationAccordion
+              key={student.id}
+              student={student}
+              session={selectedSession}
+              isOpen={openAccordions.has(student.id)}
+              onToggle={() => onToggleAccordion(student.id)}
+              participation={studentAttendance}
+              onSave={onSaveParticipation}
+            />
+          );
+        })}
       </div>
     </div>
   );

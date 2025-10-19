@@ -27,24 +27,32 @@ export interface UseTimeSlotManagementReturn {
   updateTimeSlot: (id: string, data: TimeSlotFormData) => Promise<TimeSlot>;
   deleteTimeSlot: (id: string) => Promise<void>;
   getTimeSlotById: (id: string) => TimeSlot | undefined;
-  validateForm: (data: TimeSlotFormData, excludeId?: string) => Record<keyof TimeSlotFormData, string | null>;
-  hasValidationErrors: (errors: Record<keyof TimeSlotFormData, string | null>) => boolean;
+  validateForm: (
+    data: TimeSlotFormData,
+    excludeId?: string,
+  ) => Record<keyof TimeSlotFormData, string | null>;
+  hasValidationErrors: (
+    errors: Record<keyof TimeSlotFormData, string | null>,
+  ) => boolean;
   refresh: () => void;
 
   // Méthodes spécifiques aux créneaux horaires
   getTimeSlotsByType: (isBreak: boolean) => TimeSlot[];
   reorderTimeSlots: (timeSlotIds: string[]) => Promise<void>;
-  validateTimeSlotOverlap: (startTime: string, endTime: string, excludeId?: string) => boolean;
+  validateTimeSlotOverlap: (
+    startTime: string,
+    endTime: string,
+    excludeId?: string,
+  ) => boolean;
 }
 
 export function useTimeSlotManagement(): UseTimeSlotManagementReturn {
-  
   // Configuration pour le hook de base
   const baseManagement = useBaseManagement<TimeSlot, TimeSlotFormData>({
     entityName: "créneau horaire",
     mockData: MOCK_TIME_SLOTS.sort((a, b) => a.displayOrder - b.displayOrder),
     generateId: () => `timeslot-${generateUniqueId()}`,
-    
+
     // Règles de validation
     validationRules: {
       name: [
@@ -53,51 +61,43 @@ export function useTimeSlotManagement(): UseTimeSlotManagementReturn {
       ],
       startTime: [
         requiredRule("startTime", "Heure de début"),
-        customRule(
-          (value: string, items: TimeSlot[], excludeId?: string) => {
-            const formData = arguments[3] as TimeSlotFormData;
-            if (!formData || !formData.endTime) return true;
-            
-            const start = new Date(`2000-01-01T${value}:00`);
-            const end = new Date(`2000-01-01T${formData.endTime}:00`);
-            
-            return start < end;
-          },
-          "L'heure de début doit être antérieure à l'heure de fin"
-        ),
-        customRule(
-          (value: string, items: TimeSlot[], excludeId?: string) => {
-            const formData = arguments[3] as TimeSlotFormData;
-            if (!formData || !formData.endTime) return true;
-            
-            const start = new Date(`2000-01-01T${value}:00`);
-            const end = new Date(`2000-01-01T${formData.endTime}:00`);
-            
-            return !items.some((slot) => {
-              if (excludeId && slot.id === excludeId) return false;
-              
-              const slotStart = new Date(`2000-01-01T${slot.startTime}:00`);
-              const slotEnd = new Date(`2000-01-01T${slot.endTime}:00`);
-              
-              return (start < slotEnd && end > slotStart);
-            });
-          },
-          "Ce créneau chevauche avec un créneau existant"
-        ),
+        customRule((value: string, items: TimeSlot[], excludeId?: string) => {
+          const formData = arguments[3] as TimeSlotFormData;
+          if (!formData || !formData.endTime) return true;
+
+          const start = new Date(`2000-01-01T${value}:00`);
+          const end = new Date(`2000-01-01T${formData.endTime}:00`);
+
+          return start < end;
+        }, "L'heure de début doit être antérieure à l'heure de fin"),
+        customRule((value: string, items: TimeSlot[], excludeId?: string) => {
+          const formData = arguments[3] as TimeSlotFormData;
+          if (!formData || !formData.endTime) return true;
+
+          const start = new Date(`2000-01-01T${value}:00`);
+          const end = new Date(`2000-01-01T${formData.endTime}:00`);
+
+          return !items.some((slot) => {
+            if (excludeId && slot.id === excludeId) return false;
+
+            const slotStart = new Date(`2000-01-01T${slot.startTime}:00`);
+            const slotEnd = new Date(`2000-01-01T${slot.endTime}:00`);
+
+            return start < slotEnd && end > slotStart;
+          });
+        }, "Ce créneau chevauche avec un créneau existant"),
       ],
-      endTime: [
-        requiredRule("endTime", "Heure de fin"),
-      ],
+      endTime: [requiredRule("endTime", "Heure de fin")],
       durationMinutes: [
         customRule(
           (value: number) => value > 0 && value <= 300,
-          "La durée doit être comprise entre 1 et 300 minutes"
+          "La durée doit être comprise entre 1 et 300 minutes",
         ),
       ],
       displayOrder: [
         customRule(
           (value: number) => value >= 0,
-          "L'ordre d'affichage doit être positif"
+          "L'ordre d'affichage doit être positif",
         ),
         uniqueRule("displayOrder", "Ordre d'affichage"),
       ],
@@ -132,54 +132,59 @@ export function useTimeSlotManagement(): UseTimeSlotManagementReturn {
   });
 
   // Fonction helper pour valider les chevauchements
-  const validateTimeSlotOverlap = useCallback((
-    startTime: string, 
-    endTime: string, 
-    excludeId?: string
-  ): boolean => {
-    const start = new Date(`2000-01-01T${startTime}:00`);
-    const end = new Date(`2000-01-01T${endTime}:00`);
-    
-    return baseManagement.items.some((slot) => {
-      if (excludeId && slot.id === excludeId) return false;
-      
-      const slotStart = new Date(`2000-01-01T${slot.startTime}:00`);
-      const slotEnd = new Date(`2000-01-01T${slot.endTime}:00`);
-      
-      return (start < slotEnd && end > slotStart);
-    });
-  }, [baseManagement.items]);
+  const validateTimeSlotOverlap = useCallback(
+    (startTime: string, endTime: string, excludeId?: string): boolean => {
+      const start = new Date(`2000-01-01T${startTime}:00`);
+      const end = new Date(`2000-01-01T${endTime}:00`);
+
+      return baseManagement.items.some((slot) => {
+        if (excludeId && slot.id === excludeId) return false;
+
+        const slotStart = new Date(`2000-01-01T${slot.startTime}:00`);
+        const slotEnd = new Date(`2000-01-01T${slot.endTime}:00`);
+
+        return start < slotEnd && end > slotStart;
+      });
+    },
+    [baseManagement.items],
+  );
 
   // Méthodes spécifiques aux créneaux horaires
-  const getTimeSlotsByType = useCallback((isBreak: boolean) => {
-    return baseManagement.items.filter((slot) => slot.isBreak === isBreak);
-  }, [baseManagement.items]);
+  const getTimeSlotsByType = useCallback(
+    (isBreak: boolean) => {
+      return baseManagement.items.filter((slot) => slot.isBreak === isBreak);
+    },
+    [baseManagement.items],
+  );
 
-  const reorderTimeSlots = useCallback(async (timeSlotIds: string[]): Promise<void> => {
-    try {
-      // Simuler délai API
-      await new Promise((resolve) => setTimeout(resolve, 300));
+  const reorderTimeSlots = useCallback(
+    async (timeSlotIds: string[]): Promise<void> => {
+      try {
+        // Simuler délai API
+        await new Promise((resolve) => setTimeout(resolve, 300));
 
-      // Mettre à jour l'ordre d'affichage
-      const updates = timeSlotIds.map(async (id, index) => {
-        const slot = baseManagement.getById(id);
-        if (!slot) throw new Error(`Créneau ${id} introuvable`);
+        // Mettre à jour l'ordre d'affichage
+        const updates = timeSlotIds.map(async (id, index) => {
+          const slot = baseManagement.getById(id);
+          if (!slot) throw new Error(`Créneau ${id} introuvable`);
 
-        return baseManagement.update(id, {
-          name: slot.name,
-          startTime: slot.startTime,
-          endTime: slot.endTime,
-          durationMinutes: slot.durationMinutes,
-          displayOrder: index,
-          isBreak: slot.isBreak,
+          return baseManagement.update(id, {
+            name: slot.name,
+            startTime: slot.startTime,
+            endTime: slot.endTime,
+            durationMinutes: slot.durationMinutes,
+            displayOrder: index,
+            isBreak: slot.isBreak,
+          });
         });
-      });
 
-      await Promise.all(updates);
-    } catch (error) {
-      throw new Error("Erreur lors de la réorganisation des créneaux");
-    }
-  }, [baseManagement]);
+        await Promise.all(updates);
+      } catch (error) {
+        throw new Error("Erreur lors de la réorganisation des créneaux");
+      }
+    },
+    [baseManagement],
+  );
 
   return {
     // Propriétés héritées du hook de base

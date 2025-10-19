@@ -6,6 +6,8 @@ import { TimeSlotsManagement } from "@/components/organisms/timeslots-management
 import { SubjectsManagement } from "@/components/organisms/subjects-management";
 import { AcademicStructuresManagement } from "@/components/organisms/academic-structures-management";
 import { NotationSystemConfig } from "@/components/organisms/notation-system-config";
+import { WeeklyTemplatesManagement } from "@/components/organisms/weekly-templates-management";
+import { SchoolYearsManagement } from "@/components/organisms/school-years-management";
 import { useSetPageTitle } from "@/shared/hooks";
 import { useUserSession } from "@/features/settings";
 
@@ -14,7 +16,16 @@ export default function ReglagesPage() {
 
   const { user } = useUserSession();
   const [activeTab, setActiveTab] = useState<
-    "profil" | "creneaux" | "matieres" | "structures" | "couleurs" | "preferences" | "securite" | "notation"
+    | "profil"
+    | "creneaux"
+    | "matieres"
+    | "structures"
+    | "annees"
+    | "couleurs"
+    | "preferences"
+    | "securite"
+    | "notation"
+    | "templates"
   >("profil");
 
   const tabs = [
@@ -22,6 +33,8 @@ export default function ReglagesPage() {
     { id: "creneaux" as const, label: "Créneaux horaires", icon: "🕐" },
     { id: "matieres" as const, label: "Matières", icon: "📚" },
     { id: "structures" as const, label: "Structures académiques", icon: "📅" },
+    { id: "annees" as const, label: "Années scolaires", icon: "📆" },
+    { id: "templates" as const, label: "Templates Hebdomadaires", icon: "🗓️" },
     { id: "couleurs" as const, label: "Couleurs des classes", icon: "🎨" },
     { id: "notation" as const, label: "Systèmes de notation", icon: "📊" },
     { id: "preferences" as const, label: "Préférences", icon: "⚙️" },
@@ -62,14 +75,22 @@ export default function ReglagesPage() {
         {activeTab === "structures" && (
           <AcademicStructuresManagement teacherId={user?.id} />
         )}
+        {activeTab === "annees" && (
+          <SchoolYearsManagement teacherId={user?.id} useMockData={true} />
+        )}
+        {activeTab === "templates" && (
+          <WeeklyTemplatesManagement teacherId={user?.id} />
+        )}
         {activeTab === "couleurs" && (
-          <CouleursSettings teacherId={user?.id || "KsmNtVf4zwqO3VV3SQJqPrRlQBA1fFyR"} />
+          <CouleursSettings
+            teacherId={user?.id || "KsmNtVf4zwqO3VV3SQJqPrRlQBA1fFyR"}
+          />
         )}
         {activeTab === "notation" && (
           <NotationSystemConfig
             schoolYearId="year-2025"
             onSystemChange={(system) => {
-              console.log('Système de notation changé:', system);
+              console.log("Système de notation changé:", system);
             }}
           />
         )}
@@ -168,22 +189,22 @@ function ProfilSettings() {
 
 function PreferencesSettings() {
   const [hoverDelay, setHoverDelay] = useState(1000);
-  const [isClient, setIsClient] = useState(false);
 
   // Charger la valeur depuis localStorage côté client seulement
   useEffect(() => {
-    setIsClient(true);
-    const saved = localStorage.getItem('sidebar-hover-delay');
+    const saved = localStorage.getItem("sidebar-hover-delay");
     if (saved) {
-      setHoverDelay(parseInt(saved));
+      setHoverDelay(parseInt(saved, 10));
     }
   }, []);
 
   const handleHoverDelayChange = (value: number) => {
     setHoverDelay(value);
-    localStorage.setItem('sidebar-hover-delay', value.toString());
+    localStorage.setItem("sidebar-hover-delay", value.toString());
     // Déclencher un événement personnalisé pour notifier les composants
-    window.dispatchEvent(new CustomEvent('sidebar-hover-delay-change', { detail: value }));
+    window.dispatchEvent(
+      new CustomEvent("sidebar-hover-delay-change", { detail: value }),
+    );
   };
 
   return (
@@ -207,17 +228,22 @@ function PreferencesSettings() {
                   max="2000"
                   step="100"
                   value={hoverDelay}
-                  onChange={(e) => handleHoverDelayChange(parseInt(e.target.value))}
+                  onChange={(e) =>
+                    handleHoverDelayChange(parseInt(e.target.value, 10))
+                  }
                   className="w-full"
                 />
                 <div className="flex justify-between text-xs text-muted-foreground">
                   <span>Immédiat (0ms)</span>
-                  <span className="font-medium text-foreground">{hoverDelay}ms</span>
+                  <span className="font-medium text-foreground">
+                    {hoverDelay}ms
+                  </span>
                   <span>Lent (2s)</span>
                 </div>
               </div>
               <p className="text-sm text-muted-foreground mt-2">
-                Temps d'attente avant que le sélecteur de classe s'ouvre automatiquement au survol
+                Temps d'attente avant que le sélecteur de classe s'ouvre
+                automatiquement au survol
               </p>
             </div>
 
@@ -254,7 +280,8 @@ function CouleursSettings({ teacherId }: { teacherId: string }) {
         <div className="p-6">
           <h3 className="text-lg font-semibold mb-4">Couleurs des classes</h3>
           <p className="text-muted-foreground mb-4">
-            Personnalisez les couleurs de vos classes pour une meilleure organisation visuelle dans le calendrier et les autres vues.
+            Personnalisez les couleurs de vos classes pour une meilleure
+            organisation visuelle dans le calendrier et les autres vues.
           </p>
           <button
             onClick={() => setIsModalOpen(true)}

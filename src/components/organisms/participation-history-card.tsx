@@ -92,7 +92,9 @@ export function ParticipationHistoryCard({
                     <>
                       <Badge variant="outline" className="text-xs">
                         Participation:{" "}
-                        <GradeDisplay value={participation.participationLevel} />
+                        <GradeDisplay
+                          value={participation.participationLevel}
+                        />
                       </Badge>
                       {participation.behavior
                         .split(",")

@@ -40,7 +40,8 @@ export class GradeValidator {
       {
         name: "range",
         message: "La note doit être dans la plage autorisée",
-        validator: (value, system) => value >= system.minValue && value <= system.maxValue,
+        validator: (value, system) =>
+          value >= system.minValue && value <= system.maxValue,
         severity: "error",
       },
       {
@@ -57,7 +58,10 @@ export class GradeValidator {
         name: "integer",
         message: "La note doit être un nombre entier",
         validator: (value, system) => {
-          if (system.scaleType === "letter" || system.scaleType === "competency") {
+          if (
+            system.scaleType === "letter" ||
+            system.scaleType === "competency"
+          ) {
             return value % 1 === 0;
           }
           return true;
@@ -95,11 +99,16 @@ export class GradeValidator {
 
   // Remove custom validation rule
   public removeRule(ruleName: string): void {
-    this.customRules = this.customRules.filter(rule => rule.name !== ruleName);
+    this.customRules = this.customRules.filter(
+      (rule) => rule.name !== ruleName,
+    );
   }
 
   // Validate grade with detailed results
-  public validateDetailed(value: number, systemId: string): {
+  public validateDetailed(
+    value: number,
+    systemId: string,
+  ): {
     isValid: boolean;
     errors: string[];
     warnings: string[];
@@ -107,7 +116,7 @@ export class GradeValidator {
     passedRules: string[];
     failedRules: string[];
   } {
-    const system = this.systems.find(s => s.id === systemId);
+    const system = this.systems.find((s) => s.id === systemId);
 
     if (!system) {
       return {
@@ -173,13 +182,15 @@ export class GradeValidator {
   }
 
   // Batch validation
-  public validateBatch(grades: Array<{ value: number; systemId: string }>): Array<{
+  public validateBatch(
+    grades: Array<{ value: number; systemId: string }>,
+  ): Array<{
     value: number;
     systemId: string;
     isValid: boolean;
     errors: string[];
   }> {
-    return grades.map(grade => ({
+    return grades.map((grade) => ({
       ...grade,
       ...this.validateDetailed(grade.value, grade.systemId),
     }));
@@ -193,9 +204,9 @@ export class GradeFormatter {
   public format(
     value: number,
     systemId: string,
-    options: GradeFormatOptions = {}
+    options: GradeFormatOptions = {},
   ): FormattedGrade {
-    const system = this.systems.find(s => s.id === systemId);
+    const system = this.systems.find((s) => s.id === systemId);
 
     if (!system) {
       return {
@@ -224,7 +235,11 @@ export class GradeFormatter {
   }
 
   // Create display string
-  private formatDisplay(value: number, system: NotationSystem, options: GradeFormatOptions): string {
+  private formatDisplay(
+    value: number,
+    system: NotationSystem,
+    options: GradeFormatOptions,
+  ): string {
     if (!system.validateGrade(value)) {
       return "Non évalué";
     }
@@ -248,7 +263,8 @@ export class GradeFormatter {
     }
 
     // Calculate based on percentage
-    const percentage = ((value - system.minValue) / (system.maxValue - system.minValue)) * 100;
+    const percentage =
+      ((value - system.minValue) / (system.maxValue - system.minValue)) * 100;
 
     if (percentage >= 85) return "#22c55e"; // green-500
     if (percentage >= 70) return "#3b82f6"; // blue-500
@@ -277,7 +293,8 @@ export class GradeFormatter {
     }
 
     // Fallback to percentage-based description
-    const percentage = ((value - system.minValue) / (system.maxValue - system.minValue)) * 100;
+    const percentage =
+      ((value - system.minValue) / (system.maxValue - system.minValue)) * 100;
 
     if (percentage >= 90) return "Excellent";
     if (percentage >= 80) return "Très bien";
@@ -309,32 +326,42 @@ export class GradeFormatter {
   // Format multiple grades in a consistent way
   public formatBatch(
     grades: Array<{ value: number; systemId: string }>,
-    options: GradeFormatOptions = {}
+    options: GradeFormatOptions = {},
   ): FormattedGrade[] {
-    return grades.map(grade => this.format(grade.value, grade.systemId, options));
+    return grades.map((grade) =>
+      this.format(grade.value, grade.systemId, options),
+    );
   }
 
   // Format grade for specific contexts
   public formatForContext(
     value: number,
     systemId: string,
-    context: "display" | "export" | "print" | "comparison"
+    context: "display" | "export" | "print" | "comparison",
   ): string {
-    const system = this.systems.find(s => s.id === systemId);
+    const system = this.systems.find((s) => s.id === systemId);
     if (!system) return "N/A";
 
     switch (context) {
       case "display":
-        return this.format(value, systemId, { colorCoded: true, showDescription: false }).display;
+        return this.format(value, systemId, {
+          colorCoded: true,
+          showDescription: false,
+        }).display;
 
       case "export":
         return `${value} (${system.name})`;
 
       case "print":
-        return this.format(value, systemId, { showSystemName: true, showDescription: true }).display;
+        return this.format(value, systemId, {
+          showSystemName: true,
+          showDescription: true,
+        }).display;
 
       case "comparison":
-        const percentage = ((value - system.minValue) / (system.maxValue - system.minValue)) * 100;
+        const percentage =
+          ((value - system.minValue) / (system.maxValue - system.minValue)) *
+          100;
         return `${system.formatDisplay(value, "fr-FR")} (${percentage.toFixed(1)}%)`;
 
       default:
@@ -343,14 +370,17 @@ export class GradeFormatter {
   }
 
   // Get grade statistics formatting
-  public formatStatistics(grades: number[], systemId: string): {
+  public formatStatistics(
+    grades: number[],
+    systemId: string,
+  ): {
     average: string;
     median: string;
     min: string;
     max: string;
     distribution: Record<string, { count: number; label: string }>;
   } {
-    const system = this.systems.find(s => s.id === systemId);
+    const system = this.systems.find((s) => s.id === systemId);
     if (!system) {
       return {
         average: "N/A",
@@ -361,7 +391,7 @@ export class GradeFormatter {
       };
     }
 
-    const validGrades = grades.filter(g => system.validateGrade(g));
+    const validGrades = grades.filter((g) => system.validateGrade(g));
     if (validGrades.length === 0) {
       return {
         average: "Aucune note",
@@ -373,15 +403,17 @@ export class GradeFormatter {
     }
 
     const sorted = [...validGrades].sort((a, b) => a - b);
-    const average = validGrades.reduce((sum, g) => sum + g, 0) / validGrades.length;
-    const median = sorted.length % 2 === 0
-      ? (sorted[sorted.length / 2 - 1] + sorted[sorted.length / 2]) / 2
-      : sorted[Math.floor(sorted.length / 2)];
+    const average =
+      validGrades.reduce((sum, g) => sum + g, 0) / validGrades.length;
+    const median =
+      sorted.length % 2 === 0
+        ? (sorted[sorted.length / 2 - 1] + sorted[sorted.length / 2]) / 2
+        : sorted[Math.floor(sorted.length / 2)];
 
     const distribution: Record<string, { count: number; label: string }> = {};
 
     // Create distribution based on system type
-    validGrades.forEach(grade => {
+    validGrades.forEach((grade) => {
       const category = this.getGradeCategory(grade, system);
       if (!distribution[category]) {
         distribution[category] = { count: 0, label: category };

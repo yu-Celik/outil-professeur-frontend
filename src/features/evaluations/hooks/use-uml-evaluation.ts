@@ -53,34 +53,40 @@ export function useUMLEvaluation(
   // Utiliser les données mockées au lieu de données en dur
   const [courseSession] = useState<CourseSession | null>(() => {
     if (sessionId) {
-      return MOCK_COMPLETED_SESSIONS.find(s => s.id === sessionId) || null;
+      return MOCK_COMPLETED_SESSIONS.find((s) => s.id === sessionId) || null;
     }
     return MOCK_COMPLETED_SESSIONS[0] || null;
   });
 
   const [subject, _setSubject] = useState<Subject | null>(() => {
     if (courseSession?.subjectId) {
-      return MOCK_SUBJECTS.find(s => s.id === courseSession.subjectId) || null;
+      return (
+        MOCK_SUBJECTS.find((s) => s.id === courseSession.subjectId) || null
+      );
     }
     return MOCK_SUBJECTS[0] || null;
   });
 
   const [timeSlot, _setTimeSlot] = useState<TimeSlot | null>(() => {
     if (courseSession?.timeSlotId) {
-      return MOCK_TIME_SLOTS.find(ts => ts.id === courseSession.timeSlotId) || null;
+      return (
+        MOCK_TIME_SLOTS.find((ts) => ts.id === courseSession.timeSlotId) || null
+      );
     }
     return MOCK_TIME_SLOTS[0] || null;
   });
 
   const [classEntity, _setClassEntity] = useState<Class | null>(() => {
     if (courseSession?.classId) {
-      return MOCK_CLASSES.find(c => c.id === courseSession.classId) || null;
+      return MOCK_CLASSES.find((c) => c.id === courseSession.classId) || null;
     }
     return MOCK_CLASSES[0] || null;
   });
 
   const [student, _setStudent] = useState<Student | null>(() => {
-    return MOCK_STUDENTS.find(s => s.id === studentId) || MOCK_STUDENTS[0] || null;
+    return (
+      MOCK_STUDENTS.find((s) => s.id === studentId) || MOCK_STUDENTS[0] || null
+    );
   });
 
   // Utilisation des hooks partagés pour éliminer la duplication

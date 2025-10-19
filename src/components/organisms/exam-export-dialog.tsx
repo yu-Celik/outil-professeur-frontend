@@ -17,9 +17,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/atoms/select";
-import { 
+import {
   FileSpreadsheet,
-  FileText, 
+  FileText,
   Download,
   Settings,
   Users,
@@ -46,7 +46,11 @@ interface ExportConfig {
   includeClassAverage: boolean;
 }
 
-export function ExamExportDialog({ isOpen, onClose, exam }: ExamExportDialogProps) {
+export function ExamExportDialog({
+  isOpen,
+  onClose,
+  exam,
+}: ExamExportDialogProps) {
   const [isExporting, setIsExporting] = useState(false);
   const [config, setConfig] = useState<ExportConfig>({
     format: "csv",
@@ -63,31 +67,35 @@ export function ExamExportDialog({ isOpen, onClose, exam }: ExamExportDialogProp
 
   const examResults = getResultsForExam(exam.id);
   const statistics = getExamStatistics(exam.id);
-  const notationSystem = notationSystems.find(ns => ns.id === exam.notationSystemId);
-  const classStudents = MOCK_STUDENTS.filter(student => student.currentClassId === exam.classId);
+  const notationSystem = notationSystems.find(
+    (ns) => ns.id === exam.notationSystemId,
+  );
+  const classStudents = MOCK_STUDENTS.filter(
+    (student) => student.currentClassId === exam.classId,
+  );
 
   const updateConfig = <K extends keyof ExportConfig>(
     key: K,
-    value: ExportConfig[K]
+    value: ExportConfig[K],
   ) => {
-    setConfig(prev => ({ ...prev, [key]: value }));
+    setConfig((prev) => ({ ...prev, [key]: value }));
   };
 
   const generateCSVContent = (): string => {
     const headers = ["ID Élève", "Nom", "Prénom"];
-    
-    if (config.includeAbsent || examResults.some(r => !r.isAbsent)) {
+
+    if (config.includeAbsent || examResults.some((r) => !r.isAbsent)) {
       headers.push("Statut");
     }
-    
+
     headers.push("Note brute", "Note formatée");
-    
+
     if (config.showGradeScale && notationSystem) {
       headers.push(`Note sur ${notationSystem.maxValue}`);
     }
-    
+
     headers.push("Pourcentage");
-    
+
     if (config.includeComments) {
       headers.push("Commentaires");
     }
@@ -98,12 +106,18 @@ export function ExamExportDialog({ isOpen, onClose, exam }: ExamExportDialogProp
     let sortedStudents = [...classStudents];
     switch (config.sortBy) {
       case "name":
-        sortedStudents.sort((a, b) => `${a.lastName} ${a.firstName}`.localeCompare(`${b.lastName} ${b.firstName}`));
+        sortedStudents.sort((a, b) =>
+          `${a.lastName} ${a.firstName}`.localeCompare(
+            `${b.lastName} ${b.firstName}`,
+          ),
+        );
         break;
       case "grade":
         sortedStudents.sort((a, b) => {
-          const gradeA = examResults.find(r => r.studentId === a.id)?.pointsObtained || 0;
-          const gradeB = examResults.find(r => r.studentId === b.id)?.pointsObtained || 0;
+          const gradeA =
+            examResults.find((r) => r.studentId === a.id)?.pointsObtained || 0;
+          const gradeB =
+            examResults.find((r) => r.studentId === b.id)?.pointsObtained || 0;
           return gradeB - gradeA;
         });
         break;
@@ -114,42 +128,49 @@ export function ExamExportDialog({ isOpen, onClose, exam }: ExamExportDialogProp
 
     // Filtrer les absents si nécessaire
     if (!config.includeAbsent) {
-      sortedStudents = sortedStudents.filter(student => {
-        const result = examResults.find(r => r.studentId === student.id);
+      sortedStudents = sortedStudents.filter((student) => {
+        const result = examResults.find((r) => r.studentId === student.id);
         return !result?.isAbsent;
       });
     }
 
     // Ajouter les données des étudiants
-    sortedStudents.forEach(student => {
-      const result = examResults.find(r => r.studentId === student.id);
+    sortedStudents.forEach((student) => {
+      const result = examResults.find((r) => r.studentId === student.id);
       const row = [];
 
       row.push(`"${student.id}"`);
       row.push(`"${student.lastName}"`);
       row.push(`"${student.firstName}"`);
-      
-      if (config.includeAbsent || examResults.some(r => !r.isAbsent)) {
-        row.push(result?.isAbsent ? "Absent" : result ? "Présent" : "Non évalué");
+
+      if (config.includeAbsent || examResults.some((r) => !r.isAbsent)) {
+        row.push(
+          result?.isAbsent ? "Absent" : result ? "Présent" : "Non évalué",
+        );
       }
-      
+
       const points = result?.pointsObtained || 0;
       row.push(result?.isAbsent ? "ABS" : points.toString());
-      
-      const formattedGrade = result?.isAbsent ? "ABS" : 
-        notationSystem ? formatGrade(points, notationSystem, "fr-FR") : points.toString();
+
+      const formattedGrade = result?.isAbsent
+        ? "ABS"
+        : notationSystem
+          ? formatGrade(points, notationSystem, "fr-FR")
+          : points.toString();
       row.push(`"${formattedGrade}"`);
-      
+
       if (config.showGradeScale && notationSystem) {
-        const scaledGrade = result?.isAbsent ? "ABS" : 
-          ((points / exam.totalPoints) * notationSystem.maxValue).toFixed(2);
+        const scaledGrade = result?.isAbsent
+          ? "ABS"
+          : ((points / exam.totalPoints) * notationSystem.maxValue).toFixed(2);
         row.push(scaledGrade);
       }
-      
-      const percentage = result?.isAbsent ? "ABS" : 
-        `${((points / exam.totalPoints) * 100).toFixed(1)}%`;
+
+      const percentage = result?.isAbsent
+        ? "ABS"
+        : `${((points / exam.totalPoints) * 100).toFixed(1)}%`;
       row.push(`"${percentage}"`);
-      
+
       if (config.includeComments) {
         const comments = result?.comments || "";
         row.push(`"${comments.replace(/"/g, '""')}"`);
@@ -176,7 +197,7 @@ export function ExamExportDialog({ isOpen, onClose, exam }: ExamExportDialogProp
 
   const handleExport = async () => {
     setIsExporting(true);
-    
+
     try {
       let content = "";
       let filename = "";
@@ -185,13 +206,13 @@ export function ExamExportDialog({ isOpen, onClose, exam }: ExamExportDialogProp
       switch (config.format) {
         case "csv":
           content = generateCSVContent();
-          filename = `examen-${exam.title.toLowerCase().replace(/\s+/g, '-')}-${exam.examDate.toISOString().split('T')[0]}.csv`;
+          filename = `examen-${exam.title.toLowerCase().replace(/\s+/g, "-")}-${exam.examDate.toISOString().split("T")[0]}.csv`;
           mimeType = "text/csv;charset=utf-8";
           break;
         case "excel":
           // Pour l'instant, on génère du CSV compatible Excel
           content = generateCSVContent();
-          filename = `examen-${exam.title.toLowerCase().replace(/\s+/g, '-')}-${exam.examDate.toISOString().split('T')[0]}.csv`;
+          filename = `examen-${exam.title.toLowerCase().replace(/\s+/g, "-")}-${exam.examDate.toISOString().split("T")[0]}.csv`;
           mimeType = "text/csv;charset=utf-8";
           break;
         case "pdf":
@@ -236,7 +257,10 @@ export function ExamExportDialog({ isOpen, onClose, exam }: ExamExportDialogProp
               <FileSpreadsheet className="w-4 h-4" />
               Format d'export
             </Label>
-            <Select value={config.format} onValueChange={(value: any) => updateConfig("format", value)}>
+            <Select
+              value={config.format}
+              onValueChange={(value: any) => updateConfig("format", value)}
+            >
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
@@ -274,7 +298,9 @@ export function ExamExportDialog({ isOpen, onClose, exam }: ExamExportDialogProp
                 <Checkbox
                   id="includeStatistics"
                   checked={config.includeStatistics}
-                  onCheckedChange={(checked) => updateConfig("includeStatistics", !!checked)}
+                  onCheckedChange={(checked) =>
+                    updateConfig("includeStatistics", !!checked)
+                  }
                 />
                 <Label htmlFor="includeStatistics" className="text-sm">
                   Inclure les statistiques
@@ -284,7 +310,9 @@ export function ExamExportDialog({ isOpen, onClose, exam }: ExamExportDialogProp
                 <Checkbox
                   id="includeComments"
                   checked={config.includeComments}
-                  onCheckedChange={(checked) => updateConfig("includeComments", !!checked)}
+                  onCheckedChange={(checked) =>
+                    updateConfig("includeComments", !!checked)
+                  }
                 />
                 <Label htmlFor="includeComments" className="text-sm">
                   Inclure les commentaires
@@ -294,7 +322,9 @@ export function ExamExportDialog({ isOpen, onClose, exam }: ExamExportDialogProp
                 <Checkbox
                   id="includeAbsent"
                   checked={config.includeAbsent}
-                  onCheckedChange={(checked) => updateConfig("includeAbsent", !!checked)}
+                  onCheckedChange={(checked) =>
+                    updateConfig("includeAbsent", !!checked)
+                  }
                 />
                 <Label htmlFor="includeAbsent" className="text-sm">
                   Inclure les élèves absents
@@ -304,7 +334,9 @@ export function ExamExportDialog({ isOpen, onClose, exam }: ExamExportDialogProp
                 <Checkbox
                   id="showGradeScale"
                   checked={config.showGradeScale}
-                  onCheckedChange={(checked) => updateConfig("showGradeScale", !!checked)}
+                  onCheckedChange={(checked) =>
+                    updateConfig("showGradeScale", !!checked)
+                  }
                 />
                 <Label htmlFor="showGradeScale" className="text-sm">
                   Afficher l'échelle de notation
@@ -319,7 +351,10 @@ export function ExamExportDialog({ isOpen, onClose, exam }: ExamExportDialogProp
               <Users className="w-4 h-4" />
               Tri des élèves
             </Label>
-            <Select value={config.sortBy} onValueChange={(value: any) => updateConfig("sortBy", value)}>
+            <Select
+              value={config.sortBy}
+              onValueChange={(value: any) => updateConfig("sortBy", value)}
+            >
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
@@ -345,10 +380,9 @@ export function ExamExportDialog({ isOpen, onClose, exam }: ExamExportDialogProp
               <div className="flex justify-between">
                 <span>Copies à inclure:</span>
                 <span className="font-medium">
-                  {config.includeAbsent 
-                    ? statistics.totalStudents 
-                    : statistics.submittedCount
-                  }
+                  {config.includeAbsent
+                    ? statistics.totalStudents
+                    : statistics.submittedCount}
                 </span>
               </div>
               <div className="flex justify-between">

@@ -1,1 +1,1 @@
-export * from './mock-completed-sessions'
+export * from "./mock-completed-sessions";
