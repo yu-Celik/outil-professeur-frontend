@@ -1,108 +1,55 @@
 /**
  * Students API Client
- * Provides typed access to student-related endpoints
+ * Provides typed access to student endpoints including class enrollment
  */
 
 import { axiosInstance } from "@/lib/api";
 
 // ============================================================================
-// Type Definitions (from OpenAPI spec)
+// Type Definitions (matching OpenAPI spec)
 // ============================================================================
-
-export interface DateRangeInfo {
-  start_date: string;
-  end_date: string;
-}
-
-export interface AttendanceRateResponse {
-  student_id: string;
-  total_sessions: number;
-  attended_sessions: number;
-  attendance_rate: number | null;
-  period: DateRangeInfo;
-}
-
-export interface ParticipationAverageResponse {
-  student_id: string;
-  total_sessions_with_participation: number;
-  total_sessions_in_period: number;
-  coverage_percentage: number;
-  participation_average: number | null;
-  period: DateRangeInfo;
-}
-
-export interface StudentProfileAnalytics {
-  attendance_rate: number | null;
-  participation_average: number | null;
-  exam_count: number;
-  average_grade: number | null;
-  period: DateRangeInfo | null;
-}
-
-export interface StudentProfileResponse {
-  id: string;
-  first_name: string;
-  last_name: string;
-  full_name: string;
-  current_class_id: string | null;
-  external_id: string | null;
-  needs: string[] | null;
-  observations: string[] | null;
-  strengths: string[] | null;
-  improvement_axes: string[] | null;
-  analytics: StudentProfileAnalytics;
-  created_at: string;
-  updated_at: string;
-}
-
-export interface StudentExamResultWithDetails {
-  id: string;
-  exam_id: string;
-  student_id: string;
-  points_obtained: number | null;
-  is_absent: boolean;
-  comments: string | null;
-  marked_at: string | null;
-  exam_title: string;
-  exam_date: string;
-  max_points: number | null;
-  coefficient: number | null;
-  subject_name: string | null;
-  created_at: string;
-  updated_at: string;
-}
-
-export interface StudentExamResultsListResponse {
-  items: StudentExamResultWithDetails[];
-  next_cursor: string | null;
-}
 
 export interface StudentResponse {
   id: string;
+  teacher_id: string;
   first_name: string;
   last_name: string;
-  full_name: string;
-  current_class_id: string | null;
   external_id: string | null;
-  needs: string[] | null;
-  observations: string[] | null;
-  strengths: string[] | null;
-  improvement_axes: string[] | null;
-  watchlist: boolean | null;
+  needs: string | null;
+  observations: string | null;
+  strengths: string | null;
+  improvement_axes: string | null;
   created_at: string;
   updated_at: string;
+}
+
+export interface StudentsListResponse {
+  items: StudentResponse[];
+  next_cursor: string | null;
+}
+
+export interface CreateStudentRequest {
+  first_name: string;
+  last_name: string;
+  external_id?: string;
+  needs?: string;
+  observations?: string;
+  strengths?: string;
+  improvement_axes?: string;
 }
 
 export interface UpdateStudentRequest {
   first_name?: string;
   last_name?: string;
-  current_class_id?: string | null;
-  external_id?: string | null;
-  needs?: string[] | null;
-  observations?: string[] | null;
-  strengths?: string[] | null;
-  improvement_axes?: string[] | null;
-  watchlist?: boolean | null;
+  external_id?: string;
+  needs?: string;
+  observations?: string;
+  strengths?: string;
+  improvement_axes?: string;
+}
+
+export interface EnrollStudentRequest {
+  student_id: string;
 }
 
 // ============================================================================
@@ -110,98 +57,44 @@ export interface UpdateStudentRequest {
 // ============================================================================
 
 export const studentsClient = {
-  /**
-   * Get student by ID
-   * GET /students/{id}
-   */
-  getStudent: async (id: string): Promise<StudentResponse> => {
+  list: async (params?: {
+    cursor?: string;
+    limit?: number;
+    q?: string;
+    class_id?: string;
+    external_id?: string;
+  }): Promise<StudentsListResponse> => {
+    const response = await axiosInstance.get<StudentsListResponse>(
+      "/students",
+      { params },
+    );
+    return response.data;
+  },
+
+  getById: async (id: string): Promise<StudentResponse> => {
     const response = await axiosInstance.get<StudentResponse>(
       `/students/${id}`,
     );
     return response.data;
   },
 
-  /**
-   * Get complete student profile with analytics
-   * GET /students/{id}/profile
-   */
-  getStudentProfile: async (
-    id: string,
-    params?: {
-      start_date?: string;
-      end_date?: string;
-    },
-  ): Promise<StudentProfileResponse> => {
-    const response = await axiosInstance.get<StudentProfileResponse>(
-      `/students/${id}/profile`,
-      { params },
+  create: async (
+    data: CreateStudentRequest,
+    idempotencyKey: string,
+  ): Promise<StudentResponse> => {
+    const response = await axiosInstance.post<StudentResponse>(
+      "/students",
+      data,
+      {
+        headers: {
+          "Idempotency-Key": idempotencyKey,
+        },
+      },
     );
     return response.data;
   },
 
-  /**
-   * Get student attendance rate for a period
-   * GET /students/{id}/attendance-rate
-   */
-  getAttendanceRate: async (
-    id: string,
-    params: {
-      start_date: string;
-      end_date: string;
-    },
-  ): Promise<AttendanceRateResponse> => {
-    const response = await axiosInstance.get<AttendanceRateResponse>(
-      `/students/${id}/attendance-rate`,
-      { params },
-    );
-    return response.data;
-  },
-
-  /**
-   * Get student participation average for a period
-   * GET /students/{id}/participation-average
-   */
-  getParticipationAverage: async (
-    id: string,
-    params: {
-      start_date: string;
-      end_date: string;
-    },
-  ): Promise<ParticipationAverageResponse> => {
-    const response = await axiosInstance.get<ParticipationAverageResponse>(
-      `/students/${id}/participation-average`,
-      { params },
-    );
-    return response.data;
-  },
-
-  /**
-   * Get student exam results with details
-   * GET /students/{id}/results
-   */
-  getStudentResults: async (
-    id: string,
-    params?: {
-      date_from?: string;
-      date_to?: string;
-      subject_id?: string;
-      cursor?: string;
-      limit?: number;
-    },
-  ): Promise<StudentExamResultsListResponse> => {
-    const response = await axiosInstance.get<StudentExamResultsListResponse>(
-      `/students/${id}/results`,
-      { params },
-    );
-    return response.data;
-  },
-
-  /**
-   * Update student information
-   * PATCH /students/{id}
-   * Supports partial updates including observations and watchlist status
-   */
-  updateStudent: async (
+  update: async (
     id: string,
     data: UpdateStudentRequest,
     etag?: string,
@@ -215,15 +108,50 @@ export const studentsClient = {
     return response.data;
   },
 
-  /**
-   * Toggle watchlist status for a student
-   * Convenience method that updates only the watchlist field
-   */
-  toggleWatchlist: async (
-    id: string,
-    watchlist: boolean,
-    etag?: string,
-  ): Promise<StudentResponse> => {
-    return studentsClient.updateStudent(id, { watchlist }, etag);
+  delete: async (id: string): Promise<void> => {
+    await axiosInstance.delete(`/students/${id}`);
+  },
+
+  search: async (query: string, classId?: string): Promise<StudentResponse[]> => {
+    const response = await studentsClient.list({ q: query, class_id: classId });
+    return response.items;
+  },
+};
+
+// ============================================================================
+// Class Enrollment Client
+// ============================================================================
+
+export const classEnrollmentClient = {
+  listStudentsInClass: async (
+    classId: string,
+    params?: {
+      cursor?: string;
+      limit?: number;
+      q?: string;
+    },
+  ): Promise<StudentsListResponse> => {
+    const response = await axiosInstance.get<StudentsListResponse>(
+      `/classes/${classId}/students`,
+      { params },
+    );
+    return response.data;
+  },
+
+  enrollStudent: async (
+    classId: string,
+    studentId: string,
+  ): Promise<void> => {
+    await axiosInstance.post(
+      `/classes/${classId}/students`,
+      { student_id: studentId },
+    );
+  },
+
+  unenrollStudent: async (
+    classId: string,
+    studentId: string,
+  ): Promise<void> => {
+    await axiosInstance.delete(`/classes/${classId}/students/${studentId}`);
   },
 };

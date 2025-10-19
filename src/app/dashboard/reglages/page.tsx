@@ -7,6 +7,7 @@ import { SubjectsManagement } from "@/components/organisms/subjects-management";
 import { AcademicStructuresManagement } from "@/components/organisms/academic-structures-management";
 import { NotationSystemConfig } from "@/components/organisms/notation-system-config";
 import { WeeklyTemplatesManagement } from "@/components/organisms/weekly-templates-management";
+import { SchoolYearsManagement } from "@/components/organisms/school-years-management";
 import { useSetPageTitle } from "@/shared/hooks";
 import { useUserSession } from "@/features/settings";
 
@@ -19,6 +20,7 @@ export default function ReglagesPage() {
     | "creneaux"
     | "matieres"
     | "structures"
+    | "annees"
     | "couleurs"
     | "preferences"
     | "securite"
@@ -31,7 +33,8 @@ export default function ReglagesPage() {
     { id: "creneaux" as const, label: "Créneaux horaires", icon: "🕐" },
     { id: "matieres" as const, label: "Matières", icon: "📚" },
     { id: "structures" as const, label: "Structures académiques", icon: "📅" },
-    { id: "templates" as const, label: "Templates Hebdomadaires", icon: "📆" },
+    { id: "annees" as const, label: "Années scolaires", icon: "📆" },
+    { id: "templates" as const, label: "Templates Hebdomadaires", icon: "🗓️" },
     { id: "couleurs" as const, label: "Couleurs des classes", icon: "🎨" },
     { id: "notation" as const, label: "Systèmes de notation", icon: "📊" },
     { id: "preferences" as const, label: "Préférences", icon: "⚙️" },
@@ -71,6 +74,9 @@ export default function ReglagesPage() {
         )}
         {activeTab === "structures" && (
           <AcademicStructuresManagement teacherId={user?.id} />
+        )}
+        {activeTab === "annees" && (
+          <SchoolYearsManagement teacherId={user?.id} useMockData={true} />
         )}
         {activeTab === "templates" && (
           <WeeklyTemplatesManagement teacherId={user?.id} />

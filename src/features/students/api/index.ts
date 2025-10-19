@@ -1,2 +1,5 @@
+/**
+ * Students Feature API Clients
+ */
+
 export * from "./students-client";
-export * from "./student-alerts-client";
